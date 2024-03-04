@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
+import 'pages/home.dart';
 
 void main(){
-
-  runApp(TrellTech());
-
+  runApp(const TrellTech());
 }
 
 class TrellTech extends StatelessWidget{
-  const TrellTech({Key? key}) : super(key: key);
+  const TrellTech({super.key});
 
   @override
   Widget build(BuildContext context){
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('TrellTech'),
-          backgroundColor: Colors.blue,
-        ),
-        
-      )
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: HomePage(),
     );
   }
 }
