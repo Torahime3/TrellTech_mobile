@@ -27,7 +27,6 @@ class HomePage extends StatelessWidget {
               margin: const EdgeInsets.all(10),
               child: InkWell(
                 onTap: () {
-                  print("Salut" + Random().nextInt(10).toString());
                   Navigator.push(
                       context,
                       MaterialPageRoute(

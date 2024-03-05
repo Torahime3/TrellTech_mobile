@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-AppBar appbar({dynamic text = "TrellTech", color = Colors.blue}) {
+AppBar appbar({dynamic text = "TrellTech", color = Colors.transparent}) {
   return AppBar(
     title: Text(text,
         style: TextStyle(
@@ -10,5 +10,6 @@ AppBar appbar({dynamic text = "TrellTech", color = Colors.blue}) {
         )),
     centerTitle: true,
     backgroundColor: color,
+    elevation: 0,
   );
 }
