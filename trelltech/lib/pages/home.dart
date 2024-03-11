@@ -81,13 +81,14 @@ class _HomePageState extends State<HomePage> {
             );
           },
         ),
+    
+      floatingActionButton: const FloatingActionButton(
+        onPressed: null,
+        tooltip: 'Increment Counter',
+        backgroundColor: Color.fromARGB(255, 229, 229, 229),
+        child: Icon(Icons.add),
+      )
     );
-      // floatingActionButton: const FloatingActionButton(
-      //   onPressed: null,
-      //   tooltip: 'Increment Counter',
-      //   backgroundColor: Color.fromARGB(255, 229, 229, 229),
-      //   child: Icon(Icons.add),
-      // );
   }
 
 
