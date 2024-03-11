@@ -7,3 +7,6 @@ Trelltech is a mobile application developped with Flutter that provide a differe
 ## Project Build
 
 ### 1. Clone the repository
+
+### 2. Run main.dart in an android emulator or a navigator
+
