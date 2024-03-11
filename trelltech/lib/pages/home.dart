@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/pages/board.dart';

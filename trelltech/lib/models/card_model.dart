@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class CardModel {
   String name;
 
@@ -9,8 +7,21 @@ class CardModel {
 
   static List<CardModel> getCard() {
     return [
-      CardModel(name: 'Card 1'),
-      CardModel(name: 'Card 2'),
+      CardModel(name: 'This text is taking 1 line'),
+      CardModel(name: 'This text is taking 2 lines aaaaaaaaaaaaaaaaaaaaaaaa'),
+      CardModel(
+          name:
+              'This text is taking 3 lines aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+      CardModel(
+          name:
+              'This text is taking 4 lines aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+      CardModel(name: 'Card 3'),
+      CardModel(name: 'Card 3'),
+      CardModel(name: 'Card 3'),
+      CardModel(name: 'Card 3'),
+      CardModel(name: 'Card 3'),
+      CardModel(name: 'Card 3'),
+      CardModel(name: 'Card 3'),
       CardModel(name: 'Card 3'),
     ];
   }
