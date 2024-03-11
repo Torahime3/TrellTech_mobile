@@ -5,7 +5,7 @@ import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/pages/board.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage({super.key});
 
   List<BoardModel> boards = [];
