@@ -53,6 +53,7 @@ class BoardPage extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 18,
                       color: Colors.white,
+
                     ),
                   ),
                 ),
@@ -65,6 +66,7 @@ class BoardPage extends StatelessWidget {
                   itemBuilder: (BuildContext context, int index) {
                     return _buildCard(cards[index]);
                   },
+
                 ),
               ),
             ],
