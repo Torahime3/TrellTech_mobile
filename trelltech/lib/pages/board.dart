@@ -15,7 +15,7 @@ class BoardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appbar(
-          text: board.name, color: board.color), // Use BoardModel properties
+          text: board.name, color: Colors.blue), // Use BoardModel properties
       body: Container(
         color: Colors.white, // Background color
         child: ListView.builder(
@@ -53,7 +53,6 @@ class BoardPage extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 18,
                       color: Colors.white,
-
                     ),
                   ),
                 ),
@@ -66,7 +65,6 @@ class BoardPage extends StatelessWidget {
                   itemBuilder: (BuildContext context, int index) {
                     return _buildCard(cards[index]);
                   },
-
                 ),
               ),
             ],
