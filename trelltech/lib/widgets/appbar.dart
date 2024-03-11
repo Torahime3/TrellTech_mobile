@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 AppBar appbar({dynamic text = "TrellTech", color = Colors.transparent}) {
   return AppBar(
     title: Text(text,
-        style: TextStyle(
+        style: const TextStyle(
           color: Color.fromARGB(255, 34, 34, 34),
           fontSize: 24,
           fontWeight: FontWeight.bold,
