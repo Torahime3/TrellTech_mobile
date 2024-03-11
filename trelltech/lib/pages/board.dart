@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+// import 'package:flutter/widgets.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/list_model.dart';
 import 'package:trelltech/widgets/appbar.dart';
@@ -19,7 +19,7 @@ class BoardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     _getInitialInfo();
     return Scaffold(
-        appBar: appbar(text: board.getName(), color: board.getColor()),
+        appBar: appbar(text: board.getName(), color: Colors.blue),
         body: Container(
           color: const Color.fromARGB(255, 255, 255, 255),
           child: ListView.builder(
@@ -50,9 +50,9 @@ class BoardPage extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text("carte 1"),
-                    Text("carte 2"),
-                    Text("carte 3"),
+                    const Text("carte 1"),
+                    const Text("carte 2"),
+                    const Text("carte 3"),
                   ],
                 ),
               );
