@@ -1,73 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:trelltech/controllers/board_controller.dart';
+
+import 'package:trelltech/controllers/card_controller.dart';
+import 'package:trelltech/controllers/list_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/list_model.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
 class BoardPage extends StatefulWidget {
+  const BoardPage({super.key, required this.board}) : assert(board != null);
   final BoardModel board;
-  const BoardPage(this.board, {super.key});
 
   @override
   State<BoardPage> createState() => _BoardPageState();
-
 }
 
 class _BoardPageState extends State<BoardPage> {
+  final ListController _listsController = ListController();
+  final CardController _cardsController = CardController();
+  List<ListModel> lists = [];
 
-  // final BoardModel board;
-  final List<CardModel> cards = CardModel.getCard();
-  final List<ListModel> lists = ListModel.getList();
-  final BoardController boardController = BoardController();
+  @override
+  void initState() {
+    super.initState();
+    _getInitialInfo();
+  }
 
-  // BoardPage(this.board, {super.key});
+  void _getInitialInfo() async {
+    final fetchedLists = await _listsController.getLists(board: widget.board);
+    setState(() {
+      lists = fetchedLists;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appbar(
-        text: widget.board.name, 
-        color: Colors.blue,
-        showEditButton: true,
-        onEdit: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (BuildContext context) {
-              return SizedBox(
-                height: 600,
-                child: Center(
-                  // child: Text('Your modal content goes here'),
-                  child: Form(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: TextFormField(
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: "Board name",
-                            ),
-                            onFieldSubmitted: (String value) {
-                              boardController.update(widget.board.id, value);
-                              Navigator.of(context).pop();
-                              setState(() {
-                                widget.board.name = value;
-                              });
-                            },
-                          )
-                        )
-                      ],
-                    )
-                  )
-                )
-              );
-            }
-          );
-        }
-      ), // Use BoardModel properties
+      appBar: appbar(),
       body: Container(
-        color: Colors.white, // Background color
+        color: Colors.white,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: lists.length,
@@ -80,54 +52,58 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   Widget _buildList(ListModel list) {
-    return Container(
-      width: 300,
-      margin: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Colors.black, // List background color
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Stack(
-        // Use Stack for positioning
-        children: [
-          Column(
-            // Existing list content
-            children: [
-              //list header
-              Container(
-                height: 50,
-                color: Colors.black,
-                child: Center(
-                  child: Text(
-                    list.name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
+    return FutureBuilder<List<CardModel>>(
+      future: _cardsController.getCards(list: list),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final cards = snapshot.data!;
+          return Container(
+            width: 300,
+            margin: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Stack(
+              children: [
+                // List header
+                Container(
+                  height: 50,
+                  color: Colors.black,
+                  child: Center(
+                    child: Text(
+                      list.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(
-                //list body
-                child: ListView.builder(
-                  // Use list.cards.length for card count
-                  itemCount: cards.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return _buildCard(cards[index]);
-                  },
+                // List body
+                Positioned.fill(
+                  top: 50.0,
+                  child: ListView.builder(
+                    itemCount: cards.length,
+                    itemBuilder: (context, index) => _buildCard(cards[index]),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          Positioned(
-            // list footer
-            bottom: 0.0,
-            left: 0.0,
-            right: 0.0,
-            child: _buildAddCardRow(),
-          ),
-        ],
-      ),
+                // List footer (optional, can be removed)
+                Positioned(
+                  bottom: 0.0,
+                  left: 0.0,
+                  right: 0.0,
+                  child: _buildAddCardRow(),
+                ),
+              ],
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+        // Display a loading indicator while fetching cards
+        return const Center(child: CircularProgressIndicator());
+      },
     );
   }
 
