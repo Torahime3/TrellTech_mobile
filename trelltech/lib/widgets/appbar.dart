@@ -1,6 +1,20 @@
-import 'package:flutter/material.dart';
+// import 'dart:js_interop';
 
-AppBar appbar({dynamic text = "TrellTech", color = Colors.transparent}) {
+import 'package:flutter/material.dart';
+// import 'package:trelltech/widgets/form.dart';
+
+AppBar appbar({dynamic text = "TrellTech", color = Colors.transparent, bool showEditButton = false, onEdit}) {
+  List<Widget> actions = [];
+
+  if (showEditButton) {
+    actions.add(
+      IconButton(
+        icon: const Icon(Icons.edit),
+        onPressed: onEdit,
+      )
+    );
+  }
+    
   return AppBar(
     title: Text(text,
         style: const TextStyle(
@@ -11,5 +25,6 @@ AppBar appbar({dynamic text = "TrellTech", color = Colors.transparent}) {
     centerTitle: true,
     backgroundColor: color,
     elevation: 0,
+    actions: actions
   );
 }
