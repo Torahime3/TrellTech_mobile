@@ -86,7 +86,31 @@ class _HomePageState extends State<HomePage> {
           showModalBottomSheet(
             context: context,
             builder: (BuildContext context) {
-              return const CreateForm();
+              return SizedBox(
+                height: 600,
+                child: Center(
+                  // child: Text('Your modal content goes here'),
+                  child: Form(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: "Board name",
+                            ),
+                            onFieldSubmitted: (String value) {
+                              _boardController.create(value);
+                              Navigator.of(context).pop();
+                            },
+                          )
+                        )
+                      ],
+                    )
+                  )
+                )
+    );
             }
           );
         },
