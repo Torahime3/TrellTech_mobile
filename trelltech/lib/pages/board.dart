@@ -1,21 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/list_model.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
-class BoardPage extends StatelessWidget {
+class BoardPage extends StatefulWidget {
   final BoardModel board;
+  const BoardPage(this.board, {super.key});
+
+  @override
+  State<BoardPage> createState() => _BoardPageState();
+
+}
+
+class _BoardPageState extends State<BoardPage> {
+
+  // final BoardModel board;
   final List<CardModel> cards = CardModel.getCard();
   final List<ListModel> lists = ListModel.getList();
+  final BoardController boardController = BoardController();
 
-  BoardPage(this.board, {super.key});
+  // BoardPage(this.board, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appbar(
-          text: board.name, color: Colors.blue), // Use BoardModel properties
+        text: widget.board.name, 
+        color: Colors.blue,
+        showEditButton: true,
+        onEdit: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return SizedBox(
+                height: 600,
+                child: Center(
+                  // child: Text('Your modal content goes here'),
+                  child: Form(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: "Board name",
+                            ),
+                            onFieldSubmitted: (String value) {
+                              boardController.update(widget.board.id, value);
+                              Navigator.of(context).pop();
+                              setState(() {
+                                widget.board.name = value;
+                              });
+                            },
+                          )
+                        )
+                      ],
+                    )
+                  )
+                )
+              );
+            }
+          );
+        }
+      ), // Use BoardModel properties
       body: Container(
         color: Colors.white, // Background color
         child: ListView.builder(
@@ -23,7 +73,7 @@ class BoardPage extends StatelessWidget {
           itemCount: lists.length,
           itemBuilder: (BuildContext context, int index) {
             return _buildList(lists[index]);
-          },
+          },  
         ),
       ),
     );
@@ -107,7 +157,7 @@ class BoardPage extends StatelessWidget {
       margin: const EdgeInsets.all(12.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 95, 95, 95),
+        color: const Color.fromARGB(255, 95, 95, 95),
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Row(
