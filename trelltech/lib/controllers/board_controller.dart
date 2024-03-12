@@ -25,4 +25,29 @@ class BoardController {
       throw Exception("No boards");
     }
   }
+
+
+  void create(name) async {
+    final url = Uri.parse('https://api.trello.com/1/boards/?name=$name&key=$apiKey&token=$apiToken');
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+      print("Hurray");
+    } else {
+      throw Exception("No board created");
+    }
+  }
+
+  void update(id, name) async {
+    final url = Uri.parse('https://api.trello.com/1/boards/$id?key=$apiKey&token=$apiToken&name=$name');
+    final response = await http.put(url);
+    if (response.statusCode == 200) {
+      print("Updated");
+    } else {
+      throw Exception("Board not updated");
+    }
+  }
 }
+
+
+ 

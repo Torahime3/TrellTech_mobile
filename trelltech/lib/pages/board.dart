@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
 import 'package:trelltech/models/board_model.dart';
@@ -32,6 +33,7 @@ class _BoardPageState extends State<BoardPage> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +45,7 @@ class _BoardPageState extends State<BoardPage> {
           itemCount: lists.length,
           itemBuilder: (BuildContext context, int index) {
             return _buildList(lists[index]);
-          },
+          },  
         ),
       ),
     );
@@ -131,7 +133,7 @@ class _BoardPageState extends State<BoardPage> {
       margin: const EdgeInsets.all(12.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 95, 95, 95),
+        color: const Color.fromARGB(255, 95, 95, 95),
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Row(
