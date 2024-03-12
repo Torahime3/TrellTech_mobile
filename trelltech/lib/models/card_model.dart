@@ -1,8 +1,10 @@
 class CardModel {
   String name;
+  String id;
 
   CardModel({
     required this.name,
+    required this.id,
   });
 
   /*static List<CardModel> getCard() {
@@ -33,6 +35,7 @@ class CardModel {
   factory CardModel.fromJson(Map<String, dynamic> json) {
     return CardModel(
       name: json['name'],
+      id: json['id'],
     );
   }
 }
