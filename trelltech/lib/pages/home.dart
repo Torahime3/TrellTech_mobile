@@ -1,11 +1,10 @@
-// import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/controllers/board_controller.dart';
 
 import 'package:trelltech/pages/board.dart';
 import 'package:trelltech/widgets/appbar.dart';
+import 'package:trelltech/widgets/form.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -82,11 +81,18 @@ class _HomePageState extends State<HomePage> {
           },
         ),
     
-      floatingActionButton: const FloatingActionButton(
-        onPressed: null,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return const CreateForm();
+            }
+          );
+        },
         tooltip: 'Increment Counter',
-        backgroundColor: Color.fromARGB(255, 229, 229, 229),
-        child: Icon(Icons.add),
+        backgroundColor: const Color.fromARGB(255, 229, 229, 229),
+        child: const Icon(Icons.add),
       )
     );
   }
