@@ -25,4 +25,16 @@ class BoardController {
       throw Exception("No boards");
     }
   }
+
+
+  void create(name) async {
+    final url = Uri.parse('https://api.trello.com/1/boards/?name=$name&key=$apiKey&token=$apiToken');
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+      print("Hurray");
+    } else {
+      throw Exception("No board created");
+    }
+  }
 }
