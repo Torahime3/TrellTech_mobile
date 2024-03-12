@@ -30,6 +30,10 @@ class _BoardPageState extends State<BoardPage> {
         text: widget.board.name, 
         color: Colors.blue,
         showEditButton: true,
+        onDelete: () {
+          boardController.delete(widget.board.id);
+          Navigator.of(context).pop();
+        },
         onEdit: () {
           showModalBottomSheet(
             context: context,
