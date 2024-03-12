@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
@@ -15,8 +16,9 @@ class BoardPage extends StatefulWidget {
 
 class _BoardPageState extends State<BoardPage> {
   final ListController _listsController = ListController();
+  final CardController _cardsController = CardController();
   List<ListModel> lists = [];
-  final List<CardModel> cards = CardModel.getCard();
+  List<CardModel> cards = [];
 
   @override
   void initState() {
@@ -26,8 +28,10 @@ class _BoardPageState extends State<BoardPage> {
 
   void _getInitialInfo() async {
     final fetchedLists = await _listsController.getLists();
+    final fetchedCards = await _cardsController.getCards();
     setState(() {
       lists = fetchedLists;
+      cards = fetchedCards;
     });
   }
 
@@ -80,7 +84,6 @@ class _BoardPageState extends State<BoardPage> {
               Expanded(
                 //list body
                 child: ListView.builder(
-                  // Use list.cards.length for card count
                   itemCount: cards.length,
                   itemBuilder: (BuildContext context, int index) {
                     return _buildCard(cards[index]);
