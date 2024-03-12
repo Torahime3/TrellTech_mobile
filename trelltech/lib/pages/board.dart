@@ -1,21 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:trelltech/controllers/list_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/list_model.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
-class BoardPage extends StatelessWidget {
+class BoardPage extends StatefulWidget {
+  const BoardPage(this.board, {super.key});
   final BoardModel board;
-  final List<CardModel> cards = CardModel.getCard();
-  final List<ListModel> lists = ListModel.getList();
 
-  BoardPage(this.board, {super.key});
+  @override
+  State<BoardPage> createState() => _BoardPageState();
+}
+
+class _BoardPageState extends State<BoardPage> {
+  final ListController _listsController = ListController();
+  List<ListModel> lists = [];
+  final List<CardModel> cards = CardModel.getCard();
+
+  @override
+  void initState() {
+    super.initState();
+    _getInitialInfo();
+  }
+
+  void _getInitialInfo() async {
+    final fetchedLists = await _listsController.getLists();
+    setState(() {
+      lists = fetchedLists;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appbar(
-          text: board.name, color: Colors.blue), // Use BoardModel properties
+      appBar: appbar(),
+      //text: board.name, color: Colors.blue), // Use BoardModel properties
       body: Container(
         color: Colors.white, // Background color
         child: ListView.builder(
