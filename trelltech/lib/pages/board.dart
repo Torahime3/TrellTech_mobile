@@ -7,7 +7,7 @@ import 'package:trelltech/models/list_model.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
 class BoardPage extends StatefulWidget {
-  const BoardPage(this.board, {super.key});
+  const BoardPage({super.key, required this.board}) : assert(board != null);
   final BoardModel board;
 
   @override
@@ -27,8 +27,9 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   void _getInitialInfo() async {
-    final fetchedLists = await _listsController.getLists();
+    final fetchedLists = await _listsController.getLists(board: widget.board);
     final fetchedCards = await _cardsController.getCards();
+
     setState(() {
       lists = fetchedLists;
       cards = fetchedCards;
