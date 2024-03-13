@@ -33,11 +33,11 @@ class _BoardPageState extends State<BoardPage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final board = widget.board;
     return Scaffold(
-      appBar: appbar(),
+      appBar: appbar(text: board.name, color: Colors.blue),
       body: Container(
         color: Colors.white,
         child: ListView.builder(
@@ -45,7 +45,7 @@ class _BoardPageState extends State<BoardPage> {
           itemCount: lists.length,
           itemBuilder: (BuildContext context, int index) {
             return _buildList(lists[index]);
-          },  
+          },
         ),
       ),
     );
