@@ -178,7 +178,7 @@ class _BoardPageState extends State<BoardPage> {
                         color: Colors.white,
                         onPressed: () {
                           // Handle button press logic here to show the popup menu
-                          _showPopupMenu(context);
+                          _showPopupMenu(context, list);
                         },
                       ),
                     ],
@@ -211,7 +211,7 @@ class _BoardPageState extends State<BoardPage> {
     );
   }
 
-  void _showPopupMenu(BuildContext context) {
+  void _showPopupMenu(BuildContext context, ListModel list) {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final Offset buttonPosition = button.localToGlobal(Offset.zero);
 
@@ -240,13 +240,10 @@ class _BoardPageState extends State<BoardPage> {
         ),
       ],
     ).then((value) {
-      // Handle selection of an item from the PopupMenuButton
-      // The value parameter of the selected PopupMenuItem will be passed here
-      // Value will be the value of the selected PopupMenuItem
       if (value == 'update') {
         // Handle update logic here
       } else if (value == 'delete') {
-        // Handle delete logic here
+        _listsController.delete(id: list.id);
       }
     });
   }
