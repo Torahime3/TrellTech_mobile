@@ -33,20 +33,110 @@ class _BoardPageState extends State<BoardPage> {
     });
   }
 
+  // Method to handle button tap and show popup dialog
+  void _showCreateListDialog() {
+    TextEditingController _textFieldController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Create List"),
+          content: TextField(
+            controller: _textFieldController,
+            decoration: InputDecoration(hintText: "Enter list name"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("Create"),
+              onPressed: () {
+                String name = _textFieldController.text;
+                if (name.isNotEmpty) {
+                  _createList(name);
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _createList(String name) async {
+    try {
+      // Add the new list
+      _listsController.create(name, board: widget.board);
+
+      // Fetch the updated list of lists
+      List<ListModel> updatedLists =
+          await _listsController.getLists(board: widget.board);
+
+      // Update the state to reflect the new list of lists
+      setState(() {
+        lists = updatedLists;
+      });
+    } catch (e) {
+      print("Error creating list: $e");
+      // Handle error
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final board = widget.board;
     return Scaffold(
       appBar: appbar(text: board.name, color: Colors.blue),
-      body: Container(
-        color: Colors.white,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: lists.length,
-          itemBuilder: (BuildContext context, int index) {
-            return _buildList(lists[index]);
-          },
-        ),
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Container(
+            color: Colors.white,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: lists.length + 1, // Add one for the button
+              itemBuilder: (BuildContext context, int index) {
+                if (index < lists.length) {
+                  return _buildList(lists[index]);
+                } else {
+                  // Render the button at the end of the list
+                  return Center(
+                    child: SizedBox(
+                      height: 50,
+                      width: 300,
+                      child: GestureDetector(
+                        onTap: () {
+                          // Show the create list dialog
+                          _showCreateListDialog();
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: const Text(
+                            'Add List',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+          );
+        },
       ),
     );
   }
@@ -68,18 +158,29 @@ class _BoardPageState extends State<BoardPage> {
               children: [
                 // List header
                 Container(
-                  height: 50,
-                  color: Colors.black,
-                  child: Center(
-                    child: Text(
-                      list.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
+                    height: 50,
+                    color: Colors.black,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Padding(padding: EdgeInsets.only(left: 16.0)),
+                        Expanded(
+                          child: Text(list.name,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                color: Colors.white,
+                              )),
+                        ),
+                        IconButton(
+                          // Add your button here
+                          icon: const Icon(Icons.more_vert), // Example icon
+                          color: Colors.white,
+                          onPressed: () {
+                            // Handle button press logic here (optional)
+                          },
+                        ),
+                      ],
+                    )),
                 // List body
                 Positioned.fill(
                   top: 50.0,

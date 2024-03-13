@@ -25,4 +25,18 @@ class ListController {
       throw Exception("No list found");
     }
   }
+
+  void create(name, {required BoardModel board}) async {
+    String id = board.id;
+    final url = Uri.parse(
+        'https://api.trello.com/1/lists?name=$name&idBoard=$id&key=$apiKey&token=$apiToken');
+
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+      print("List Created Successfully");
+    } else {
+      throw Exception("No List created");
+    }
+  }
 }
