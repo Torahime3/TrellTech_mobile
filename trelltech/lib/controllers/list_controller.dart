@@ -57,9 +57,9 @@ class ListController {
     );
 
     if (response.statusCode == 200) {
-      print("List Deleted Successfully");
+      print("List Updated Successfully");
     } else {
-      throw Exception("List Deletion failed");
+      throw Exception("List Update failed");
     }
   }
 

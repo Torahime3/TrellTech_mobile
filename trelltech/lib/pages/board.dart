@@ -89,6 +89,41 @@ class _BoardPageState extends State<BoardPage> {
     }
   }
 
+  void _showUpdateListDialog(listId) {
+    TextEditingController _textFieldController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Update List"),
+          content: TextField(
+            controller: _textFieldController,
+            decoration: InputDecoration(hintText: "Enter new list name"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("Update"),
+              onPressed: () {
+                String name = _textFieldController.text;
+                if (name.isNotEmpty) {
+                  _listsController.update(id: listId, name: name);
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final board = widget.board;
@@ -241,7 +276,7 @@ class _BoardPageState extends State<BoardPage> {
       ],
     ).then((value) {
       if (value == 'update') {
-        // Handle update logic here
+        _showUpdateListDialog(list.id);
       } else if (value == 'delete') {
         _listsController.delete(id: list.id);
       }
