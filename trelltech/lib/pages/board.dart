@@ -137,8 +137,8 @@ class _BoardPageState extends State<BoardPage> {
                 Positioned(
                   bottom: 0.0,
                   left: 0.0,
-                  right: 0.0,
-                  child: _buildAddCardRow(),
+                  // right: 0.0,
+                  child: _buildAddCardRow(list.id),
                 ),
               ],
             ),
@@ -152,24 +152,22 @@ class _BoardPageState extends State<BoardPage> {
     );
   }
 
-  Widget _buildAddCardRow() {
+  Widget _buildAddCardRow(listId) {
     // text at the bottom of the list
     return Container(
       padding: const EdgeInsets.all(16.0),
-      height: 50,
-      color: Colors.black, // Background color
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Text(
-            "+ Add Card",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.blue,
-            ),
-          ),
-        ],
-      ),
+      height: 75,
+      width: 75,
+      child: FloatingActionButton(
+        onPressed: () {
+          _cardsController.create(listId);
+          setState(() {});
+        },
+        tooltip: 'Increment Counter',
+        backgroundColor: const Color.fromARGB(255, 229, 229, 229),
+        shape: const CircleBorder(),
+        child: const Text("+"),
+      )
     );
   }
 
