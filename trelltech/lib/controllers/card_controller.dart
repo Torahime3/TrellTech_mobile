@@ -27,8 +27,8 @@ class CardController {
   }
 
 
-  Future<void> create(listId) async {
-    final url = Uri.parse('https://api.trello.com/1/cards?idList=$listId&key=$apiKey&token=$apiToken');
+  Future<void> create(listId, value) async {
+    final url = Uri.parse('https://api.trello.com/1/cards?idList=$listId&key=$apiKey&token=$apiToken&name=$value');
     final response = await http.post(url);
 
     if (response.statusCode == 200) {
