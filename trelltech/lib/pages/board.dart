@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trelltech/controllers/board_controller.dart';
 
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
@@ -18,6 +19,7 @@ class BoardPage extends StatefulWidget {
 class _BoardPageState extends State<BoardPage> {
   final ListController _listsController = ListController();
   final CardController _cardsController = CardController();
+  final BoardController _boardController = BoardController();
   List<ListModel> lists = [];
 
   @override
