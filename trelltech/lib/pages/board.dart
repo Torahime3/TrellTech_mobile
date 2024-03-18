@@ -350,7 +350,9 @@ class _BoardPageState extends State<BoardPage> {
                                       _cardsController.update(card.id, value);
                                       Navigator.of(context).pop();
                                       _loadInfo();
+                                      Navigator.of(context).pop();
                                     },
+                                    
                                   )
                                 )
                               ],
@@ -360,10 +362,10 @@ class _BoardPageState extends State<BoardPage> {
                       );
                     }
                   );
+                  // Navigator.of(context).pop();
                 }
               ))
             ]
-            
           );
         },
         child: Row(
