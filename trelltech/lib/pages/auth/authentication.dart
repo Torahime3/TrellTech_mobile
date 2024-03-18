@@ -59,9 +59,8 @@ class _TrelloAuthScreenState extends State<TrelloAuthScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("TrellTech",
-                style:
-                    const TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
+            const Text("TrellTech",
+                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
             const SizedBox(height: 30),
             Text(
                 authToken != null
