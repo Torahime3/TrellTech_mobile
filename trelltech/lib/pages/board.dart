@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trelltech/controllers/board_controller.dart';
 
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
@@ -18,6 +19,7 @@ class BoardPage extends StatefulWidget {
 class _BoardPageState extends State<BoardPage> {
   final ListController _listsController = ListController();
   final CardController _cardsController = CardController();
+  final BoardController _boardController = BoardController();
   List<ListModel> lists = [];
 
   @override
@@ -38,11 +40,11 @@ class _BoardPageState extends State<BoardPage> {
     final board = widget.board;
     return Scaffold(
       appBar: appbar(
-        text: widget.board.name, 
+        text: board.name, 
         color: Colors.blue,
         showEditButton: true,
         onDelete: () {
-          boardController.delete(widget.board.id);
+          _boardController.delete(board.id);
           Navigator.of(context).pop();
         },
         onEdit: () {
@@ -64,10 +66,10 @@ class _BoardPageState extends State<BoardPage> {
                               labelText: "Board name",
                             ),
                             onFieldSubmitted: (String value) {
-                              boardController.update(widget.board.id, value);
+                              _boardController.update(board.id, value);
                               Navigator.of(context).pop();
                               setState(() {
-                                widget.board.name = value;
+                                board.name = value;
                               });
                             },
                           )
