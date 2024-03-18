@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 
+
+import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
+import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/list_model.dart';
@@ -18,35 +22,192 @@ class BoardPage extends StatefulWidget {
 class _BoardPageState extends State<BoardPage> {
   final ListController _listsController = ListController();
   final CardController _cardsController = CardController();
+  final BoardController _boardController = BoardController();
   List<ListModel> lists = [];
 
   @override
   void initState() {
     super.initState();
-    _getInitialInfo();
+    _loadInfo();
   }
 
-  void _getInitialInfo() async {
+  void _loadInfo() async {
     final fetchedLists = await _listsController.getLists(board: widget.board);
     setState(() {
       lists = fetchedLists;
     });
   }
 
+  // Method to handle button tap and show popup dialog
+  void _createListDialog() {
+    TextEditingController _textFieldController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Create List"),
+          content: TextField(
+            controller: _textFieldController,
+            decoration: const InputDecoration(hintText: "Enter list name"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Create"),
+              onPressed: () {
+                String name = _textFieldController.text;
+                if (name.isNotEmpty) {
+                  _listsController.create(name, board: widget.board,
+                      onCreated: () {
+                    _loadInfo();
+                  });
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _updateListDialog(listId) {
+    TextEditingController _textFieldController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Update List"),
+          content: TextField(
+            controller: _textFieldController,
+            decoration: const InputDecoration(hintText: "Enter new list name"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Update"),
+              onPressed: () {
+                String name = _textFieldController.text;
+                if (name.isNotEmpty) {
+                  _listsController.update(
+                      id: listId,
+                      name: name,
+                      onUpdated: () {
+                        _loadInfo();
+                      });
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final board = widget.board;
     return Scaffold(
-      appBar: appbar(text: board.name, color: Colors.blue),
-      body: Container(
-        color: Colors.white,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: lists.length,
-          itemBuilder: (BuildContext context, int index) {
-            return _buildList(lists[index]);
-          },
-        ),
+      appBar: appbar(
+        text: board.name, 
+        color: Colors.blue,
+        showEditButton: true,
+        onDelete: () {
+          _boardController.delete(board.id);
+          Navigator.of(context).pop();
+        },
+        onEdit: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return SizedBox(
+                height: 600,
+                child: Center(
+                  // child: Text('Your modal content goes here'),
+                  child: Form(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: "Board name",
+                            ),
+                            onFieldSubmitted: (String value) {
+                              _boardController.update(board.id, value);
+                              Navigator.of(context).pop();
+                              setState(() {
+                                board.name = value;
+                              });
+                            },
+                          )
+                        )
+                      ],
+                    )
+                  )
+                )
+              );
+            }
+          );
+        }
+      ),
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Container(
+            color: Colors.white,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: lists.length + 1, // Add one for the button
+              itemBuilder: (BuildContext context, int index) {
+                if (index < lists.length) {
+                  return _buildList(lists[index]);
+                } else {
+                  // Render the button at the end of the list
+                  return Center(
+                    child: SizedBox(
+                      height: 50,
+                      width: 300,
+                      child: GestureDetector(
+                        onTap: () {
+                          // Show the create list dialog
+                          _createListDialog();
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: const Text(
+                            'Add List',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+          );
+        },
       ),
     );
   }
@@ -70,14 +231,28 @@ class _BoardPageState extends State<BoardPage> {
                 Container(
                   height: 50,
                   color: Colors.black,
-                  child: Center(
-                    child: Text(
-                      list.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Padding(padding: EdgeInsets.only(left: 16.0)),
+                      Expanded(
+                        child: Text(
+                          list.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                    ),
+                      IconButton(
+                        icon: const Icon(Icons.more_vert),
+                        color: Colors.white,
+                        onPressed: () {
+                          // Handle button press logic here to show the popup menu
+                          _showPopupMenu(context, list);
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 // List body
@@ -92,8 +267,8 @@ class _BoardPageState extends State<BoardPage> {
                 Positioned(
                   bottom: 0.0,
                   left: 0.0,
-                  right: 0.0,
-                  child: _buildAddCardRow(),
+                  // right: 0.0,
+                  child: _buildAddCardRow(list.id),
                 ),
               ],
             ),
@@ -101,31 +276,94 @@ class _BoardPageState extends State<BoardPage> {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
-        // Display a loading indicator while fetching cards
         return const Center(child: CircularProgressIndicator());
       },
     );
   }
 
-  Widget _buildAddCardRow() {
-    // text at the bottom of the list
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      height: 50,
-      color: Colors.black, // Background color
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Text(
-            "+ Add Card",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.blue,
-            ),
-          ),
-        ],
+  void _showPopupMenu(BuildContext context, ListModel list) {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final Offset buttonPosition = button.localToGlobal(Offset.zero);
+
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        buttonPosition.dx,
+        buttonPosition.dy,
+        buttonPosition.dx,
+        buttonPosition.dy,
       ),
-    );
+      items: [
+        const PopupMenuItem(
+          value: 'update',
+          child: ListTile(
+            leading: Icon(Icons.edit, color: Colors.blue),
+            title: Text('Update'),
+          ),
+        ),
+        const PopupMenuItem(
+          value: 'delete',
+          child: ListTile(
+            leading: Icon(Icons.delete, color: Colors.red),
+            title: Text('Delete'),
+          ),
+        ),
+      ],
+    ).then((value) {
+      if (value == 'update') {
+        _updateListDialog(list.id);
+      } else if (value == 'delete') {
+        _listsController.delete(
+            id: list.id,
+            onDeleted: () {
+              _loadInfo();
+            });
+      }
+    });
+  }
+
+  Widget _buildAddCardRow(listId) {
+    // list footer
+    return Container(
+        padding: const EdgeInsets.all(16.0),
+        height: 75,
+        width: 75,
+        child: FloatingActionButton(
+          onPressed: () {
+            showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  return SizedBox(
+                      height: 600,
+                      child: Center(
+                          child: Form(
+                              child: Column(
+                        children: [
+                          Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: TextFormField(
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Enter a title for this card...",
+                                ),
+                                onFieldSubmitted: (String value) {
+                                  _cardsController.create(listId, value);
+                                  Navigator.of(context).pop();
+                                  _loadInfo();
+                                },
+                              ))
+                        ],
+                      ))));
+                });
+            // _cardsController.create(listId);
+            // _loadInfo();
+            // setState(() {});
+          },
+          tooltip: 'Increment Counter',
+          backgroundColor: const Color.fromARGB(255, 229, 229, 229),
+          shape: const CircleBorder(),
+          child: const Text("+"),
+        ));
   }
 
   Widget _buildCard(CardModel card) {
@@ -136,23 +374,80 @@ class _BoardPageState extends State<BoardPage> {
         color: const Color.fromARGB(255, 95, 95, 95),
         borderRadius: BorderRadius.circular(10.0),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            // Wrap text widget with Expanded
-            child: Text(
-              card.name,
-              style: const TextStyle(
-                fontSize: 18,
-                color: Colors.white, // Text color for header
+      child: GestureDetector(
+        onLongPress: () {
+          showMenu(
+            context: context, 
+            position: const RelativeRect.fromLTRB(0, 200, 0, 0), 
+            items: <PopupMenuEntry>
+            [
+              PopupMenuItem(child: ListTile(
+                title: const Text('Delete card'),
+                onTap: () {
+                  _cardsController.delete(card.id);
+                  Navigator.of(context).pop();
+                  _loadInfo();
+                }
+              )),
+              PopupMenuItem(child: ListTile(
+                title: const Text("Update"),
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SizedBox(
+                        height: 600,
+                        child: Center(
+                          child: Form(
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: TextFormField(
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      labelText: "Enter a title for this card...",
+                                    ),
+                                    onFieldSubmitted: (String value) {
+                                      _cardsController.update(card.id, value);
+                                      Navigator.of(context).pop();
+                                      _loadInfo();
+                                      Navigator.of(context).pop();
+                                    },
+                                    
+                                  )
+                                )
+                              ],
+                            )
+                          )
+                        )
+                      );
+                    }
+                  );
+                  // Navigator.of(context).pop();
+                }
+              ))
+            ]
+          );
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              // Wrap text widget with Expanded
+              child: Text(
+                card.name,
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.white, // Text color for header
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      )
     );
   }
 }
