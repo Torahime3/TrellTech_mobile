@@ -25,10 +25,10 @@ class _BoardPageState extends State<BoardPage> {
   @override
   void initState() {
     super.initState();
-    _getInitialInfo();
+    _loadInfo();
   }
 
-  void _getInitialInfo() async {
+  void _loadInfo() async {
     final fetchedLists = await _listsController.getLists(board: widget.board);
     setState(() {
       lists = fetchedLists;
@@ -195,8 +195,8 @@ class _BoardPageState extends State<BoardPage> {
                 Positioned(
                   bottom: 0.0,
                   left: 0.0,
-                  right: 0.0,
-                  child: _buildAddCardRow(),
+                  // right: 0.0,
+                  child: _buildAddCardRow(list.id),
                 ),
               ],
             ),
@@ -210,24 +210,53 @@ class _BoardPageState extends State<BoardPage> {
     );
   }
 
-  Widget _buildAddCardRow() {
+  Widget _buildAddCardRow(listId) {
     // text at the bottom of the list
     return Container(
       padding: const EdgeInsets.all(16.0),
-      height: 50,
-      color: Colors.black, // Background color
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Text(
-            "+ Add Card",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.blue,
-            ),
-          ),
-        ],
-      ),
+      height: 75,
+      width: 75,
+      child: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return SizedBox(
+                height: 600,
+                child: Center(
+                  child: Form(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: "Enter a title for this card...",
+                            ),
+                            onFieldSubmitted: (String value) {
+                              _cardsController.create(listId, value);
+                              Navigator.of(context).pop();
+                              _loadInfo();
+                            },
+                          )
+                        )
+                      ],
+                    )
+                  )
+                )
+              );
+            }
+          );
+          // _cardsController.create(listId);
+          // _loadInfo();
+          // setState(() {});
+        },
+        tooltip: 'Increment Counter',
+        backgroundColor: const Color.fromARGB(255, 229, 229, 229),
+        shape: const CircleBorder(),
+        child: const Text("+"),
+      )
     );
   }
 
@@ -258,4 +287,5 @@ class _BoardPageState extends State<BoardPage> {
       ),
     );
   }
+
 }
