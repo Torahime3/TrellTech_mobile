@@ -37,4 +37,22 @@ class ListController {
       throw Exception("No List created");
     }
   }
+
+  void delete({required id}) async {
+    final url = Uri.parse(
+        'https://api.trello.com/1/lists/$id/closed?key=$apiKey&token=$apiToken');
+
+    final response = await http.put(
+      url,
+      body: {
+        'value': 'true',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print("List Deleted Successfully");
+    } else {
+      throw Exception("List Deletion failed");
+    }
+  }
 }

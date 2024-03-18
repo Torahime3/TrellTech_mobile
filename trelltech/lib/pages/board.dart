@@ -160,29 +160,32 @@ class _BoardPageState extends State<BoardPage> {
               children: [
                 // List header
                 Container(
-                    height: 50,
-                    color: Colors.black,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Padding(padding: EdgeInsets.only(left: 16.0)),
-                        Expanded(
-                          child: Text(list.name,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                color: Colors.white,
-                              )),
+                  height: 50,
+                  color: Colors.black,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Padding(padding: EdgeInsets.only(left: 16.0)),
+                      Expanded(
+                        child: Text(
+                          list.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
                         ),
-                        IconButton(
-                          // Add your button here
-                          icon: const Icon(Icons.more_vert), // Example icon
-                          color: Colors.white,
-                          onPressed: () {
-                            // Handle button press logic here (optional)
-                          },
-                        ),
-                      ],
-                    )),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.more_vert),
+                        color: Colors.white,
+                        onPressed: () {
+                          // Handle button press logic here to show the popup menu
+                          _showPopupMenu(context, list);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 // List body
                 Positioned.fill(
                   top: 50.0,
@@ -204,14 +207,52 @@ class _BoardPageState extends State<BoardPage> {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
-        // Display a loading indicator while fetching cards
         return const Center(child: CircularProgressIndicator());
       },
     );
   }
 
-  Widget _buildAddCardRow(listId) {
-    // text at the bottom of the list
+
+ void _showPopupMenu(BuildContext context, ListModel list) {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final Offset buttonPosition = button.localToGlobal(Offset.zero);
+
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        buttonPosition.dx,
+        buttonPosition.dy,
+        buttonPosition.dx,
+        buttonPosition.dy,
+      ),
+      items: [
+        const PopupMenuItem(
+          value: 'update',
+          child: ListTile(
+            leading: Icon(Icons.edit, color: Colors.blue),
+            title: Text('Update'),
+          ),
+        ),
+        const PopupMenuItem(
+          value: 'delete',
+          child: ListTile(
+            leading: Icon(Icons.delete, color: Colors.red),
+            title: Text('Delete'),
+          ),
+        ),
+      ],
+    ).then((value) {
+      if (value == 'update') {
+        // Handle update logic here
+      } else if (value == 'delete') {
+        _listsController.delete(id: list.id);
+      }
+    });
+  }
+
+
+  Widget _buildAddCardRow() {
+    // list footer 
     return Container(
       padding: const EdgeInsets.all(16.0),
       height: 75,
