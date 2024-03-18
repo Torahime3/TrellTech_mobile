@@ -47,6 +47,17 @@ class BoardController {
       throw Exception("Board not updated");
     }
   }
+
+  void delete(id) async {
+    final url = Uri.parse('https://api.trello.com/1/boards/$id?key=$apiKey&token=$apiToken');
+    final response = await http.delete(url);
+
+    if (response.statusCode == 200) {
+      print("Deleted");
+    } else {
+      throw Exception("Board not deleted");
+    }
+  }
 }
 
 

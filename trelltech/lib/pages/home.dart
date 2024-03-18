@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'package:trelltech/models/board_model.dart';
+
 import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/pages/board.dart';
@@ -14,6 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final BoardController _boardController = BoardController();
   List<BoardModel> boards = [];
+  bool _isHovered = false;
 
   @override
   void initState() {
@@ -37,14 +41,23 @@ class _HomePageState extends State<HomePage> {
           itemCount: boards.length,
           itemBuilder: (BuildContext context, int index) {
             return Container(
-                margin: const EdgeInsets.all(10),
+              margin: const EdgeInsets.all(10),
+              child: MouseRegion(
+                onEnter: (event) => setState(() {
+                  _isHovered = true;
+                }),
+                onExit: (event) => setState(() {
+                  _isHovered = false;
+                }),
                 child: InkWell(
                   onTap: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BoardPage(board: boards[index]),
-                        ));
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BoardPage(board: boards[index])
+                      )
+                    );
+
                   },
                   child: Ink(
                     height: 170,
@@ -71,40 +84,50 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                ));
+
+                ),
+              )
+            );
           },
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showModalBottomSheet(
-                context: context,
-                builder: (BuildContext context) {
-                  return SizedBox(
-                      height: 600,
-                      child: Center(
-                          // child: Text('Your modal content goes here'),
-                          child: Form(
-                              child: Column(
-                        children: [
-                          Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: TextFormField(
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  labelText: "Board name",
-                                ),
-                                onFieldSubmitted: (String value) {
-                                  _boardController.create(value);
-                                  Navigator.of(context).pop();
-                                },
-                              ))
-                        ],
-                      ))));
-                });
-          },
-          tooltip: 'Increment Counter',
-          backgroundColor: const Color.fromARGB(255, 229, 229, 229),
-          child: const Icon(Icons.add),
-        ));
+      ),
+    
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return SizedBox(
+                height: 600,
+                child: Center(
+                  // child: Text('Your modal content goes here'),
+                  child: Form(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: "Board name",
+                            ),
+                            onFieldSubmitted: (String value) {
+                              _boardController.create(value);
+                              Navigator.of(context).pop();
+                            },
+                          )
+                        )
+                      ],
+                    )
+                  )
+                )
+              );
+            }
+          );
+        },
+        tooltip: 'Increment Counter',
+        backgroundColor: const Color.fromARGB(255, 229, 229, 229),
+        child: const Icon(Icons.add),
+      )
+    );
   }
 }

@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 // import 'package:trelltech/widgets/form.dart';
 
-AppBar appbar({dynamic text = "TrellTech", color = Colors.transparent, bool showEditButton = false, onEdit}) {
+AppBar appbar({dynamic text = "TrellTech", color = Colors.transparent, bool showEditButton = false, onEdit, onDelete}) {
   List<Widget> actions = [];
 
   if (showEditButton) {
@@ -11,6 +11,12 @@ AppBar appbar({dynamic text = "TrellTech", color = Colors.transparent, bool show
       IconButton(
         icon: const Icon(Icons.edit),
         onPressed: onEdit,
+      ),
+    );
+    actions.add(
+      IconButton(
+        icon: const Icon(Icons.delete),
+        onPressed: onDelete,
       )
     );
   }
