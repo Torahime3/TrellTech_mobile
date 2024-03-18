@@ -49,7 +49,7 @@ class ListController {
     }
   }
 
-  void update({required id, required name}) async {
+  void update({required id, required name, void Function()? onUpdated}) async {
     final url = Uri.parse(
         'https://api.trello.com/1/lists/$id?key=$apiKey&token=$apiToken');
 
@@ -62,6 +62,9 @@ class ListController {
 
     if (response.statusCode == 200) {
       print("List Updated Successfully");
+      if (onUpdated != null) {
+        onUpdated();
+      }
     } else {
       throw Exception("List Update failed");
     }

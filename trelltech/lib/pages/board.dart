@@ -37,7 +37,6 @@ class _BoardPageState extends State<BoardPage> {
   // Method to handle button tap and show popup dialog
   void _createListDialog() {
     TextEditingController _textFieldController = TextEditingController();
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -97,13 +96,12 @@ class _BoardPageState extends State<BoardPage> {
               onPressed: () {
                 String name = _textFieldController.text;
                 if (name.isNotEmpty) {
-                  try {
-                    _listsController.update(id: listId, name: name);
-                    _loadInfo();
-                  } catch (e) {
-                    print("Error updating list: $e");
-                    // Handle error
-                  }
+                  _listsController.update(
+                      id: listId,
+                      name: name,
+                      onUpdated: () {
+                        _loadInfo();
+                      });
                   Navigator.of(context).pop();
                 }
               },
