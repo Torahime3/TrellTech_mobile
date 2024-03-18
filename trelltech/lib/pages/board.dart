@@ -35,31 +35,37 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   // Method to handle button tap and show popup dialog
-  void _showCreateListDialog() {
+  void _CreateListDialog() {
     TextEditingController _textFieldController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Create List"),
+          title: const Text("Create List"),
           content: TextField(
             controller: _textFieldController,
-            decoration: InputDecoration(hintText: "Enter list name"),
+            decoration: const InputDecoration(hintText: "Enter list name"),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text("Create"),
+              child: const Text("Create"),
               onPressed: () {
                 String name = _textFieldController.text;
                 if (name.isNotEmpty) {
-                  _createList(name);
+                  try {
+                    _listsController.create(name, board: widget.board);
+                    _loadInfo();
+                  } catch (e) {
+                    print("Error creating list: $e");
+                    // Handle error
+                  }
                   Navigator.of(context).pop();
                 }
               },
@@ -70,50 +76,37 @@ class _BoardPageState extends State<BoardPage> {
     );
   }
 
-  Future<void> _createList(String name) async {
-    try {
-      // Add the new list
-      _listsController.create(name, board: widget.board);
-
-      // Fetch the updated list of lists
-      List<ListModel> updatedLists =
-          await _listsController.getLists(board: widget.board);
-
-      // Update the state to reflect the new list of lists
-      setState(() {
-        lists = updatedLists;
-      });
-    } catch (e) {
-      print("Error creating list: $e");
-      // Handle error
-    }
-  }
-
-  void _showUpdateListDialog(listId) {
+  void _updateListDialog(listId) {
     TextEditingController _textFieldController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Update List"),
+          title: const Text("Update List"),
           content: TextField(
             controller: _textFieldController,
-            decoration: InputDecoration(hintText: "Enter new list name"),
+            decoration: const InputDecoration(hintText: "Enter new list name"),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text("Update"),
+              child: const Text("Update"),
               onPressed: () {
                 String name = _textFieldController.text;
                 if (name.isNotEmpty) {
-                  _listsController.update(id: listId, name: name);
+                  try {
+                    _listsController.update(id: listId, name: name);
+                    _loadInfo();
+                  } catch (e) {
+                    print("Error updating list: $e");
+                    // Handle error
+                  }
                   Navigator.of(context).pop();
                 }
               },
@@ -148,7 +141,7 @@ class _BoardPageState extends State<BoardPage> {
                       child: GestureDetector(
                         onTap: () {
                           // Show the create list dialog
-                          _showCreateListDialog();
+                          _CreateListDialog();
                         },
                         child: Container(
                           margin: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -276,9 +269,10 @@ class _BoardPageState extends State<BoardPage> {
       ],
     ).then((value) {
       if (value == 'update') {
-        _showUpdateListDialog(list.id);
+        _updateListDialog(list.id);
       } else if (value == 'delete') {
         _listsController.delete(id: list.id);
+        _loadInfo();
       }
     });
   }
