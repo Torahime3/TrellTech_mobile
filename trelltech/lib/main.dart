@@ -1,7 +1,14 @@
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'pages/home.dart';
+import 'package:trelltech/pages/auth/authentication.dart';
+import 'package:trelltech/pages/home.dart';
+import 'package:trelltech/server/server.dart';
 
 void main() {
+  RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
+  Isolate.spawn(startWebServer, rootIsolateToken);
   runApp(const TrellTech());
 }
 
@@ -10,6 +17,7 @@ class TrellTech extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(debugShowCheckedModeBanner: false, home: HomePage());
+    return const MaterialApp(
+        debugShowCheckedModeBanner: false, home: TrelloAuthScreen());
   }
 }

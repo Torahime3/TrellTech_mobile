@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:trelltech/models/board_model.dart';
-import 'package:trelltech/controllers/board_controller.dart';
 
+import 'package:trelltech/controllers/board_controller.dart';
+import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/pages/board.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
@@ -18,13 +19,11 @@ class _HomePageState extends State<HomePage> {
   List<BoardModel> boards = [];
   bool _isHovered = false;
 
-
   @override
   void initState() {
     super.initState();
     _getInitialInfo();
   }
-
 
   void _getInitialInfo() async {
     final fetchedBoards = await _boardController.getBoards();
@@ -33,12 +32,12 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     // _getInitialInfo();
     return Scaffold(
-      appBar: appbar(),
-      body: ListView.builder(
+        appBar: appbar(),
+        body: ListView.builder(
           itemCount: boards.length,
           itemBuilder: (BuildContext context, int index) {
             return Container(
@@ -58,6 +57,7 @@ class _HomePageState extends State<HomePage> {
                         builder: (_) => BoardPage(boards[index])
                       )
                     );
+
                   },
                   child: Ink(
                     height: 170,
@@ -84,6 +84,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+
                 ),
               )
             );
@@ -129,6 +130,4 @@ class _HomePageState extends State<HomePage> {
       )
     );
   }
-
-
 }
