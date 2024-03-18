@@ -59,7 +59,9 @@ class BoardController {
   }
 
   void delete(id) async {
-    final url = Uri.parse('https://api.trello.com/1/boards/$id?key=$apiKey&token=$apiToken');
+    String apiToken = (await getApiToken())!;
+    final url = Uri.parse(
+        'https://api.trello.com/1/boards/$id?key=$apiKey&token=$apiToken');
     final response = await http.delete(url);
 
     if (response.statusCode == 200) {

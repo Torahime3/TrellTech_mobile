@@ -33,6 +33,7 @@ class ListController {
 
   void create(String name,
       {required BoardModel board, void Function()? onCreated}) async {
+    String apiToken = (await getApiToken())!;
     String id = board.id;
     final url = Uri.parse(
         'https://api.trello.com/1/lists?name=$name&idBoard=$id&key=$apiKey&token=$apiToken');
@@ -55,6 +56,7 @@ class ListController {
   }
 
   void update({required id, required name, void Function()? onUpdated}) async {
+    String apiToken = (await getApiToken())!;
     final url = Uri.parse(
         'https://api.trello.com/1/lists/$id?key=$apiKey&token=$apiToken');
 
@@ -76,6 +78,7 @@ class ListController {
   }
 
   void delete({required id, void Function()? onDeleted}) async {
+    String apiToken = (await getApiToken())!;
     final url = Uri.parse(
         'https://api.trello.com/1/lists/$id/closed?key=$apiKey&token=$apiToken');
 
