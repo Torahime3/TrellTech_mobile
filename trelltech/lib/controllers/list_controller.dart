@@ -26,7 +26,8 @@ class ListController {
     }
   }
 
-  void create(name, {required BoardModel board}) async {
+  void create(String name,
+      {required BoardModel board, void Function()? onCreated}) async {
     String id = board.id;
     final url = Uri.parse(
         'https://api.trello.com/1/lists?name=$name&idBoard=$id&key=$apiKey&token=$apiToken');
@@ -40,6 +41,9 @@ class ListController {
 
     if (response.statusCode == 200) {
       print("List Created Successfully");
+      if (onCreated != null) {
+        onCreated();
+      }
     } else {
       throw Exception("No List created");
     }

@@ -35,7 +35,7 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   // Method to handle button tap and show popup dialog
-  void _CreateListDialog() {
+  void _createListDialog() {
     TextEditingController _textFieldController = TextEditingController();
 
     showDialog(
@@ -59,13 +59,10 @@ class _BoardPageState extends State<BoardPage> {
               onPressed: () {
                 String name = _textFieldController.text;
                 if (name.isNotEmpty) {
-                  try {
-                    _listsController.create(name, board: widget.board);
+                  _listsController.create(name, board: widget.board,
+                      onCreated: () {
                     _loadInfo();
-                  } catch (e) {
-                    print("Error creating list: $e");
-                    // Handle error
-                  }
+                  });
                   Navigator.of(context).pop();
                 }
               },
@@ -141,7 +138,7 @@ class _BoardPageState extends State<BoardPage> {
                       child: GestureDetector(
                         onTap: () {
                           // Show the create list dialog
-                          _CreateListDialog();
+                          _createListDialog();
                         },
                         child: Container(
                           margin: const EdgeInsets.symmetric(horizontal: 8.0),
