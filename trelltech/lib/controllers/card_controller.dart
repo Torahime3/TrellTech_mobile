@@ -25,4 +25,16 @@ class CardController {
       throw Exception("No card found");
     }
   }
+
+
+  Future<void> create(listId) async {
+    final url = Uri.parse('https://api.trello.com/1/cards?idList=$listId&key=$apiKey&token=$apiToken');
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+      print("Hurray Card created");
+    } else {
+      throw Exception("No card created");
+    }
+  }
 }
