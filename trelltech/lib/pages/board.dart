@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:trelltech/controllers/board_controller.dart';
-
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
 import 'package:trelltech/models/board_model.dart';
@@ -212,8 +211,7 @@ class _BoardPageState extends State<BoardPage> {
     );
   }
 
-
- void _showPopupMenu(BuildContext context, ListModel list) {
+  void _showPopupMenu(BuildContext context, ListModel list) {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final Offset buttonPosition = button.localToGlobal(Offset.zero);
 
@@ -250,55 +248,48 @@ class _BoardPageState extends State<BoardPage> {
     });
   }
 
-
-  Widget _buildAddCardRow() {
-    // list footer 
+  Widget _buildAddCardRow(listId) {
+    // list footer
     return Container(
-      padding: const EdgeInsets.all(16.0),
-      height: 75,
-      width: 75,
-      child: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (BuildContext context) {
-              return SizedBox(
-                height: 600,
-                child: Center(
-                  child: Form(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: TextFormField(
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: "Enter a title for this card...",
-                            ),
-                            onFieldSubmitted: (String value) {
-                              _cardsController.create(listId, value);
-                              Navigator.of(context).pop();
-                              _loadInfo();
-                            },
-                          )
-                        )
-                      ],
-                    )
-                  )
-                )
-              );
-            }
-          );
-          // _cardsController.create(listId);
-          // _loadInfo();
-          // setState(() {});
-        },
-        tooltip: 'Increment Counter',
-        backgroundColor: const Color.fromARGB(255, 229, 229, 229),
-        shape: const CircleBorder(),
-        child: const Text("+"),
-      )
-    );
+        padding: const EdgeInsets.all(16.0),
+        height: 75,
+        width: 75,
+        child: FloatingActionButton(
+          onPressed: () {
+            showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  return SizedBox(
+                      height: 600,
+                      child: Center(
+                          child: Form(
+                              child: Column(
+                        children: [
+                          Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: TextFormField(
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Enter a title for this card...",
+                                ),
+                                onFieldSubmitted: (String value) {
+                                  _cardsController.create(listId, value);
+                                  Navigator.of(context).pop();
+                                  _loadInfo();
+                                },
+                              ))
+                        ],
+                      ))));
+                });
+            // _cardsController.create(listId);
+            // _loadInfo();
+            // setState(() {});
+          },
+          tooltip: 'Increment Counter',
+          backgroundColor: const Color.fromARGB(255, 229, 229, 229),
+          shape: const CircleBorder(),
+          child: const Text("+"),
+        ));
   }
 
   Widget _buildCard(CardModel card) {
@@ -328,5 +319,4 @@ class _BoardPageState extends State<BoardPage> {
       ),
     );
   }
-
 }
