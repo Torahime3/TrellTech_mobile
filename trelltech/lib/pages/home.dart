@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => BoardPage(boards[index])
+                        builder: (_) => BoardPage(board: boards[index])
                       )
                     );
 
