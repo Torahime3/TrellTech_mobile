@@ -1,15 +1,20 @@
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/list_model.dart';
+import 'package:trelltech/storage/authtoken_storage.dart';
 
 class CardController {
-  final String apiKey = "31b42a669dfa82bfba4203e7b18d6f6e";
-  final String apiToken =
-      "ATTAea00fc54136551cffd8859f79e8e8482654a2c96ac980e1c8885af35ccd2a877D08B7C23";
+  final String? apiKey = dotenv.env['API_KEY'];
+
+  Future<String?> getApiToken() async {
+    return await AuthTokenStorage.getAuthToken();
+  }
 
   Future<List<CardModel>> getCards({required ListModel list}) async {
+    String apiToken = (await getApiToken())!;
     final String id = list.id;
     final url = Uri.parse(
         "https://api.trello.com/1/lists/$id/cards?key=$apiKey&token=$apiToken");

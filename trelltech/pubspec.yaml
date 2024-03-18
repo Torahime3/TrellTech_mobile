@@ -34,6 +34,7 @@ dependencies:
   url_launcher : ^6.2.5  # Pour utiliser un WebView dans votre application Flutter
   http: ^1.2.1  # Pour effectuer des requêtes HTTP vers l'API de Trello
   flutter_secure_storage: ^9.0.0 # Pour stocker les tokens d'authentification de l'utilisateur
+  flutter_dotenv: ^5.1.0 # Pour charger les variables d'environnement depuis un fichier .env
 
 
 dev_dependencies:
@@ -52,7 +53,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
+  assets:
+    - .env
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
