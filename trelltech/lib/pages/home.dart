@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'package:trelltech/models/board_model.dart';
-
 import 'package:trelltech/controllers/board_controller.dart';
+import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/pages/board.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
@@ -129,9 +127,12 @@ class _HomePageState extends State<HomePage> {
                                   labelText: "Board name",
                                 ),
                                 onFieldSubmitted: (String value) {
-                                  _boardController.create(value);
-                                  Navigator.of(context).pop();
-                                  _loadInfo();
+                                  _boardController.create(
+                                      name: value,
+                                      onCreated: () {
+                                        Navigator.of(context).pop();
+                                        _loadInfo();
+                                      });
                                 },
                               ))
                         ],

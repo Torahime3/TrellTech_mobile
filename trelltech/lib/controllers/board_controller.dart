@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:trelltech/models/board_model.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:trelltech/storage/authtoken_storage.dart';
 
 class BoardController {
@@ -32,7 +32,7 @@ class BoardController {
     }
   }
 
-  void create(name) async {
+  void create({required name, void Function()? onCreated}) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
         'https://api.trello.com/1/boards/?name=$name&key=$apiKey&token=$apiToken');
@@ -40,6 +40,9 @@ class BoardController {
 
     if (response.statusCode == 200) {
       print("Hurray");
+      if (onCreated != null) {
+        onCreated();
+      }
     } else {
       throw Exception("No board created");
     }
