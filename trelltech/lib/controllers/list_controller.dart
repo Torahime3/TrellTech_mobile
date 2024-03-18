@@ -70,7 +70,7 @@ class ListController {
     }
   }
 
-  void delete({required id}) async {
+  void delete({required id, void Function()? onDeleted}) async {
     final url = Uri.parse(
         'https://api.trello.com/1/lists/$id/closed?key=$apiKey&token=$apiToken');
 
@@ -83,6 +83,9 @@ class ListController {
 
     if (response.statusCode == 200) {
       print("List Deleted Successfully");
+      if (onDeleted != null) {
+        onDeleted();
+      }
     } else {
       throw Exception("List Deletion failed");
     }

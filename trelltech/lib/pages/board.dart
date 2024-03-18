@@ -266,8 +266,11 @@ class _BoardPageState extends State<BoardPage> {
       if (value == 'update') {
         _updateListDialog(list.id);
       } else if (value == 'delete') {
-        _listsController.delete(id: list.id);
-        _loadInfo();
+        _listsController.delete(
+            id: list.id,
+            onDeleted: () {
+              _loadInfo();
+            });
       }
     });
   }
