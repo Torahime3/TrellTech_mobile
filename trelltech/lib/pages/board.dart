@@ -25,10 +25,10 @@ class _BoardPageState extends State<BoardPage> {
   @override
   void initState() {
     super.initState();
-    _getInitialInfo();
+    _loadInfo();
   }
 
-  void _getInitialInfo() async {
+  void _loadInfo() async {
     final fetchedLists = await _listsController.getLists(board: widget.board);
     setState(() {
       lists = fetchedLists;
@@ -160,8 +160,39 @@ class _BoardPageState extends State<BoardPage> {
       width: 75,
       child: FloatingActionButton(
         onPressed: () {
-          _cardsController.create(listId);
-          setState(() {});
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return SizedBox(
+                height: 600,
+                child: Center(
+                  child: Form(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: "Enter a title for this card...",
+                            ),
+                            onFieldSubmitted: (String value) {
+                              _cardsController.create(listId, value);
+                              Navigator.of(context).pop();
+                              _loadInfo();
+                            },
+                          )
+                        )
+                      ],
+                    )
+                  )
+                )
+              );
+            }
+          );
+          // _cardsController.create(listId);
+          // _loadInfo();
+          // setState(() {});
         },
         tooltip: 'Increment Counter',
         backgroundColor: const Color.fromARGB(255, 229, 229, 229),
@@ -198,4 +229,5 @@ class _BoardPageState extends State<BoardPage> {
       ),
     );
   }
+
 }
