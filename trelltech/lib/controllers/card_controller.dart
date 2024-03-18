@@ -37,4 +37,25 @@ class CardController {
       throw Exception("No card created");
     }
   }
+
+  void update(cardId, value) async {
+    final url = Uri.parse('https://api.trello.com/1/cards/$cardId?key=$apiKey&token=$apiToken&name=$value');
+    final response = await http.put(url);
+    if (response.statusCode == 200) {
+      print("Updated");
+    } else {
+      throw Exception("Board not updated");
+    }
+  }
+
+  void delete(cardId) async {
+    final url = Uri.parse('https://api.trello.com/1/cards/$cardId?key=$apiKey&token=$apiToken');
+    final response = await http.delete(url);
+
+    if (response.statusCode == 200) {
+      print("Deleted");
+    } else {
+      throw Exception("Board not deleted");
+    }
+  }
 }
