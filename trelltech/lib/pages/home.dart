@@ -16,7 +16,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final BoardController _boardController = BoardController();
   List<BoardModel> boards = [];
-  bool _isHovered = false;
 
   @override
   void initState() {
@@ -40,48 +39,58 @@ class _HomePageState extends State<HomePage> {
           itemCount: boards.length,
           itemBuilder: (BuildContext context, int index) {
             return Container(
-                margin: const EdgeInsets.all(10),
-                child: MouseRegion(
-                  onEnter: (event) => setState(() {
-                    _isHovered = true;
-                  }),
-                  onExit: (event) => setState(() {
-                    _isHovered = false;
-                  }),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => BoardPage(board: boards[index])));
-                    },
-                    child: Ink(
-                      height: 130,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.blue,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
+              margin: const EdgeInsets.all(10),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => BoardPage(
+                                board: boards[index],
+                                boardColor:
+                                    Colors.primaries.elementAt(index % 18),
+                              )));
+                },
+                child: Ink(
+                  height: 80,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.primaries.elementAt(index % 18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset: const Offset(0, 6),
                       ),
-                      child: Container(
-                        margin: const EdgeInsets.all(10),
-                        child: Text(
+                    ],
+                  ),
+                  child: Container(
+                    margin: const EdgeInsets.all(10),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.dashboard,
+                          color:
+                              Colors.primaries.elementAt(index % 18).shade900,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
                           boards[index].getName(),
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                ));
+                ),
+              ),
+            );
           },
         ),
         floatingActionButton: FloatingActionButton(
