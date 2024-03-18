@@ -54,22 +54,40 @@ class _TrelloAuthScreenState extends State<TrelloAuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Trello Auth')),
+      appBar: AppBar(title: const Text('Authentification')),
       body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(authToken != null
-                ? 'Vous êtes authentifié'
-                : 'Vous n\'êtes pas authentifié'),
+            Text("TrellTech",
+                style:
+                    const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 30),
+            Text(
+                authToken != null
+                    ? 'Vous êtes authentifié'
+                    : 'Vous n\'êtes pas authentifié',
+                style: const TextStyle(fontSize: 20)),
             SizedBox(height: 20),
-            ElevatedButton(
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.blue,
+                minimumSize: const Size(200, 40),
+              ),
               onPressed: () async {
                 await launchUrl(Uri.parse(url),
                     mode: LaunchMode.inAppBrowserView);
               },
-              child: const Text('Authenticate with Trello'),
+              child: const Text('Authentification avec Trello'),
             ),
-            ElevatedButton(
+            TextButton(
+                style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: authToken != null
+                        ? Color.fromARGB(255, 18, 121, 206)
+                        : Colors.grey,
+                    minimumSize: const Size(200, 40)),
                 onPressed: () async {
                   if (authToken != null) {
                     Navigator.push(context,

@@ -15,7 +15,6 @@ class BoardController {
 
   Future<List<BoardModel>> getBoards() async {
     String apiToken = (await getApiToken())!;
-    print("getBoards called - user token is $apiToken");
     final url = Uri.parse(
         "https://api.trello.com/1/members/$id/boards?key=$apiKey&token=$apiToken");
 
