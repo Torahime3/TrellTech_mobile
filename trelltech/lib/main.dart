@@ -1,14 +1,11 @@
-import 'dart:isolate';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:trelltech/pages/auth/authentication.dart';
-import 'package:trelltech/pages/home.dart';
 import 'package:trelltech/server/server.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
-  RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
-  Isolate.spawn(startWebServer, rootIsolateToken);
+void main() async {
+  startWebServer();
+  dotenv.load();
   runApp(const TrellTech());
 }
 

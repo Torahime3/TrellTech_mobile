@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:trelltech/storage/authtoken_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Future<void> startWebServer(RootIsolateToken rootIsolateToken) async {
-  BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
+Future<void> startWebServer() async {
+  // BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
   var server = await HttpServer.bind(InternetAddress.loopbackIPv4, 8080);
 
   await for (var request in server) {
@@ -23,12 +23,12 @@ Future<void> startWebServer(RootIsolateToken rootIsolateToken) async {
       request.response
         ..headers.contentType = ContentType("text", "html", charset: "utf-8")
         ..write(
-            "<h1 style={font-size: 50px;}>Redirection vers l'application... si vous n'êtes pas rediriger dans les 5 secondes, faites le vous mêmes</h1>")
+            "<h1 style={font-size: 50px;}>Authentification réussie, merci de quitter cette page</h1>")
         ..close();
 
       // print(request.uri.queryParameters["token"]);
       var userToken = request.uri.queryParameters["token"];
-      await AuthTokenStorage.setAuthToken(userToken!);
+      AuthTokenStorage.setAuthToken(userToken!);
       break;
     }
   }

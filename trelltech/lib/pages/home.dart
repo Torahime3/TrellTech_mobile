@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:trelltech/models/board_model.dart';
 
 import 'package:trelltech/controllers/board_controller.dart';
-import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/pages/board.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
@@ -39,6 +38,7 @@ class _HomePageState extends State<HomePage> {
         body: ListView.builder(
           itemCount: boards.length,
           itemBuilder: (BuildContext context, int index) {
+
               return Container(
                   margin: const EdgeInsets.all(10),
                   child: GestureDetector(
