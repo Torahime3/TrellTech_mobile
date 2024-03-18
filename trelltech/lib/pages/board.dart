@@ -37,7 +37,50 @@ class _BoardPageState extends State<BoardPage> {
   Widget build(BuildContext context) {
     final board = widget.board;
     return Scaffold(
-      appBar: appbar(text: board.name, color: Colors.blue),
+      appBar: appbar(
+        text: widget.board.name, 
+        color: Colors.blue,
+        showEditButton: true,
+        onDelete: () {
+          boardController.delete(widget.board.id);
+          Navigator.of(context).pop();
+        },
+        onEdit: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return SizedBox(
+                height: 600,
+                child: Center(
+                  // child: Text('Your modal content goes here'),
+                  child: Form(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: "Board name",
+                            ),
+                            onFieldSubmitted: (String value) {
+                              boardController.update(widget.board.id, value);
+                              Navigator.of(context).pop();
+                              setState(() {
+                                widget.board.name = value;
+                              });
+                            },
+                          )
+                        )
+                      ],
+                    )
+                  )
+                )
+              );
+            }
+          );
+        }
+      ), // Use BoardModel properties
       body: Container(
         color: Colors.white,
         child: ListView.builder(
