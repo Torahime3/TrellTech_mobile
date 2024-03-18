@@ -61,7 +61,7 @@ class _TrelloAuthScreenState extends State<TrelloAuthScreen> {
           children: [
             Text("TrellTech",
                 style:
-                    const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                    const TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
             const SizedBox(height: 30),
             Text(
                 authToken != null
