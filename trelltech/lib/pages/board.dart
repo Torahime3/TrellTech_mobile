@@ -149,6 +149,7 @@ class _BoardPageState extends State<BoardPage> {
             Navigator.of(context).pop();
           },
           onEdit: () {
+            _textEditingController.text = board.name;
             showModalBottomSheet(
                 backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                 context: context,
@@ -164,6 +165,7 @@ class _BoardPageState extends State<BoardPage> {
                               padding: const EdgeInsets.all(16.0),
                               child: TextFormField(
                                 autofocus: true,
+                                controller: _textEditingController,
                                 decoration: const InputDecoration(
                                   focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
