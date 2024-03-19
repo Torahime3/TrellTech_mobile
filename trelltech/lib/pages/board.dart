@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/widgets.dart';
 
 
 import 'package:trelltech/controllers/board_controller.dart';
@@ -22,6 +23,7 @@ class _BoardPageState extends State<BoardPage> {
   final ListController _listsController = ListController();
   final CardController _cardsController = CardController();
   final BoardController _boardController = BoardController();
+  final TextEditingController _textEditingController = TextEditingController(text: "Initial Text");
   List<ListModel> lists = [];
 
   @override
@@ -391,6 +393,7 @@ class _BoardPageState extends State<BoardPage> {
               PopupMenuItem(child: ListTile(
                 title: const Text("Update"),
                 onTap: () {
+                  _textEditingController.text = card.name;
                   showModalBottomSheet(
                     context: context,
                     builder: (BuildContext context) {
@@ -402,20 +405,22 @@ class _BoardPageState extends State<BoardPage> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.all(16.0),
-                                  child: TextFormField(
-                                    decoration: const InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      labelText: "Enter a title for this card...",
-                                    ),
-                                    onFieldSubmitted: (String value) {
-                                      _cardsController.update(card.id, value);
-                                      Navigator.of(context).pop();
-                                      _loadInfo();
-                                      Navigator.of(context).pop();
-                                    },
-                                    
+                                    child: Focus(
+                                      autofocus: true,
+                                      child: TextFormField(
+                                        autofocus: true,
+                                        controller: _textEditingController,
+                                        decoration: null,
+                                        onFieldSubmitted: (String value) {
+                                          _cardsController.update(card.id, value);
+                                          Navigator.of(context).pop();
+                                          _loadInfo();
+                                          Navigator.of(context).pop();
+                                        },
+                                        
+                                      )
+                                    )
                                   )
-                                )
                               ],
                             )
                           )
