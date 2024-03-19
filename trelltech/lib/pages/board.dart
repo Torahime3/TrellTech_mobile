@@ -452,8 +452,10 @@ class _BoardPageState extends State<BoardPage> {
                   color: Colors.white, // Text color for header
                 ),
               ),
-            ],
-          ),
-        ));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
