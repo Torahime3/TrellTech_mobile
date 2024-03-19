@@ -1,33 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:trelltech/controllers/card_controller.dart';
+import 'package:trelltech/controllers/member_controller.dart';
 import 'package:trelltech/models/card_model.dart';
+import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/widgets/appbar.dart';
+import 'package:trelltech/widgets/memberAvatar.dart';
 
 class CardPage extends StatefulWidget {
-  const CardPage({super.key, required this.card, required this.boardColor});
   final CardModel card;
   final Color boardColor;
+
+  const CardPage({Key? key, required this.card, required this.boardColor})
+      : super(key: key);
 
   @override
   State<CardPage> createState() => _CardPageState();
 }
 
 class _CardPageState extends State<CardPage> {
-  final CardController _cardsController = CardController();
-  List<CardModel> details = [];
+  final MemberController _memberController = MemberController();
+  List<MemberModel> members = [];
 
   @override
   void initState() {
     super.initState();
-    _loadCardDetails();
+    _loadMembers();
   }
 
-  void _loadCardDetails() async {
-    final cardDetails =
-        await _cardsController.getCardDetails(card: widget.card);
-    setState(() {
-      details = cardDetails;
-    });
+  void _loadMembers() async {
+    try {
+      List<MemberModel> memberDetails = [];
+      for (String memberId in widget.card.idMembers) {
+        final MemberModel member =
+            await _memberController.getMemberDetails(id: memberId);
+        memberDetails.add(member);
+      }
+      setState(() {
+        members = memberDetails;
+      });
+    } catch (e) {
+      print('Error loading members: $e');
+    }
   }
 
   @override
@@ -44,43 +56,55 @@ class _CardPageState extends State<CardPage> {
           children: [
             cardDetailsContainer(
               icon: Icons.description,
-              data: details.isNotEmpty ? details[0].desc : 'Loading...',
+              data: widget.card.desc,
             ),
-            cardDetailsContainer(
-              icon: Icons.description,
-              data: details.isNotEmpty ? details[0].name : 'Loading...',
-            ),
+            SizedBox(height: 16),
+            if (members.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: members.map((member) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: MemberAvatar(
+                        initials: member.initials,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget cardDetailsContainer({IconData? icon, String? data}) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      margin: const EdgeInsets.all(12.0),
+Widget cardDetailsContainer({IconData? icon, String? data}) {
+  return Container(
+    //width: MediaQuery.of(context).size.width,
+    margin: const EdgeInsets.all(12.0),
+    padding: const EdgeInsets.all(16.0),
+    decoration: BoxDecoration(
+      color: Color.fromARGB(255, 0, 0, 0),
+      borderRadius: BorderRadius.circular(10.0),
+    ),
+    child: Padding(
       padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Color.fromARGB(255, 0, 0, 0),
-        borderRadius: BorderRadius.circular(10.0),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: Colors.white,
+          ),
+          SizedBox(width: 20), // Adjust the spacing as needed
+          Text(
+            data ?? '',
+            style: TextStyle(fontSize: 18, color: Colors.white),
+          ),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: Colors.white,
-            ),
-            SizedBox(width: 20), // Adjust the spacing as needed
-            Text(
-              data ?? '',
-              style: TextStyle(fontSize: 18, color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+    ),
+  );
 }

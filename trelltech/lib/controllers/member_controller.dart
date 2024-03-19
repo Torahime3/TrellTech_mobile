@@ -12,7 +12,7 @@ class MemberController {
     return await AuthTokenStorage.getAuthToken();
   }
 
-  Future<List<MemberModel>> getMemberDetails({required id}) async {
+  Future<MemberModel> getMemberDetails({required id}) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
         "https://api.trello.com/1/members/$id?key=$apiKey&token=$apiToken");
@@ -20,7 +20,7 @@ class MemberController {
     final response = await http.get(url);
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
-      return jsonResponse;
+      return MemberModel.fromJson(jsonResponse);
     } else {
       throw Exception("No member found");
     }
