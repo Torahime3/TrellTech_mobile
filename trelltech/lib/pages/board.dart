@@ -52,6 +52,7 @@ class _BoardPageState extends State<BoardPage> {
           content: TextField(
             controller: _textFieldController,
             decoration: const InputDecoration(hintText: "Enter list name"),
+            cursorColor: const Color.fromARGB(255, 49, 49, 49),
           ),
           actions: <Widget>[
             TextButton(
@@ -90,6 +91,7 @@ class _BoardPageState extends State<BoardPage> {
           content: TextField(
             controller: _textFieldController,
             decoration: const InputDecoration(hintText: "Enter new list name"),
+            cursorColor: const Color.fromARGB(255, 49, 49, 49),
           ),
           actions: <Widget>[
             TextButton(
@@ -138,6 +140,7 @@ class _BoardPageState extends State<BoardPage> {
           },
           onEdit: () {
             showModalBottomSheet(
+                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                 context: context,
                 builder: (BuildContext context) {
                   return SizedBox(
@@ -150,10 +153,9 @@ class _BoardPageState extends State<BoardPage> {
                           Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: TextFormField(
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  labelText: "Board name",
-                                ),
+                                autofocus: true,
+                                decoration: null,
+                                cursorColor: const Color.fromARGB(255, 49, 49, 49),
                                 onFieldSubmitted: (String value) {
                                   _boardController.update(
                                       id: board.id,
@@ -338,6 +340,7 @@ class _BoardPageState extends State<BoardPage> {
         child: FloatingActionButton(
           onPressed: () {
             showModalBottomSheet(
+                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                 context: context,
                 builder: (BuildContext context) {
                   return SizedBox(
@@ -350,10 +353,8 @@ class _BoardPageState extends State<BoardPage> {
                               padding: const EdgeInsets.all(16.0),
                               child: TextFormField(
                                 autofocus: true,
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  labelText: "Enter a title for this card...",
-                                ),
+                                decoration: null,
+                                cursorColor: const Color.fromARGB(255, 49, 49, 49),
                                 onFieldSubmitted: (String value) {
                                   _cardsController.create(listId, value);
                                   Navigator.of(context).pop();
@@ -402,6 +403,7 @@ class _BoardPageState extends State<BoardPage> {
                 onTap: () {
                   _textEditingController.text = card.name;
                   showModalBottomSheet(
+                    backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                     context: context,
                     builder: (BuildContext context) {
                       return SizedBox(
@@ -417,6 +419,7 @@ class _BoardPageState extends State<BoardPage> {
                                         autofocus: true,
                                         controller: _textEditingController,
                                         decoration: null,
+                                        cursorColor: const Color.fromARGB(255, 49, 49, 49),
                                         onFieldSubmitted: (String value) {
                                           _cardsController.update(card.id, value);
                                           Navigator.of(context).pop();
