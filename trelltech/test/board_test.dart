@@ -127,4 +127,23 @@ void main() {
       );
     });
   });
+
+  group('delete -', () {
+    test('successfully deletes a board', () async {
+      when(mockClient.delete(any))
+          .thenAnswer((_) async => http.Response('Successfully deleted', 200));
+
+      await boardController.delete('1');
+
+      verify(mockClient.delete(any)).called(1);
+    });
+
+    test('throws an exception if the http call to delete a board fails',
+        () async {
+      when(mockClient.delete(any))
+          .thenAnswer((_) async => http.Response('Error', 400));
+
+      expect(() => boardController.delete('1'), throwsException);
+    });
+  });
 }

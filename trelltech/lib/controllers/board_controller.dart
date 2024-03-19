@@ -70,14 +70,14 @@ class BoardController {
     }
   }
 
-  void delete(id) async {
+  Future<bool> delete(id) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
         'https://api.trello.com/1/boards/$id?key=$apiKey&token=$apiToken');
     final response = await client.delete(url);
 
     if (response.statusCode == 200) {
-      print("Deleted");
+      return true;
     } else {
       throw Exception("Board not deleted");
     }
