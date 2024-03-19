@@ -125,6 +125,7 @@ class _HomePageState extends State<HomePage> {
                           Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: TextFormField(
+                                autofocus: true, 
                                 decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                   labelText: "Board name",

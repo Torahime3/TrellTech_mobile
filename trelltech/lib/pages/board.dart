@@ -412,7 +412,6 @@ class _BoardPageState extends State<BoardPage> {
                                 Padding(
                                   padding: const EdgeInsets.all(16.0),
                                     child: Focus(
-                                      autofocus: true,
                                       child: TextFormField(
                                         autofocus: true,
                                         controller: _textEditingController,
