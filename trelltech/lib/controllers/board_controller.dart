@@ -45,12 +45,10 @@ class BoardController {
     final response = await client.post(url);
 
     if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-
       if (onCreated != null) {
         onCreated();
       }
-
+      final jsonResponse = jsonDecode(response.body);
       return BoardModel.fromJson(jsonResponse);
     } else {
       throw Exception("No board created");
