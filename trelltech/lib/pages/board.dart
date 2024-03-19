@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/widgets.dart';
+
 import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
@@ -22,6 +25,7 @@ class _BoardPageState extends State<BoardPage> {
   final ListController _listsController = ListController();
   final CardController _cardsController = CardController();
   final BoardController _boardController = BoardController();
+  final TextEditingController _textEditingController = TextEditingController(text: "Initial Text");
   List<ListModel> lists = [];
 
   @override
@@ -371,78 +375,81 @@ class _BoardPageState extends State<BoardPage> {
 
   Widget _buildCard(CardModel card) {
     return Container(
-        margin: const EdgeInsets.all(12.0),
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 95, 95, 95),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: GestureDetector(
-          onLongPress: () {
-            showMenu(
-                context: context,
-                position: const RelativeRect.fromLTRB(0, 200, 0, 0),
-                items: <PopupMenuEntry>[
-                  PopupMenuItem(
-                      child: ListTile(
-                          title: const Text('Delete card'),
-                          onTap: () {
-                            _cardsController.delete(card.id);
-                            Navigator.of(context).pop();
-                            _loadInfo();
-                          })),
-                  PopupMenuItem(
-                      child: ListTile(
-                          title: const Text("Update"),
-                          onTap: () {
-                            showModalBottomSheet(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return SizedBox(
-                                      height: 600,
-                                      child: Center(
-                                          child: Form(
-                                              child: Column(
-                                        children: [
-                                          Padding(
-                                              padding:
-                                                  const EdgeInsets.all(16.0),
-                                              child: TextFormField(
-                                                decoration:
-                                                    const InputDecoration(
-                                                  border: OutlineInputBorder(),
-                                                  labelText:
-                                                      "Enter a title for this card...",
-                                                ),
-                                                onFieldSubmitted:
-                                                    (String value) {
-                                                  _cardsController.update(
-                                                      card.id, value);
-                                                  Navigator.of(context).pop();
-                                                  _loadInfo();
-                                                  Navigator.of(context).pop();
-                                                },
-                                              ))
-                                        ],
-                                      ))));
-                                });
-                            // Navigator.of(context).pop();
-                          }))
-                ]);
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                // Wrap text widget with Expanded
-                child: Text(
-                  card.name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white, // Text color for header
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
+      margin: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 95, 95, 95),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: GestureDetector(
+        onLongPress: () {
+          showMenu(
+            context: context, 
+            position: const RelativeRect.fromLTRB(0, 200, 0, 0), 
+            items: <PopupMenuEntry>
+            [
+              PopupMenuItem(child: ListTile(
+                title: const Text('Delete card'),
+                onTap: () {
+                  _cardsController.delete(card.id);
+                  Navigator.of(context).pop();
+                  _loadInfo();
+                }
+              )),
+              PopupMenuItem(child: ListTile(
+                title: const Text("Update"),
+                onTap: () {
+                  _textEditingController.text = card.name;
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SizedBox(
+                        height: 600,
+                        child: Center(
+                          child: Form(
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                    child: Focus(
+                                      autofocus: true,
+                                      child: TextFormField(
+                                        autofocus: true,
+                                        controller: _textEditingController,
+                                        decoration: null,
+                                        onFieldSubmitted: (String value) {
+                                          _cardsController.update(card.id, value);
+                                          Navigator.of(context).pop();
+                                          _loadInfo();
+                                          Navigator.of(context).pop();
+                                        },
+                                        
+                                      )
+                                    )
+                                  )
+                              ],
+                            )
+                          )
+                        )
+                      );
+                    }
+                  );
+                  // Navigator.of(context).pop();
+                }
+              ))
+            ]
+          );
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              // Wrap text widget with Expanded
+              child: Text(
+                card.name,
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.white, // Text color for header
                 ),
               ),
             ],

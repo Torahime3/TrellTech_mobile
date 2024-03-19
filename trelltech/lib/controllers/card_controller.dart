@@ -68,4 +68,23 @@ class CardController {
       throw Exception("Board not deleted");
     }
   }
+
+  Future<String> getCardName(cardId) async {
+    String apiToken = (await getApiToken())!;
+    final url = Uri.parse('https://api.trello.com/1/cards/$cardId/name?key=$apiKey&token=$apiToken');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      print(jsonResponse['_value']);
+
+      // Does the same thing
+      // Map<String, dynamic> jsonRes = json.decode(response.body);
+      // print(jsonRes['_value']);
+      return jsonResponse['_value'];
+
+    } else {
+      throw Exception("Board not deleted");
+    }
+  }
 }
