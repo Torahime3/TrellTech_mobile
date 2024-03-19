@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-
 import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
@@ -127,7 +125,11 @@ class _BoardPageState extends State<BoardPage> {
           color: boardColor,
           showEditButton: true,
           onDelete: () {
-            _boardController.delete(board.id);
+            _boardController.delete(
+                id: board.id,
+                onDeleted: () {
+                  _loadInfo();
+                });
             Navigator.of(context).pop();
           },
           onEdit: () {
@@ -149,7 +151,12 @@ class _BoardPageState extends State<BoardPage> {
                                   labelText: "Board name",
                                 ),
                                 onFieldSubmitted: (String value) {
-                                  _boardController.update(board.id, value);
+                                  _boardController.update(
+                                      id: board.id,
+                                      name: value,
+                                      onUpdated: () {
+                                        _loadInfo();
+                                      });
                                   Navigator.of(context).pop();
                                   setState(() {
                                     board.name = value;

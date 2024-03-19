@@ -48,8 +48,11 @@ class _HomePageState extends State<HomePage> {
                             child: ListTile(
                                 title: const Text('Delete board'),
                                 onTap: () {
-                                  _boardController.delete(boards[index].id);
-                                  _loadInfo();
+                                  _boardController.delete(
+                                      id: boards[index].id,
+                                      onDeleted: () {
+                                        _loadInfo();
+                                      });
                                   Navigator.of(context).pop();
                                 })),
                       ]);
@@ -130,9 +133,9 @@ class _HomePageState extends State<HomePage> {
                                   _boardController.create(
                                       name: value,
                                       onCreated: () {
-                                        Navigator.of(context).pop();
                                         _loadInfo();
                                       });
+                                  Navigator.of(context).pop();
                                 },
                               ))
                         ],

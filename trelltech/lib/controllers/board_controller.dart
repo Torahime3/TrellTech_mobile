@@ -48,19 +48,22 @@ class BoardController {
     }
   }
 
-  void update(id, name) async {
+  void update({required id, required name, void Function()? onUpdated}) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
         'https://api.trello.com/1/boards/$id?key=$apiKey&token=$apiToken&name=$name');
     final response = await http.put(url);
     if (response.statusCode == 200) {
       print("Updated");
+      if (onUpdated != null) {
+        onUpdated();
+      }
     } else {
       throw Exception("Board not updated");
     }
   }
 
-  void delete(id) async {
+  void delete({required id, void Function()? onDeleted}) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
         'https://api.trello.com/1/boards/$id?key=$apiKey&token=$apiToken');
@@ -68,6 +71,9 @@ class BoardController {
 
     if (response.statusCode == 200) {
       print("Deleted");
+      if (onDeleted != null) {
+        onDeleted();
+      }
     } else {
       throw Exception("Board not deleted");
     }
