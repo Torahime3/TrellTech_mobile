@@ -353,6 +353,7 @@ class _BoardPageState extends State<BoardPage> {
         width: 75,
         child: FloatingActionButton(
           onPressed: () {
+            _textEditingController.text = "";
             showModalBottomSheet(
                 backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                 context: context,
@@ -363,22 +364,41 @@ class _BoardPageState extends State<BoardPage> {
                           child: Form(
                               child: Column(
                         children: [
-                          Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: TextFormField(
-                                autofocus: true,
-                                decoration: const InputDecoration(
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
-                                  ),
+                          Expanded(
+                            child: ListView(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    
+                                    _cardsController.create(listId, _textEditingController.text);
+                                    Navigator.of(context).pop();
+                                    _loadInfo();
+                                  },
+                                  child: const Text("Create"),
+                                        
                                 ),
-                                cursorColor: const Color.fromARGB(255, 49, 49, 49),
-                                onFieldSubmitted: (String value) {
-                                  _cardsController.create(listId, value);
-                                  Navigator.of(context).pop();
-                                  _loadInfo();
-                                },
-                              ))
+                                Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: TextFormField(
+                                      autofocus: true,
+                                      controller: _textEditingController,
+                                      decoration: const InputDecoration(
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
+                                        ),
+                                      ),
+                                      cursorColor: const Color.fromARGB(255, 49, 49, 49),
+                                      maxLines: null,
+                                      // onFieldSubmitted: (String value) {
+                                      //   _cardsController.create(listId, value);
+                                      //   Navigator.of(context).pop();
+                                      //   _loadInfo();
+                                      // },
+                                    )
+                                )
+                              ]
+                            )
+                          )
                         ],
                       ))));
                 });
@@ -430,28 +450,44 @@ class _BoardPageState extends State<BoardPage> {
                           child: Form(
                             child: Column(
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                    child: Focus(
-                                      child: TextFormField(
-                                        autofocus: true,
-                                        controller: _textEditingController,
-                                        decoration: const InputDecoration(
-                                          focusedBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
-                                          ),
-                                        ),
-                                        cursorColor: const Color.fromARGB(255, 49, 49, 49),
-                                        onFieldSubmitted: (String value) {
-                                          _cardsController.update(card.id, value);
+                                Expanded(
+                                  child: ListView(
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          _cardsController.update(card.id, _textEditingController.text);
                                           Navigator.of(context).pop();
                                           _loadInfo();
                                           Navigator.of(context).pop();
                                         },
+                                        child: const Text("Edit"),
                                         
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                            child: TextFormField(
+                                              autofocus: true,
+                                              controller: _textEditingController,
+                                              decoration: const InputDecoration(
+                                                focusedBorder: UnderlineInputBorder(
+                                                  borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
+                                                ),
+                                              ),
+                                              cursorColor: const Color.fromARGB(255, 49, 49, 49),
+                                              maxLines: null,
+                                              // onFieldSubmitted: (String value) {
+                                              //   _cardsController.update(card.id, value);
+                                              //   Navigator.of(context).pop();
+                                              //   _loadInfo();
+                                              //   Navigator.of(context).pop();
+                                              // },
+                                              
+                                            )
+                                          
                                       )
-                                    )
+                                    ]
                                   )
+                                )
                               ],
                             )
                           )
