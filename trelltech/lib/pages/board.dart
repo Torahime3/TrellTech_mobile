@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-
 import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
@@ -12,8 +11,11 @@ import 'package:trelltech/models/list_model.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
 class BoardPage extends StatefulWidget {
-  const BoardPage({super.key, required this.board}) : assert(board != null);
+  const BoardPage(
+      {super.key, required this.board, this.boardColor = Colors.blue})
+      : assert(board != null);
   final BoardModel board;
+  final Color boardColor;
 
   @override
   State<BoardPage> createState() => _BoardPageState();
@@ -120,51 +122,55 @@ class _BoardPageState extends State<BoardPage> {
   @override
   Widget build(BuildContext context) {
     final board = widget.board;
+    final boardColor = widget.boardColor;
     return Scaffold(
       appBar: appbar(
-        text: board.name, 
-        color: Colors.blue,
-        showEditButton: true,
-        onDelete: () {
-          _boardController.delete(board.id);
-          Navigator.of(context).pop();
-        },
-        onEdit: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (BuildContext context) {
-              return SizedBox(
-                height: 600,
-                child: Center(
-                  // child: Text('Your modal content goes here'),
-                  child: Form(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: TextFormField(
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: "Board name",
-                            ),
-                            onFieldSubmitted: (String value) {
-                              _boardController.update(board.id, value);
-                              Navigator.of(context).pop();
-                              setState(() {
-                                board.name = value;
-                              });
-                            },
-                          )
-                        )
-                      ],
-                    )
-                  )
-                )
-              );
-            }
-          );
-        }
-      ),
+          text: board.name,
+          color: boardColor,
+          showEditButton: true,
+          onDelete: () {
+            _boardController.delete(
+                id: board.id,
+                onDeleted: () {
+                  _loadInfo();
+                });
+            Navigator.of(context).pop();
+          },
+          onEdit: () {
+            showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  return SizedBox(
+                      height: 600,
+                      child: Center(
+                          // child: Text('Your modal content goes here'),
+                          child: Form(
+                              child: Column(
+                        children: [
+                          Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: TextFormField(
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Board name",
+                                ),
+                                onFieldSubmitted: (String value) {
+                                  _boardController.update(
+                                      id: board.id,
+                                      name: value,
+                                      onUpdated: () {
+                                        _loadInfo();
+                                      });
+                                  Navigator.of(context).pop();
+                                  setState(() {
+                                    board.name = value;
+                                  });
+                                },
+                              ))
+                        ],
+                      ))));
+                });
+          }),
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
           return Container(
@@ -445,13 +451,9 @@ class _BoardPageState extends State<BoardPage> {
                   fontSize: 18,
                   color: Colors.white, // Text color for header
                 ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
-        ),
-      )
-    );
+            ],
+          ),
+        ));
   }
 }
