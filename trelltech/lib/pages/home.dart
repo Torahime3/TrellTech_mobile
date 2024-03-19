@@ -144,6 +144,8 @@ class _HomePageState extends State<HomePage> {
           },
           tooltip: 'Increment Counter',
           backgroundColor: const Color.fromARGB(255, 229, 229, 229),
+          elevation: 1,
+          shape: const CircleBorder(),
           child: const Icon(Icons.add),
         ));
   }
