@@ -113,6 +113,7 @@ class _HomePageState extends State<HomePage> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             showModalBottomSheet(
+                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                 context: context,
                 builder: (BuildContext context) {
                   return SizedBox(
@@ -127,9 +128,11 @@ class _HomePageState extends State<HomePage> {
                               child: TextFormField(
                                 autofocus: true, 
                                 decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  labelText: "Board name",
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
+                                  ),
                                 ),
+                                cursorColor: const Color.fromARGB(255, 49, 49, 49),
                                 onFieldSubmitted: (String value) {
                                   _boardController.create(
                                       name: value,
