@@ -37,17 +37,49 @@ class _CardPageState extends State<CardPage> {
       appBar: appbar(
         text: widget.card.name,
         color: boardColor,
-        showEditButton: true,
+        showEditButton: false,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            cardDetailsContainer(
+              icon: Icons.description,
+              data: details.isNotEmpty ? details[0].desc : 'Loading...',
+            ),
+            cardDetailsContainer(
+              icon: Icons.description,
+              data: details.isNotEmpty ? details[0].name : 'Loading...',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget cardDetailsContainer({IconData? icon, String? data}) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      margin: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Color.fromARGB(255, 0, 0, 0),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: details.isEmpty
-            ? const Text(
-                'Loading...') // Display loading text while details are fetched
-            : Text(
-                details[0].desc ?? '',
-                style: const TextStyle(fontSize: 18),
-              ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: Colors.white,
+            ),
+            SizedBox(width: 20), // Adjust the spacing as needed
+            Text(
+              data ?? '',
+              style: TextStyle(fontSize: 18, color: Colors.white),
+            ),
+          ],
+        ),
       ),
     );
   }
