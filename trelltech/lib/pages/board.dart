@@ -386,6 +386,7 @@ class _BoardPageState extends State<BoardPage> {
                                         focusedBorder: UnderlineInputBorder(
                                           borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
                                         ),
+                                        hintText: "Enter a title for this card...",
                                       ),
                                       cursorColor: const Color.fromARGB(255, 49, 49, 49),
                                       maxLines: null,
