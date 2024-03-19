@@ -11,7 +11,7 @@ class MemberModel {
 
   factory MemberModel.fromJson(Map<String, dynamic> json) {
     return MemberModel(
-      name: json['name'],
+      name: json['fullName'],
       id: json['id'],
       initials: json['initials'],
     );

@@ -60,18 +60,20 @@ class _CardPageState extends State<CardPage> {
             ),
             SizedBox(height: 16),
             if (members.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: members.map((member) {
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 8.0),
+                height: 50.0,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: members.length,
+                  itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: MemberAvatar(
-                        initials: member.initials,
+                        initials: members[index].initials,
                       ),
                     );
-                  }).toList(),
+                  },
                 ),
               ),
           ],
@@ -83,7 +85,6 @@ class _CardPageState extends State<CardPage> {
 
 Widget cardDetailsContainer({IconData? icon, String? data}) {
   return Container(
-    //width: MediaQuery.of(context).size.width,
     margin: const EdgeInsets.all(12.0),
     padding: const EdgeInsets.all(16.0),
     decoration: BoxDecoration(
@@ -98,7 +99,7 @@ Widget cardDetailsContainer({IconData? icon, String? data}) {
             icon,
             color: Colors.white,
           ),
-          SizedBox(width: 20), // Adjust the spacing as needed
+          SizedBox(width: 20),
           Text(
             data ?? '',
             style: TextStyle(fontSize: 18, color: Colors.white),
