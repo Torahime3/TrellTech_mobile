@@ -99,7 +99,7 @@ class _BoardPageState extends State<BoardPage> {
               },
             ),
             TextButton(
-              child: const Text("Update"),
+              child: const Text("Edit"),
               onPressed: () {
                 String name = _textFieldController.text;
                 if (name.isNotEmpty) {
@@ -305,7 +305,7 @@ class _BoardPageState extends State<BoardPage> {
           value: 'update',
           child: ListTile(
             leading: Icon(Icons.edit, color: Colors.blue),
-            title: Text('Update'),
+            title: Text('Edit'),
           ),
         ),
         const PopupMenuItem(
@@ -397,7 +397,7 @@ class _BoardPageState extends State<BoardPage> {
                 }
               )),
               PopupMenuItem(child: ListTile(
-                title: const Text("Update"),
+                title: const Text("Edit card"),
                 onTap: () {
                   _textEditingController.text = card.name;
                   showModalBottomSheet(
