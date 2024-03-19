@@ -31,6 +31,25 @@ class CardController {
     }
   }
 
+  Future<List<CardModel>> getCardDetails({required CardModel card}) async {
+    String apiToken = (await getApiToken())!;
+    final String id = card.id;
+    final url = Uri.parse(
+        "https://api.trello.com/1/cards/$id?key=$apiKey&token=$apiToken");
+
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+
+      // Map the JSON response to a List<CardModel>
+      List<CardModel> cardDetails = [CardModel.fromJson(jsonResponse)];
+
+      return cardDetails;
+    } else {
+      throw Exception("No card found");
+    }
+  }
+
   Future<void> create(listId, value) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
