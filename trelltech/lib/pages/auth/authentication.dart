@@ -20,6 +20,7 @@ class TrelloAuthScreen extends StatefulWidget {
 class _TrelloAuthScreenState extends State<TrelloAuthScreen> {
   String? authToken;
   Function(String?) listener = (String? token) => {};
+  AuthTokenStorage _authTokenStorage = AuthTokenStorage();
 
   _TrelloAuthScreenState() {
     listener = (String? token) {
@@ -30,13 +31,13 @@ class _TrelloAuthScreenState extends State<TrelloAuthScreen> {
   @override
   void initState() {
     super.initState();
-    AuthTokenStorage.deleteAuthToken();
+    _authTokenStorage.deleteAuthToken();
     _getInitialInfo();
     AuthTokenStorage.addListener(listener);
   }
 
   Future<void> _getInitialInfo() async {
-    setAuthToken(await AuthTokenStorage.getAuthToken());
+    setAuthToken(await _authTokenStorage.getAuthToken());
   }
 
   void setAuthToken(String? token) {

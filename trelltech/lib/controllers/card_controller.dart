@@ -8,9 +8,10 @@ import 'package:trelltech/storage/authtoken_storage.dart';
 
 class CardController {
   final String? apiKey = dotenv.env['API_KEY'];
+  final AuthTokenStorage _authTokenStorage = AuthTokenStorage();
 
   Future<String?> getApiToken() async {
-    return await AuthTokenStorage.getAuthToken();
+    return await _authTokenStorage.getAuthToken();
   }
 
   Future<List<CardModel>> getCards({required ListModel list}) async {
