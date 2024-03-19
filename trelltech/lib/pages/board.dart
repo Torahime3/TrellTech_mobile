@@ -51,7 +51,12 @@ class _BoardPageState extends State<BoardPage> {
           title: const Text("Create List"),
           content: TextField(
             controller: _textFieldController,
-            decoration: const InputDecoration(hintText: "Enter list name"),
+            decoration: const InputDecoration(
+              hintText: "Enter list name",
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
+              ),
+            ),
             cursorColor: const Color.fromARGB(255, 49, 49, 49),
           ),
           actions: <Widget>[
@@ -90,7 +95,12 @@ class _BoardPageState extends State<BoardPage> {
           title: const Text("Update List"),
           content: TextField(
             controller: _textFieldController,
-            decoration: const InputDecoration(hintText: "Enter new list name"),
+            decoration: const InputDecoration(
+              hintText: "Enter new list name",
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
+              ),
+            ),
             cursorColor: const Color.fromARGB(255, 49, 49, 49),
           ),
           actions: <Widget>[
@@ -154,7 +164,11 @@ class _BoardPageState extends State<BoardPage> {
                               padding: const EdgeInsets.all(16.0),
                               child: TextFormField(
                                 autofocus: true,
-                                decoration: null,
+                                decoration: const InputDecoration(
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
+                                  ),
+                                ),
                                 cursorColor: const Color.fromARGB(255, 49, 49, 49),
                                 onFieldSubmitted: (String value) {
                                   _boardController.update(
@@ -353,7 +367,11 @@ class _BoardPageState extends State<BoardPage> {
                               padding: const EdgeInsets.all(16.0),
                               child: TextFormField(
                                 autofocus: true,
-                                decoration: null,
+                                decoration: const InputDecoration(
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
+                                  ),
+                                ),
                                 cursorColor: const Color.fromARGB(255, 49, 49, 49),
                                 onFieldSubmitted: (String value) {
                                   _cardsController.create(listId, value);
@@ -418,7 +436,11 @@ class _BoardPageState extends State<BoardPage> {
                                       child: TextFormField(
                                         autofocus: true,
                                         controller: _textEditingController,
-                                        decoration: null,
+                                        decoration: const InputDecoration(
+                                          focusedBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
+                                          ),
+                                        ),
                                         cursorColor: const Color.fromARGB(255, 49, 49, 49),
                                         onFieldSubmitted: (String value) {
                                           _cardsController.update(card.id, value);

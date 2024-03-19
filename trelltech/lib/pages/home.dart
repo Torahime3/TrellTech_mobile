@@ -127,7 +127,11 @@ class _HomePageState extends State<HomePage> {
                               padding: const EdgeInsets.all(16.0),
                               child: TextFormField(
                                 autofocus: true, 
-                                decoration: null,
+                                decoration: const InputDecoration(
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
+                                  ),
+                                ),
                                 cursorColor: const Color.fromARGB(255, 49, 49, 49),
                                 onFieldSubmitted: (String value) {
                                   _boardController.create(
