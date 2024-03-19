@@ -349,6 +349,7 @@ class _BoardPageState extends State<BoardPage> {
                           Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: TextFormField(
+                                autofocus: true,
                                 decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                   labelText: "Enter a title for this card...",
