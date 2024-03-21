@@ -37,7 +37,7 @@ void main() {
           () async {
         when(mockClient.get(
                 Uri.parse(
-                    'https://api.trello.com/1/members/trelltech12/boards?key=${dotenv.env['API_KEY']}&token=token'),
+                    'https://api.trello.com/1/members/trelltech12/boards?key=$apiKey&token=token'),
                 headers: anyNamed('headers')))
             .thenAnswer((_) async => http.Response(
                 '[{"id":"1","name":"Board 1"}, {"id":"2","name":"Board 2"}]',
@@ -59,7 +59,7 @@ void main() {
           () async {
         when(mockClient.get(
                 Uri.parse(
-                    'https://api.trello.com/1/members/trelltech12/boards?key=${dotenv.env['API_KEY']}&token=token'),
+                    'https://api.trello.com/1/members/trelltech12/boards?key=$apiKey&token=token'),
                 headers: anyNamed('headers')))
             .thenAnswer((_) async => http.Response('Not Found', 404));
 
