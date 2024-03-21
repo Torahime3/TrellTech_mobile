@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:trelltech/controllers/member_controller.dart';
+import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/models/card_model.dart';
+import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/widgets/appbar.dart';
 import 'package:trelltech/widgets/memberAvatar.dart';
 
 class CardPage extends StatefulWidget {
   final CardModel card;
+  final BoardModel board;
   final Color boardColor;
 
-  const CardPage({Key? key, required this.card, required this.boardColor})
+  const CardPage(
+      {Key? key,
+      required this.card,
+      required this.board,
+      required this.boardColor})
       : super(key: key);
 
   @override
@@ -19,11 +26,20 @@ class CardPage extends StatefulWidget {
 class _CardPageState extends State<CardPage> {
   final MemberController _memberController = MemberController();
   List<MemberModel> members = [];
+  final CardController _cardsController = CardController();
+  late TextEditingController _descriptionController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadMembers();
+    _descriptionController.text = widget.card.desc ?? ''; // Set initial value
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
   }
 
   void _loadMembers() async {
@@ -57,55 +73,146 @@ class _CardPageState extends State<CardPage> {
             cardDetailsContainer(
               icon: Icons.description,
               data: widget.card.desc,
+              onTap: () {
+                _editDescription();
+              },
             ),
-            SizedBox(height: 16),
-            if (members.isNotEmpty)
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 8.0),
-                height: 50.0,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: members.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: MemberAvatar(
-                        initials: members[index].initials,
-                      ),
-                    );
-                  },
-                ),
-              ),
+            cardDetailsContainer(
+              icon: Icons.person,
+              avatars: members
+                  .map((member) => MemberAvatar(initials: member.initials))
+                  .toList(),
+            ),
+            // Add more cardDetailsContainer widgets as needed
           ],
         ),
       ),
     );
   }
-}
 
-Widget cardDetailsContainer({IconData? icon, String? data}) {
-  return Container(
-    margin: const EdgeInsets.all(12.0),
-    padding: const EdgeInsets.all(16.0),
-    decoration: BoxDecoration(
-      color: Color.fromARGB(255, 0, 0, 0),
-      borderRadius: BorderRadius.circular(10.0),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: Colors.white,
+  Widget cardDetailsContainer({
+    required IconData icon,
+    String? data,
+    List<Widget>? avatars,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Color.fromARGB(255, 0, 0, 0),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        constraints: BoxConstraints(minHeight: 75), // Set the minimum height
+        child: IntrinsicHeight(
+          child: Padding(
+            padding: const EdgeInsets.all(0.0),
+            child: Stack(
+              children: [
+                _buildIcon(icon),
+                _buildDescription(data),
+                if (avatars != null && avatars.isNotEmpty)
+                  Positioned(
+                    top: 1,
+                    left: 40, // Adjust this value as needed
+                    child: _buildAvatarsContainer(avatars),
+                  ),
+              ],
+            ),
           ),
-          SizedBox(width: 20),
-          Text(
-            data ?? '',
-            style: TextStyle(fontSize: 18, color: Colors.white),
-          ),
-        ],
+        ),
       ),
-    ),
-  );
+    );
+  }
+
+  Widget _buildIcon(IconData icon) {
+    return Positioned(
+      top: 10,
+      left: 0,
+      child: Icon(
+        icon,
+        color: Colors.white,
+        size: 24,
+      ),
+    );
+  }
+
+  Widget _buildDescription(String? data) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(width: 40), // Width for the icon
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                child: Text(
+                  data ?? '',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 10,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAvatarsContainer(List<Widget> avatars) {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: avatars,
+      ),
+    );
+  }
+
+  void _editDescription() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit Description'),
+          content: TextField(
+            controller: _descriptionController,
+            maxLines: null,
+            keyboardType: TextInputType.multiline,
+            decoration: const InputDecoration(
+              hintText: 'Enter the description...',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Call the updateDesc method from card_controller
+                _cardsController.updateDesc(
+                  id: widget.card.id, // Pass the card id
+                  desc: _descriptionController.text, // Pass the new description
+                  onUpdated: () {
+                    // Handle any UI update after the description is updated
+                    setState(() {
+                      widget.card.desc = _descriptionController.text;
+                    });
+                  },
+                );
+                Navigator.of(context).pop();
+              },
+              child: const Text('Update'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

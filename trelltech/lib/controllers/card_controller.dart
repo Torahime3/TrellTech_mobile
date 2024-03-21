@@ -87,4 +87,27 @@ class CardController {
       throw Exception("Board not deleted");
     }
   }
+
+  void updateDesc(
+      {required id, required desc, void Function()? onUpdated}) async {
+    String apiToken = (await getApiToken())!;
+    final url = Uri.parse(
+        'https://api.trello.com/1/cards/$id?key=$apiKey&token=$apiToken');
+
+    final response = await http.put(
+      url,
+      body: {
+        'desc': desc,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print("Description Updated Successfully");
+      if (onUpdated != null) {
+        onUpdated();
+      }
+    } else {
+      throw Exception("Description Update failed");
+    }
+  }
 }

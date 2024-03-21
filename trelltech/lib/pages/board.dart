@@ -122,6 +122,8 @@ class _BoardPageState extends State<BoardPage> {
   Widget build(BuildContext context) {
     final board = widget.board;
     final boardColor = widget.boardColor;
+    // ignore: avoid_print
+    print(board.id);
     return Scaffold(
       appBar: appbar(
           text: board.name,
@@ -275,6 +277,7 @@ class _BoardPageState extends State<BoardPage> {
                             MaterialPageRoute(
                               builder: (_) => CardPage(
                                 card: cards[index],
+                                board: widget.board,
                                 boardColor: widget.boardColor,
                               ),
                             ),
