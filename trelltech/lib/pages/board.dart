@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/widgets.dart';
 
 import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/controllers/card_controller.dart';
@@ -13,8 +11,7 @@ import 'package:trelltech/widgets/appbar.dart';
 
 class BoardPage extends StatefulWidget {
   const BoardPage(
-      {super.key, required this.board, this.boardColor = Colors.blue})
-      : assert(board != null);
+      {super.key, required this.board, this.boardColor = Colors.blue});
   final BoardModel board;
   final Color boardColor;
 
@@ -45,14 +42,14 @@ class _BoardPageState extends State<BoardPage> {
 
   // Method to handle button tap and show popup dialog
   void _createListDialog() {
-    TextEditingController _textFieldController = TextEditingController();
+    TextEditingController textFieldController = TextEditingController();
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Create List"),
           content: TextField(
-            controller: _textFieldController,
+            controller: textFieldController,
             decoration: const InputDecoration(
               hintText: "Enter list name",
               focusedBorder: UnderlineInputBorder(
@@ -73,7 +70,7 @@ class _BoardPageState extends State<BoardPage> {
             TextButton(
               child: const Text("Create"),
               onPressed: () {
-                String name = _textFieldController.text;
+                String name = textFieldController.text;
                 if (name.isNotEmpty) {
                   _listsController.create(name, board: widget.board,
                       onCreated: () {
@@ -90,7 +87,7 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   void _updateListDialog(listId) {
-    TextEditingController _textFieldController = TextEditingController();
+    TextEditingController textFieldController = TextEditingController();
 
     showDialog(
       context: context,
@@ -98,7 +95,7 @@ class _BoardPageState extends State<BoardPage> {
         return AlertDialog(
           title: const Text("Update List"),
           content: TextField(
-            controller: _textFieldController,
+            controller: textFieldController,
             decoration: const InputDecoration(
               hintText: "Enter new list name",
               focusedBorder: UnderlineInputBorder(
@@ -119,7 +116,7 @@ class _BoardPageState extends State<BoardPage> {
             TextButton(
               child: const Text("Edit"),
               onPressed: () {
-                String name = _textFieldController.text;
+                String name = textFieldController.text;
                 if (name.isNotEmpty) {
                   _listsController.update(
                       id: listId,
@@ -246,7 +243,6 @@ class _BoardPageState extends State<BoardPage> {
 
   Widget _buildList(ListModel list, index) {
     final boardColor = widget.boardColor;
-    final board = widget.board;
     return FutureBuilder<List<CardModel>>(
       future: _cardsController.getCards(list: list),
       builder: (context, snapshot) {

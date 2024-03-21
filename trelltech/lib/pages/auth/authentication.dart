@@ -20,7 +20,7 @@ class TrelloAuthScreen extends StatefulWidget {
 class _TrelloAuthScreenState extends State<TrelloAuthScreen> {
   String? authToken;
   Function(String?) listener = (String? token) => {};
-  AuthTokenStorage _authTokenStorage = AuthTokenStorage();
+  final AuthTokenStorage _authTokenStorage = AuthTokenStorage();
 
   _TrelloAuthScreenState() {
     listener = (String? token) {
@@ -68,7 +68,7 @@ class _TrelloAuthScreenState extends State<TrelloAuthScreen> {
                     ? 'Vous êtes authentifié'
                     : 'Vous n\'êtes pas authentifié',
                 style: const TextStyle(fontSize: 20)),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
@@ -85,13 +85,15 @@ class _TrelloAuthScreenState extends State<TrelloAuthScreen> {
                 style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: authToken != null
-                        ? Color.fromARGB(255, 18, 121, 206)
+                        ? const Color.fromARGB(255, 18, 121, 206)
                         : Colors.grey,
                     minimumSize: const Size(200, 40)),
                 onPressed: () async {
                   if (authToken != null) {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => HomePage()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HomePage()));
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text("Vous n'êtes pas authentifié")));

@@ -23,10 +23,9 @@ Future<void> startWebServer() async {
             "<h1 style={font-size: 50px;}>Authentification réussie, merci de quitter cette page</h1>")
         ..close();
 
-      print(request.uri.queryParameters["token"]);
       var userToken = request.uri.queryParameters["token"];
-      AuthTokenStorage _authTokenStorage = AuthTokenStorage();
-      _authTokenStorage.setAuthToken(userToken!);
+      AuthTokenStorage authTokenStorage = AuthTokenStorage();
+      authTokenStorage.setAuthToken(userToken!);
       break;
     }
   }
