@@ -1,6 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/list_model.dart';
@@ -8,7 +7,7 @@ import 'package:trelltech/storage/authtoken_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'board_test.mocks.dart';
+import 'list_test.mocks.dart';
 
 @GenerateMocks([http.Client, AuthTokenStorage])
 void main() {
