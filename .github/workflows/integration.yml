@@ -20,6 +20,7 @@ jobs:
           channel: stable
       - name: Build apk
         run: |
+          cd trelltech
           flutter pub get
           flutter format --set-exit-if-changed .
           flutter analyze
