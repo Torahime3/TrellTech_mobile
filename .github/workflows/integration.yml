@@ -7,13 +7,17 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  flutter_ci-cd:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '2.5.0'
-      - run: flutter pub get
-      - run: flutter analyze
-      - run: flutter test
+          flutter-version: '2.5.3'
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Analyze
+        run: flutter analyze
+      - name: Test
+        run: flutter test
