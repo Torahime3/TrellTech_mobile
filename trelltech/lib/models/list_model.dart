@@ -4,20 +4,6 @@ class ListModel {
 
   ListModel({required this.name, required this.id});
 
-  /*static List<ListModel> getList() {
-    return [
-      ListModel(name: 'To Do'),
-      ListModel(name: 'In Progress'),
-      ListModel(name: 'Done'),
-      ListModel(name: 'To Do'),
-      ListModel(name: 'In Progress'),
-      ListModel(name: 'Done'),
-      ListModel(name: 'To Do'),
-      ListModel(name: 'In Progress'),
-      ListModel(name: 'Done'),
-    ];
-  }*/
-
   String getName() {
     return name;
   }

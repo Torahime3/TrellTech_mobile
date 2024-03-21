@@ -2,32 +2,20 @@
 
 class BoardModel {
   String name;
-  // Color color;
   String id;
 
   BoardModel({
     required this.id,
     required this.name,
-    // required this.color,
   });
-
-  // static List<BoardModel> getBoards() {
-  //   return <BoardModel>[
-  //     BoardModel(name: 'Board 1', color: Colors.blue),
-  //     BoardModel(name: 'Board 2', color: Colors.red),
-  //     BoardModel(name: 'Board 3', color: Colors.green),
-  //     BoardModel(name: 'Board 4', color: Colors.yellow),
-  //     BoardModel(name: 'Board 5', color: Colors.purple),
-  //   ];
-  // }
 
   String getName() {
     return name;
   }
 
-  // Color getColor() {
-  //   return color;
-  // }
+  String getId() {
+    return id;
+  }
 
   factory BoardModel.fromJson(Map<String, dynamic> json) {
     return BoardModel(
