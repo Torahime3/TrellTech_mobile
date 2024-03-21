@@ -163,7 +163,6 @@ class _BoardPageState extends State<BoardPage> {
                   return SizedBox(
                       height: 600,
                       child: Center(
-                          // child: Text('Your modal content goes here'),
                           child: Form(
                               child: Column(
                         children: [
@@ -175,8 +174,7 @@ class _BoardPageState extends State<BoardPage> {
                                 decoration: const InputDecoration(
                                   focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Color.fromARGB(255, 49, 49,
-                                            49)), // Change underline color
+                                        color: Color.fromARGB(255, 49, 49, 49)),
                                   ),
                                 ),
                                 cursorColor:
