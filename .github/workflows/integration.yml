@@ -24,6 +24,7 @@ jobs:
             echo "API_KEY=dummykey" >> .env
       - name: Build apk
         run: |
+          cd trelltech
           flutter pub get
           flutter analyze
           flutter test
