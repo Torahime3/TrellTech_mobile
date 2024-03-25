@@ -18,12 +18,13 @@ jobs:
         with:
           flutter-version: '3.19.2'
           channel: stable
+      - name: Créer le fichier .env
+        run: |
+            cd trelltech
+            echo "API_KEY=dummykey" >> .env
       - name: Build apk
         run: |
-          cd trelltech
           flutter pub get
           flutter analyze
           flutter test
           flutter build apk --debug
-        env:
-          API_KEY: dummykey
