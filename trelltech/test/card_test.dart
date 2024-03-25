@@ -33,21 +33,25 @@ void main() {
   group('getCards -', () {
     test('returns a list of cards if the http call completes successfully',
         () async {
-      const cardId = "1";
-      const cardName = "Test Card";
       when(mockClient.get(
               Uri.parse(
                   'https://api.trello.com/1/lists/${mockList.id}/cards?key=$apiKey&token=token'),
               headers: anyNamed('headers')))
-          .thenAnswer((_) async =>
-              http.Response('[{"id":"1","name":"$cardName"}]', 200));
+          .thenAnswer((_) async => http.Response(
+              '[{"id":"1","name":"Test Card", "desc": "A description", "idMembers": ["65e58f09e1fc28da619e20e2", "65267fff1309ff5fc7f92fcf"]}]',
+              200));
 
       final cards = await cardController.getCards(list: mockList);
 
       expect(cards.isNotEmpty, true);
       expect(cards.first, isA<CardModel>());
-      expect(cards.first.id, cardId);
-      expect(cards.first.name, cardName);
+      expect(cards.first.id, "1");
+      expect(cards.first.name, "Test Card");
+      expect(cards.first.desc, "A description");
+      expect(
+          cards.first.idMembers,
+          containsAll(
+              ['65e58f09e1fc28da619e20e2', '65267fff1309ff5fc7f92fcf']));
     });
 
     test('throws an exception if the http call to get cards fails', () async {
@@ -60,39 +64,39 @@ void main() {
   });
 
   group('create - ', () {
-    const cardName = 'New Card';
-    const cardId = 'newCardId';
-
     test('successfully creates a card and returns CardModel', () async {
       when(mockClient.post(
         Uri.parse(
-            'https://api.trello.com/1/cards?idList=${mockList.id}&key=$apiKey&token=token&name=$cardName'),
+            'https://api.trello.com/1/cards?idList=${mockList.id}&key=$apiKey&token=token&name=New_card'),
         body: anyNamed('body'),
-      )).thenAnswer((_) async =>
-          http.Response('{"id": "$cardId", "name": "$cardName"}', 200));
+      )).thenAnswer((_) async => http.Response(
+          '{"id": "1", "name": "New_card", "desc": "This is a new card"}',
+          200));
 
-      final result = await cardController.create(mockList.id, cardName);
+      final result = await cardController.create(mockList.id, "New_card");
 
       expect(result, isA<CardModel>());
-      expect(result.id, cardId);
-      expect(result.name, cardName);
+      expect(result.id, "1");
+      expect(result.name, "New_card");
+      expect(result.desc, "This is a new card");
     });
 
     test('throws an exception if the http call to create a card fails',
         () async {
       when(mockClient.post(
         Uri.parse(
-            'https://api.trello.com/1/cards?idList=${mockList.id}&key=$apiKey&token=token&name=$cardName'),
+            'https://api.trello.com/1/cards?idList=${mockList.id}&key=$apiKey&token=token&name=New_card'),
         body: anyNamed('body'),
       )).thenAnswer((_) async => http.Response('Error', 400));
 
-      expect(cardController.create(mockList.id, cardName), throwsException);
+      expect(cardController.create(mockList.id, "New_card"), throwsException);
     });
   });
 
   group('update -', () {
     const cardId = 'existingCardId';
     const updatedCardName = 'Updated Card';
+    const updatedCardDesc = 'This is an updated card';
 
     test('successfully updates a card and returns updated CardModel', () async {
       when(mockClient.put(
@@ -100,14 +104,16 @@ void main() {
             'https://api.trello.com/1/cards/$cardId?key=$apiKey&token=token&name=$updatedCardName'),
         headers: anyNamed('headers'),
         body: anyNamed('body'),
-      )).thenAnswer((_) async =>
-          http.Response('{"id": "$cardId", "name": "$updatedCardName"}', 200));
+      )).thenAnswer((_) async => http.Response(
+          '{"id": "$cardId", "name": "$updatedCardName", "desc": "$updatedCardDesc"}',
+          200));
 
       final result = await cardController.update(cardId, updatedCardName);
 
       expect(result, isA<CardModel>());
       expect(result.id, cardId);
       expect(result.name, updatedCardName);
+      expect(result.desc, updatedCardDesc);
     });
 
     test('throws an exception if the http call to update a card fails',
