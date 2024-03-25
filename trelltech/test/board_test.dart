@@ -40,7 +40,7 @@ void main() {
                     'https://api.trello.com/1/members/trelltech12/boards?key=$apiKey&token=token'),
                 headers: anyNamed('headers')))
             .thenAnswer((_) async => http.Response(
-                '[{"id":"1","name":"Board 1"}, {"id":"2","name":"Board 2"}]',
+                '[{"id":"1","name":"Board 1","memberships":[{"idMember":"65e58f09e1fc28da619e20e2"}]}, {"id":"2","name":"Board 2","memberships":[{"idMember":"65e58f09e1fc28da619e20e2"}]}]',
                 200));
 
         final boards = await boardController.getBoards();
@@ -49,9 +49,13 @@ void main() {
         expect(boards.first, isA<BoardModel>());
         expect(boards.first.id, '1');
         expect(boards.first.name, 'Board 1');
+        expect(
+            boards.first.memberIds.contains('65e58f09e1fc28da619e20e2'), true);
         expect(boards.last, isA<BoardModel>());
         expect(boards.last.id, '2');
         expect(boards.last.name, 'Board 2');
+        expect(
+            boards.last.memberIds.contains('65e58f09e1fc28da619e20e2'), true);
       });
 
       test(
@@ -68,20 +72,19 @@ void main() {
     });
     group('create -', () {
       test('successfully creates a board and triggers callback', () async {
-        const newBoardName = "New Board";
-        const newBoardId = "3";
-        const expectedBoardJson =
-            '{"id":"$newBoardId", "name":"$newBoardName"}';
-
         when(mockClient.post(any, body: anyNamed('body'))).thenAnswer(
-          (_) async => http.Response(expectedBoardJson, 200),
+          (_) async => http.Response(
+              '{"id":"3","name":"New Board","memberships":[{"idMember":"65e58f09e1fc28da619e20e2"}]}',
+              200),
         );
 
-        final resultBoard = await boardController.create(name: newBoardName);
+        final resultBoard = await boardController.create(name: "New Board");
 
         expect(resultBoard, isA<BoardModel>());
-        expect(resultBoard.id, newBoardId);
-        expect(resultBoard.name, newBoardName);
+        expect(resultBoard.id, "3");
+        expect(resultBoard.name, "New Board");
+        expect(
+            resultBoard.memberIds.contains('65e58f09e1fc28da619e20e2'), true);
       });
 
       test('throws an exception if the http call to create a board fails',
@@ -98,21 +101,18 @@ void main() {
   group('update -', () {
     test('successfully updates a board and returns updated BoardModel',
         () async {
-      const updatedBoardId = "1";
-      const updatedBoardName = "Updated Board";
-      const expectedBoardJson =
-          '{"id":"$updatedBoardId", "name":"$updatedBoardName"}';
-
       when(mockClient.put(any, headers: anyNamed('headers'))).thenAnswer(
-        (_) async => http.Response(expectedBoardJson, 200),
+        (_) async => http.Response(
+            '{"id":"1","name":"Updated Board","memberships":[{"idMember":"65e58f09e1fc28da619e20e2"}]}',
+            200),
       );
 
-      final resultBoard = await boardController.update(
-          id: updatedBoardId, name: updatedBoardName);
+      final resultBoard =
+          await boardController.update(id: "1", name: "Updated Board");
 
       expect(resultBoard, isA<BoardModel>());
-      expect(resultBoard.id, updatedBoardId);
-      expect(resultBoard.name, updatedBoardName);
+      expect(resultBoard.id, "1");
+      expect(resultBoard.name, "Updated Board");
     });
 
     test('throws an exception if the http call to update a board fails',

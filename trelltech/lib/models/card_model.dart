@@ -11,12 +11,12 @@ class CardModel {
     required this.idMembers, // Initialize it in the constructor
   });
 
-
   String getName() {
     return name;
   }
 
   factory CardModel.fromJson(Map<String, dynamic> json) {
+    print(json['idMembers']);
     return CardModel(
       name: json['name'],
       id: json['id'],

@@ -13,7 +13,6 @@ class BoardModel {
     return name;
   }
 
-
   String getId() {
     return id;
   }
