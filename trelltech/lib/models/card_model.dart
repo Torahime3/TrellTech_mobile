@@ -16,7 +16,6 @@ class CardModel {
   }
 
   factory CardModel.fromJson(Map<String, dynamic> json) {
-    print(json['idMembers']);
     return CardModel(
       name: json['name'],
       id: json['id'],
