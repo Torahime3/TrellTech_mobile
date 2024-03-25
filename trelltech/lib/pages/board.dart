@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+
 import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/list_model.dart';
+import 'package:trelltech/utils/materialcolor_utils.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
 import 'card.dart';
 
 class BoardPage extends StatefulWidget {
   const BoardPage(
-      {super.key, required this.board, this.boardColor = Colors.blue})
-      : assert(board != null);
+      {super.key, required this.board, this.boardColor = Colors.blue});
   final BoardModel board;
   final Color boardColor;
 
@@ -24,6 +25,8 @@ class _BoardPageState extends State<BoardPage> {
   final ListController _listsController = ListController();
   final CardController _cardsController = CardController();
   final BoardController _boardController = BoardController();
+  final TextEditingController _textEditingController =
+      TextEditingController(text: "Initial Text");
   List<ListModel> lists = [];
   List<CardModel> cards = [];
 
@@ -44,15 +47,23 @@ class _BoardPageState extends State<BoardPage> {
 
   // Method to handle button tap and show popup dialog
   void _createListDialog() {
-    TextEditingController _textFieldController = TextEditingController();
+    TextEditingController textFieldController = TextEditingController();
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Create List"),
           content: TextField(
-            controller: _textFieldController,
-            decoration: const InputDecoration(hintText: "Enter list name"),
+            controller: textFieldController,
+            decoration: const InputDecoration(
+              hintText: "Enter list name",
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                    color: Color.fromARGB(
+                        255, 49, 49, 49)), // Change underline color
+              ),
+            ),
+            cursorColor: const Color.fromARGB(255, 49, 49, 49),
           ),
           actions: <Widget>[
             TextButton(
@@ -64,7 +75,7 @@ class _BoardPageState extends State<BoardPage> {
             TextButton(
               child: const Text("Create"),
               onPressed: () {
-                String name = _textFieldController.text;
+                String name = textFieldController.text;
                 if (name.isNotEmpty) {
                   _listsController.create(name, board: widget.board,
                       onCreated: () {
@@ -81,7 +92,7 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   void _updateListDialog(listId) {
-    TextEditingController _textFieldController = TextEditingController();
+    TextEditingController textFieldController = TextEditingController();
 
     showDialog(
       context: context,
@@ -89,8 +100,16 @@ class _BoardPageState extends State<BoardPage> {
         return AlertDialog(
           title: const Text("Update List"),
           content: TextField(
-            controller: _textFieldController,
-            decoration: const InputDecoration(hintText: "Enter new list name"),
+            controller: textFieldController,
+            decoration: const InputDecoration(
+              hintText: "Enter new list name",
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                    color: Color.fromARGB(
+                        255, 49, 49, 49)), // Change underline color
+              ),
+            ),
+            cursorColor: const Color.fromARGB(255, 49, 49, 49),
           ),
           actions: <Widget>[
             TextButton(
@@ -100,9 +119,9 @@ class _BoardPageState extends State<BoardPage> {
               },
             ),
             TextButton(
-              child: const Text("Update"),
+              child: const Text("Edit"),
               onPressed: () {
-                String name = _textFieldController.text;
+                String name = textFieldController.text;
                 if (name.isNotEmpty) {
                   _listsController.update(
                       id: listId,
@@ -140,23 +159,30 @@ class _BoardPageState extends State<BoardPage> {
             Navigator.of(context).pop();
           },
           onEdit: () {
+            _textEditingController.text = board.name;
             showModalBottomSheet(
+                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                 context: context,
                 builder: (BuildContext context) {
                   return SizedBox(
                       height: 600,
                       child: Center(
-                          // child: Text('Your modal content goes here'),
                           child: Form(
                               child: Column(
                         children: [
                           Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: TextFormField(
+                                autofocus: true,
+                                controller: _textEditingController,
                                 decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  labelText: "Board name",
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Color.fromARGB(255, 49, 49, 49)),
+                                  ),
                                 ),
+                                cursorColor:
+                                    const Color.fromARGB(255, 49, 49, 49),
                                 onFieldSubmitted: (String value) {
                                   _boardController.update(
                                       id: board.id,
@@ -183,7 +209,7 @@ class _BoardPageState extends State<BoardPage> {
               itemCount: lists.length + 1, // Add one for the button
               itemBuilder: (BuildContext context, int index) {
                 if (index < lists.length) {
-                  return _buildList(lists[index]);
+                  return _buildList(lists[index], index);
                 } else {
                   // Render the button at the end of the list
                   return Center(
@@ -222,7 +248,8 @@ class _BoardPageState extends State<BoardPage> {
     );
   }
 
-  Widget _buildList(ListModel list) {
+  Widget _buildList(ListModel list, index) {
+    final boardColor = widget.boardColor;
     return FutureBuilder<List<CardModel>>(
       future: _cardsController.getCards(list: list),
       builder: (context, snapshot) {
@@ -230,17 +257,34 @@ class _BoardPageState extends State<BoardPage> {
           final cards = snapshot.data!;
           return Container(
             width: 300,
-            margin: const EdgeInsets.all(8.0),
+            margin: index == 0
+                ? const EdgeInsets.only(
+                    left: 40.0, top: 8.0, bottom: 8.0, right: 8.0)
+                : const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(10.0),
+              color: getMaterialColor(boardColor).shade300,
+              borderRadius: BorderRadius.circular(20.0),
+              // boxShadow: [
+              //   BoxShadow(
+              //     color: Colors.grey.withOpacity(0.5),
+              //     spreadRadius: 5,
+              //     blurRadius: 7,
+              //     offset: const Offset(0, 6),
+              //   ),
+              // ],
             ),
             child: Stack(
               children: [
                 // List header
                 Container(
                   height: 50,
-                  color: Colors.black,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20.0),
+                      topRight: Radius.circular(20.0),
+                    ),
+                    color: getMaterialColor(boardColor).shade400,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -251,6 +295,7 @@ class _BoardPageState extends State<BoardPage> {
                           style: const TextStyle(
                             fontSize: 20,
                             color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -325,7 +370,7 @@ class _BoardPageState extends State<BoardPage> {
           value: 'update',
           child: ListTile(
             leading: Icon(Icons.edit, color: Colors.blue),
-            title: Text('Update'),
+            title: Text('Edit'),
           ),
         ),
         const PopupMenuItem(
@@ -357,7 +402,9 @@ class _BoardPageState extends State<BoardPage> {
         width: 75,
         child: FloatingActionButton(
           onPressed: () {
+            _textEditingController.text = "";
             showModalBottomSheet(
+                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                 context: context,
                 builder: (BuildContext context) {
                   return SizedBox(
@@ -366,19 +413,40 @@ class _BoardPageState extends State<BoardPage> {
                           child: Form(
                               child: Column(
                         children: [
-                          Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: TextFormField(
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  labelText: "Enter a title for this card...",
-                                ),
-                                onFieldSubmitted: (String value) {
-                                  _cardsController.create(listId, value);
-                                  Navigator.of(context).pop();
-                                  _loadInfo();
-                                },
-                              ))
+                          Expanded(
+                              child: ListView(children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                _cardsController.create(
+                                    listId, _textEditingController.text);
+                                Navigator.of(context).pop();
+                                _loadInfo();
+                              },
+                              child: const Text("Create"),
+                            ),
+                            Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: TextFormField(
+                                  autofocus: true,
+                                  controller: _textEditingController,
+                                  decoration: const InputDecoration(
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Color.fromARGB(255, 49, 49,
+                                              49)), // Change underline color
+                                    ),
+                                    hintText: "Enter a title for this card...",
+                                  ),
+                                  cursorColor:
+                                      const Color.fromARGB(255, 49, 49, 49),
+                                  maxLines: null,
+                                  // onFieldSubmitted: (String value) {
+                                  //   _cardsController.create(listId, value);
+                                  //   Navigator.of(context).pop();
+                                  //   _loadInfo();
+                                  // },
+                                ))
+                          ]))
                         ],
                       ))));
                 });
@@ -395,82 +463,117 @@ class _BoardPageState extends State<BoardPage> {
 
   Widget _buildCard(CardModel card) {
     return Container(
-        margin: const EdgeInsets.all(12.0),
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 95, 95, 95),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: GestureDetector(
-          onLongPress: () {
-            showMenu(
-                context: context,
-                position: const RelativeRect.fromLTRB(0, 200, 0, 0),
-                items: <PopupMenuEntry>[
-                  PopupMenuItem(
-                      child: ListTile(
-                          title: const Text('Delete card'),
-                          onTap: () {
-                            _cardsController.delete(card.id);
-                            Navigator.of(context).pop();
-                            _loadInfo();
-                          })),
-                  PopupMenuItem(
-                      child: ListTile(
-                          title: const Text("Update"),
-                          onTap: () {
-                            showModalBottomSheet(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return SizedBox(
-                                      height: 600,
-                                      child: Center(
-                                          child: Form(
-                                              child: Column(
-                                        children: [
+      margin: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 255, 255, 255),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 58, 58, 58).withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 2,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: GestureDetector(
+        onLongPress: () {
+          showMenu(
+              context: context,
+              position: const RelativeRect.fromLTRB(0, 200, 0, 0),
+              items: <PopupMenuEntry>[
+                PopupMenuItem(
+                    child: ListTile(
+                        title: const Text('Delete card'),
+                        onTap: () {
+                          _cardsController.delete(card.id);
+                          Navigator.of(context).pop();
+                          _loadInfo();
+                        })),
+                PopupMenuItem(
+                    child: ListTile(
+                        title: const Text("Edit card"),
+                        onTap: () {
+                          _textEditingController.text = card.name;
+                          showModalBottomSheet(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 255, 255, 255),
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SizedBox(
+                                    height: 600,
+                                    child: Center(
+                                        child: Form(
+                                            child: Column(
+                                      children: [
+                                        Expanded(
+                                            child: ListView(children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              _cardsController.update(card.id,
+                                                  _textEditingController.text);
+                                              Navigator.of(context).pop();
+                                              _loadInfo();
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text("Edit"),
+                                          ),
                                           Padding(
                                               padding:
                                                   const EdgeInsets.all(16.0),
                                               child: TextFormField(
+                                                autofocus: true,
+                                                controller:
+                                                    _textEditingController,
                                                 decoration:
                                                     const InputDecoration(
-                                                  border: OutlineInputBorder(),
-                                                  labelText:
-                                                      "Enter a title for this card...",
+                                                  focusedBorder:
+                                                      UnderlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color: Color.fromARGB(
+                                                            255,
+                                                            49,
+                                                            49,
+                                                            49)), // Change underline color
+                                                  ),
                                                 ),
-                                                onFieldSubmitted:
-                                                    (String value) {
-                                                  _cardsController.update(
-                                                      card.id, value);
-                                                  Navigator.of(context).pop();
-                                                  _loadInfo();
-                                                  Navigator.of(context).pop();
-                                                },
+                                                cursorColor:
+                                                    const Color.fromARGB(
+                                                        255, 49, 49, 49),
+                                                maxLines: null,
+                                                // onFieldSubmitted: (String value) {
+                                                //   _cardsController.update(card.id, value);
+                                                //   Navigator.of(context).pop();
+                                                //   _loadInfo();
+                                                //   Navigator.of(context).pop();
+                                                // },
                                               ))
-                                        ],
-                                      ))));
-                                });
-                            // Navigator.of(context).pop();
-                          }))
-                ]);
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                // Wrap text widget with Expanded
-                child: Text(
-                  card.name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white, // Text color for header
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
+                                        ]))
+                                      ],
+                                    ))));
+                              });
+                          // Navigator.of(context).pop();
+                        }))
+              ]);
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              // Wrap text widget with Expanded
+              child: Text(
+                card.name,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color:
+                      Color.fromARGB(255, 46, 46, 46), // Text color for header
                 ),
               ),
-            ],
-          ),
-        ));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

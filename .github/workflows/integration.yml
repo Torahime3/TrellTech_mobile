@@ -1,0 +1,31 @@
+name: Flutter 
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '12.x'
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '3.19.2'
+          channel: stable
+      - name: Créer le fichier .env
+        run: |
+            cd trelltech
+            echo "API_KEY=dummykey" >> .env
+      - name: Build apk
+        run: |
+          cd trelltech
+          flutter pub get
+          flutter analyze
+          flutter test
+          flutter build apk --debug

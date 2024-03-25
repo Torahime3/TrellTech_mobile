@@ -13,6 +13,11 @@ class BoardModel {
     return name;
   }
 
+
+  String getId() {
+    return id;
+  }
+
   factory BoardModel.fromJson(Map<String, dynamic> json) {
     List<dynamic> membershipsJson = json['memberships'];
     List<String> memberIds = membershipsJson

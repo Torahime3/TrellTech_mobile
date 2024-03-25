@@ -6,19 +6,28 @@ import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/storage/authtoken_storage.dart';
 
 class BoardController {
+  late final http.Client client;
+  late final AuthTokenStorage _authTokenStorage;
+
   final String? apiKey = dotenv.env['API_KEY'];
   final String id = "trelltech12";
 
+  BoardController({http.Client? client, AuthTokenStorage? authTokenStorage}) {
+    this.client = client ?? http.Client();
+    _authTokenStorage = authTokenStorage ?? AuthTokenStorage();
+  }
+
   Future<String?> getApiToken() async {
-    return await AuthTokenStorage.getAuthToken();
+    return await _authTokenStorage.getAuthToken();
   }
 
   Future<List<BoardModel>> getBoards() async {
     String apiToken = (await getApiToken())!;
+
     final url = Uri.parse(
         "https://api.trello.com/1/members/$id/boards?key=$apiKey&token=$apiToken");
 
-    final response = await http.get(url);
+    final response = await client.get(url);
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       List<BoardModel> boards = List<BoardModel>.from(
@@ -29,48 +38,51 @@ class BoardController {
     }
   }
 
-  void create({required name, void Function()? onCreated}) async {
+  Future<BoardModel> create({required name, void Function()? onCreated}) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
         'https://api.trello.com/1/boards/?name=$name&key=$apiKey&token=$apiToken');
-    final response = await http.post(url);
+    final response = await client.post(url);
 
     if (response.statusCode == 200) {
-      print("Hurray");
       if (onCreated != null) {
         onCreated();
       }
+      final jsonResponse = jsonDecode(response.body);
+      return BoardModel.fromJson(jsonResponse);
     } else {
       throw Exception("No board created");
     }
   }
 
-  void update({required id, required name, void Function()? onUpdated}) async {
+  Future<BoardModel> update(
+      {required id, required name, void Function()? onUpdated}) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
         'https://api.trello.com/1/boards/$id?key=$apiKey&token=$apiToken&name=$name');
-    final response = await http.put(url);
+    final response = await client.put(url);
     if (response.statusCode == 200) {
-      print("Updated");
       if (onUpdated != null) {
         onUpdated();
       }
+      final jsonResponse = jsonDecode(response.body);
+      return BoardModel.fromJson(jsonResponse);
     } else {
       throw Exception("Board not updated");
     }
   }
 
-  void delete({required id, void Function()? onDeleted}) async {
+  Future<bool> delete({required id, void Function()? onDeleted}) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
         'https://api.trello.com/1/boards/$id?key=$apiKey&token=$apiToken');
-    final response = await http.delete(url);
+    final response = await client.delete(url);
 
     if (response.statusCode == 200) {
-      print("Deleted");
       if (onDeleted != null) {
         onDeleted();
       }
+      return true;
     } else {
       throw Exception("Board not deleted");
     }

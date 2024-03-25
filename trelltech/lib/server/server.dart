@@ -1,9 +1,6 @@
 import 'dart:io';
-import 'dart:ui';
 
-import 'package:flutter/services.dart';
 import 'package:trelltech/storage/authtoken_storage.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 Future<void> startWebServer() async {
   // BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
@@ -26,9 +23,9 @@ Future<void> startWebServer() async {
             "<h1 style={font-size: 50px;}>Authentification réussie, merci de quitter cette page</h1>")
         ..close();
 
-      // print(request.uri.queryParameters["token"]);
       var userToken = request.uri.queryParameters["token"];
-      AuthTokenStorage.setAuthToken(userToken!);
+      AuthTokenStorage authTokenStorage = AuthTokenStorage();
+      authTokenStorage.setAuthToken(userToken!);
       break;
     }
   }

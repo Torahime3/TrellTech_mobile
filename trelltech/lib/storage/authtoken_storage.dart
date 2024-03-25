@@ -4,8 +4,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthTokenStorage {
   static const String _keyAuthToken = 'auth_token';
-  static const FlutterSecureStorage _storage = FlutterSecureStorage();
+  final FlutterSecureStorage _storage;
   static final List<Function(String?)> _listeners = [];
+
+  AuthTokenStorage([FlutterSecureStorage? storage])
+      : _storage = storage ?? const FlutterSecureStorage();
 
   static void addListener(Function(String?) listener) {
     _listeners.add(listener);
@@ -21,16 +24,16 @@ class AuthTokenStorage {
     }
   }
 
-  static void setAuthToken(String token) {
-    _storage.write(key: _keyAuthToken, value: token);
+  Future<void> setAuthToken(String token) async {
+    await _storage.write(key: _keyAuthToken, value: token);
     notifyListeners(token);
   }
 
-  static Future<String?> getAuthToken() {
-    return _storage.read(key: _keyAuthToken);
+  Future<String?> getAuthToken() async {
+    return await _storage.read(key: _keyAuthToken);
   }
 
-  static void deleteAuthToken() {
-    _storage.delete(key: _keyAuthToken);
+  Future<void> deleteAuthToken() async {
+    await _storage.delete(key: _keyAuthToken);
   }
 }
