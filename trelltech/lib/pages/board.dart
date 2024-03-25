@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:trelltech/controllers/board_controller.dart';
@@ -23,6 +25,8 @@ class _BoardPageState extends State<BoardPage> {
   final ListController _listsController = ListController();
   final CardController _cardsController = CardController();
   final BoardController _boardController = BoardController();
+  final ScrollController _scrollController = ScrollController();
+  Timer? autoScrollTimer;
   final TextEditingController _textEditingController =
       TextEditingController(text: "Initial Text");
   List<ListModel> lists = [];
@@ -38,6 +42,50 @@ class _BoardPageState extends State<BoardPage> {
     setState(() {
       lists = fetchedLists;
     });
+  }
+
+  void startAutoScroll(double direction) {
+    autoScrollTimer?.cancel();
+
+    autoScrollTimer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
+      if (_scrollController.hasClients) {
+        double newPosition = _scrollController.position.pixels + direction;
+        if (newPosition < _scrollController.position.minScrollExtent) {
+          newPosition = _scrollController.position.minScrollExtent;
+          stopAutoScroll();
+        } else if (newPosition > _scrollController.position.maxScrollExtent) {
+          newPosition = _scrollController.position.maxScrollExtent;
+          stopAutoScroll();
+        }
+        _scrollController.jumpTo(newPosition);
+      }
+    });
+  }
+
+  void stopAutoScroll() {
+    autoScrollTimer?.cancel();
+    autoScrollTimer = null;
+  }
+
+  void onDragUpdate(DragUpdateDetails details) {
+    final screenSize = MediaQuery.of(context).size;
+    final position = details.globalPosition;
+
+    if (position.dx > screenSize.width - 100) {
+      startAutoScroll(5.0);
+    } else if (position.dx < 100) {
+      startAutoScroll(-5.0);
+    } else {
+      stopAutoScroll();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    autoScrollTimer?.cancel();
+    stopAutoScroll();
+    super.dispose();
   }
 
   // Method to handle button tap and show popup dialog
@@ -198,6 +246,7 @@ class _BoardPageState extends State<BoardPage> {
           return Container(
             color: Colors.white,
             child: ListView.builder(
+              controller: _scrollController,
               scrollDirection: Axis.horizontal,
               itemCount: lists.length + 1, // Add one for the button
               itemBuilder: (BuildContext context, int index) {
@@ -241,42 +290,42 @@ class _BoardPageState extends State<BoardPage> {
     );
   }
 
-  Widget _buildList(ListModel list, index) {
+  Widget _buildList(ListModel list, int index) {
     final boardColor = widget.boardColor;
     return FutureBuilder<List<CardModel>>(
       future: _cardsController.getCards(list: list),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final cards = snapshot.data!;
-          return Container(
-            width: 300,
-            margin: index == 0
-                ? const EdgeInsets.only(
-                    left: 40.0, top: 8.0, bottom: 8.0, right: 8.0)
-                : const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: getMaterialColor(boardColor).shade300,
-              borderRadius: BorderRadius.circular(20.0),
-              // boxShadow: [
-              //   BoxShadow(
-              //     color: Colors.grey.withOpacity(0.5),
-              //     spreadRadius: 5,
-              //     blurRadius: 7,
-              //     offset: const Offset(0, 6),
-              //   ),
-              // ],
-            ),
-            child: Stack(
-              children: [
-                // List header
-                Container(
+
+          // Drag and drop list item
+
+          return Listener(
+            onPointerMove: (PointerMoveEvent pme) {
+              final screenSize = MediaQuery.of(context).size;
+              final position = pme.position;
+
+              if (position.dx > screenSize.width - 100) {
+                startAutoScroll(10.0);
+              } else if (position.dx < 100) {
+                startAutoScroll(-10.0);
+              } else {
+                stopAutoScroll();
+              }
+            },
+            onPointerUp: (PointerUpEvent pue) {
+              stopAutoScroll();
+            },
+            child: LongPressDraggable<ListModel>(
+              data: list,
+              feedback: Material(
+                elevation: 6.0,
+                child: Container(
+                  width: 300,
                   height: 50,
                   decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20.0),
-                      topRight: Radius.circular(20.0),
-                    ),
-                    color: getMaterialColor(boardColor).shade400,
+                    borderRadius: BorderRadius.circular(20.0),
+                    color: getMaterialColor(boardColor).shade600,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -284,7 +333,7 @@ class _BoardPageState extends State<BoardPage> {
                       const Padding(padding: EdgeInsets.only(left: 16.0)),
                       Expanded(
                         child: Text(
-                          list.name,
+                          "${list.name} ${list.pos}",
                           style: const TextStyle(
                             fontSize: 20,
                             color: Colors.white,
@@ -292,33 +341,75 @@ class _BoardPageState extends State<BoardPage> {
                           ),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.more_vert),
-                        color: Colors.white,
-                        onPressed: () {
-                          // Handle button press logic here to show the popup menu
-                          _showPopupMenu(context, list);
-                        },
-                      ),
                     ],
                   ),
                 ),
-                // List body
-                Positioned.fill(
-                  top: 50.0,
-                  child: ListView.builder(
-                    itemCount: cards.length,
-                    itemBuilder: (context, index) => _buildCard(cards[index]),
-                  ),
+              ),
+
+              // List item
+
+              child: Container(
+                width: 300,
+                margin: index == 0
+                    ? const EdgeInsets.only(
+                        left: 40.0, top: 12.0, bottom: 12.0, right: 12.0)
+                    : const EdgeInsets.all(12.0),
+                decoration: BoxDecoration(
+                  color: getMaterialColor(boardColor).shade300,
+                  borderRadius: BorderRadius.circular(20.0),
                 ),
-                // List footer (optional, can be removed)
-                Positioned(
-                  bottom: 0.0,
-                  left: 0.0,
-                  // right: 0.0,
-                  child: _buildAddCardRow(list.id),
+                child: Stack(
+                  children: [
+                    // List header
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(20.0),
+                          topRight: Radius.circular(20.0),
+                        ),
+                        color: getMaterialColor(boardColor).shade400,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Padding(padding: EdgeInsets.only(left: 16.0)),
+                          Expanded(
+                            child: Text(
+                              "${list.name} ${list.pos}",
+                              style: const TextStyle(
+                                fontSize: 20,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.more_vert),
+                            color: Colors.white,
+                            onPressed: () => _showPopupMenu(context, list),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // List body
+                    Positioned.fill(
+                      top: 50.0,
+                      child: ListView.builder(
+                        itemCount: cards.length,
+                        itemBuilder: (context, index) =>
+                            _buildCard(cards[index]),
+                      ),
+                    ),
+                    // List footer
+                    Positioned(
+                      bottom: 0.0,
+                      left: 0.0,
+                      child: _buildAddCardRow(list.id),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           );
         } else if (snapshot.hasError) {
