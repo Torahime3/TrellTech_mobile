@@ -9,6 +9,8 @@ import 'package:trelltech/models/list_model.dart';
 import 'package:trelltech/utils/materialcolor_utils.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
+import 'card.dart';
+
 class BoardPage extends StatefulWidget {
   const BoardPage(
       {super.key, required this.board, this.boardColor = Colors.blue});
@@ -26,11 +28,14 @@ class _BoardPageState extends State<BoardPage> {
   final TextEditingController _textEditingController =
       TextEditingController(text: "Initial Text");
   List<ListModel> lists = [];
+  List<CardModel> cards = [];
 
   @override
   void initState() {
     super.initState();
     _loadInfo();
+    // ignore: avoid_print
+    print(widget.board.memberIds);
   }
 
   void _loadInfo() async {
@@ -138,6 +143,8 @@ class _BoardPageState extends State<BoardPage> {
   Widget build(BuildContext context) {
     final board = widget.board;
     final boardColor = widget.boardColor;
+    // ignore: avoid_print
+    print(board.id);
     return Scaffold(
       appBar: appbar(
           text: board.name,
@@ -308,7 +315,24 @@ class _BoardPageState extends State<BoardPage> {
                   top: 50.0,
                   child: ListView.builder(
                     itemCount: cards.length,
-                    itemBuilder: (context, index) => _buildCard(cards[index]),
+                    itemBuilder: (context, index) {
+                      final card = cards[index];
+                      return GestureDetector(
+                        onTap: () async {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CardPage(
+                                card: cards[index],
+                                board: widget.board,
+                                boardColor: widget.boardColor,
+                              ),
+                            ),
+                          );
+                        },
+                        child: _buildCard(card),
+                      );
+                    },
                   ),
                 ),
                 // List footer (optional, can be removed)
