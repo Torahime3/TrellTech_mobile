@@ -7,9 +7,16 @@ import 'package:trelltech/storage/authtoken_storage.dart';
 
 class MemberController {
   final String? apiKey = dotenv.env['API_KEY'];
+  late final http.Client client;
+  late final AuthTokenStorage _authTokenStorage;
+
+  MemberController({http.Client? client, AuthTokenStorage? authTokenStorage}) {
+    this.client = client ?? http.Client();
+    _authTokenStorage = authTokenStorage ?? AuthTokenStorage();
+  }
 
   Future<String?> getApiToken() async {
-    return await AuthTokenStorage.getAuthToken();
+    return await _authTokenStorage.getAuthToken();
   }
 
   Future<MemberModel> getMemberDetails({required id}) async {
