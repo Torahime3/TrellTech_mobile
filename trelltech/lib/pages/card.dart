@@ -5,7 +5,7 @@ import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/widgets/appbar.dart';
-import 'package:trelltech/widgets/memberAvatar.dart';
+import 'package:trelltech/widgets/member_avatar.dart';
 
 class CardPage extends StatefulWidget {
   final CardModel card;
@@ -13,11 +13,10 @@ class CardPage extends StatefulWidget {
   final Color boardColor;
 
   const CardPage(
-      {Key? key,
+      {super.key,
       required this.card,
       required this.board,
-      required this.boardColor})
-      : super(key: key);
+      required this.boardColor});
 
   @override
   State<CardPage> createState() => _CardPageState();
@@ -27,15 +26,14 @@ class _CardPageState extends State<CardPage> {
   final MemberController _memberController = MemberController();
   List<MemberModel> members = [];
   final CardController _cardsController = CardController();
-  late TextEditingController _descriptionController = TextEditingController();
-  bool _showMemberList = false;
+  late final TextEditingController _descriptionController =
+      TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadMembers();
-    _descriptionController.text = widget.card.desc ?? ''; // Set initial value
-    _showMemberList = false;
+    _descriptionController.text = widget.card.desc; // Set initial value
   }
 
   @override
@@ -56,7 +54,7 @@ class _CardPageState extends State<CardPage> {
         members = memberDetails;
       });
     } catch (e) {
-      print('Error loading members: $e');
+      throw ('Error loading members: $e');
     }
   }
 
@@ -103,10 +101,11 @@ class _CardPageState extends State<CardPage> {
         margin: const EdgeInsets.all(12.0),
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: Color.fromARGB(255, 0, 0, 0),
+          color: const Color.fromARGB(255, 0, 0, 0),
           borderRadius: BorderRadius.circular(10.0),
         ),
-        constraints: BoxConstraints(minHeight: 75), // Set the minimum height
+        constraints:
+            const BoxConstraints(minHeight: 75), // Set the minimum height
         child: IntrinsicHeight(
           child: Padding(
             padding: const EdgeInsets.all(0.0),
@@ -144,7 +143,7 @@ class _CardPageState extends State<CardPage> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(width: 40), // Width for the icon
+        const SizedBox(width: 40), // Width for the icon
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +151,7 @@ class _CardPageState extends State<CardPage> {
               Flexible(
                 child: Text(
                   data ?? '',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                  style: const TextStyle(fontSize: 18, color: Colors.white),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 10,
                 ),
@@ -219,7 +218,7 @@ class _CardPageState extends State<CardPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: avatars,
             ),
-            SizedBox(
+            const SizedBox(
               width: 8,
             ), // Add spacing between avatars and the "+" button
             GestureDetector(
@@ -230,11 +229,11 @@ class _CardPageState extends State<CardPage> {
               child: Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.green,
                   shape: BoxShape.circle,
                 ),
-                child: Center(
+                child: const Center(
                   child: Icon(
                     Icons.add,
                     color: Colors.white,
@@ -261,21 +260,21 @@ class _CardPageState extends State<CardPage> {
         buttonPosition.dy,
       ),
       items: [
-        PopupMenuItem(
+        const PopupMenuItem(
           enabled: false,
           child: Text('Board Mem', style: TextStyle(color: Colors.grey)),
         ),
-        PopupMenuItem(
+        const PopupMenuItem(
           value: 'update',
           child: ListTile(
             title: Text('Update'),
           ),
         ),
-        PopupMenuItem(
+        const PopupMenuItem(
           enabled: false,
           child: Text('Card Members', style: TextStyle(color: Colors.grey)),
         ),
-        PopupMenuItem(
+        const PopupMenuItem(
           value: 'delete',
           child: ListTile(
             title: Text('Delete'),

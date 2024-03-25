@@ -129,7 +129,7 @@ class CardController {
     );
 
     if (response.statusCode == 200) {
-      print("Description Updated Successfully");
+      //print("Description Updated Successfully");
       if (onUpdated != null) {
         onUpdated();
       }

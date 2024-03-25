@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class MemberAvatar extends StatelessWidget {
   final String initials;
 
-  const MemberAvatar({required this.initials});
+  const MemberAvatar({super.key, required this.initials});
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +11,7 @@ class MemberAvatar extends StatelessWidget {
       backgroundColor: Colors.blue,
       child: Text(
         initials,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
       ),
     );
   }
