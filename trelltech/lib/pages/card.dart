@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:trelltech/controllers/member_controller.dart';
 import 'package:trelltech/controllers/card_controller.dart';
-import 'package:trelltech/models/card_model.dart';
+import 'package:trelltech/controllers/member_controller.dart';
 import 'package:trelltech/models/board_model.dart';
+import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/widgets/appbar.dart';
 import 'package:trelltech/widgets/memberAvatar.dart';
@@ -28,12 +28,14 @@ class _CardPageState extends State<CardPage> {
   List<MemberModel> members = [];
   final CardController _cardsController = CardController();
   late TextEditingController _descriptionController = TextEditingController();
+  bool _showMemberList = false;
 
   @override
   void initState() {
     super.initState();
     _loadMembers();
     _descriptionController.text = widget.card.desc ?? ''; // Set initial value
+    _showMemberList = false;
   }
 
   @override
@@ -83,7 +85,6 @@ class _CardPageState extends State<CardPage> {
                   .map((member) => MemberAvatar(initials: member.initials))
                   .toList(),
             ),
-            // Add more cardDetailsContainer widgets as needed
           ],
         ),
       ),
@@ -163,15 +164,6 @@ class _CardPageState extends State<CardPage> {
     );
   }
 
-  Widget _buildAvatarsContainer(List<Widget> avatars) {
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: avatars,
-      ),
-    );
-  }
-
   void _editDescription() {
     showDialog(
       context: context,
@@ -213,6 +205,83 @@ class _CardPageState extends State<CardPage> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildAvatarsContainer(List<Widget> avatars) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: avatars,
+            ),
+            SizedBox(
+              width: 8,
+            ), // Add spacing between avatars and the "+" button
+            GestureDetector(
+              onTap: () {
+                _showCardOptionsMenu(
+                    context, widget.card); // Call the method here
+              },
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _showCardOptionsMenu(BuildContext context, CardModel card) {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final Offset buttonPosition = button.localToGlobal(Offset.zero);
+
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        buttonPosition.dx,
+        buttonPosition.dy,
+        buttonPosition.dx,
+        buttonPosition.dy,
+      ),
+      items: [
+        PopupMenuItem(
+          enabled: false,
+          child: Text('Board Mem', style: TextStyle(color: Colors.grey)),
+        ),
+        PopupMenuItem(
+          value: 'update',
+          child: ListTile(
+            title: Text('Update'),
+          ),
+        ),
+        PopupMenuItem(
+          enabled: false,
+          child: Text('Card Members', style: TextStyle(color: Colors.grey)),
+        ),
+        PopupMenuItem(
+          value: 'delete',
+          child: ListTile(
+            title: Text('Delete'),
+          ),
+        ),
+      ],
     );
   }
 }

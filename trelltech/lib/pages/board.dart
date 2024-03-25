@@ -31,6 +31,8 @@ class _BoardPageState extends State<BoardPage> {
   void initState() {
     super.initState();
     _loadInfo();
+    // ignore: avoid_print
+    print(widget.board.memberIds);
   }
 
   void _loadInfo() async {

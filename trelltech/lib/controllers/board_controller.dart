@@ -21,9 +21,6 @@ class BoardController {
     final response = await http.get(url);
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
-      // List<BoardModel> boards = jsonResponse.map((boardJson) => BoardModel.fromJson(boardJson)).toList();
-      // return boards;
-
       List<BoardModel> boards = List<BoardModel>.from(
           jsonResponse.map((boardJson) => BoardModel.fromJson(boardJson)));
       return boards;
