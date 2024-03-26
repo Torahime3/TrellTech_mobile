@@ -180,20 +180,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   GestureDetector(
                     onTap: () async {
                       workspaces[index].toggleExpansion();
-                      print(workspaces[index].isExpanded);
                       if (workspaces[index].isExpanded) {
                         // final workspaceBoards = await _boardController.getBoardsInWorkspace(workspaces[index].id);
-                        print(boardsVisible);
                         setState(() {
                           boardsVisible = true;
                           // boards = workspaceBoards;
-                          print(boardsVisible);
+                          
                         });
-                        print("WORKING");
+                        
                       } else {
                         setState(() {
                           boardsVisible = false;
-                          print(boardsVisible);
+                          
                         });
                       }
                     },

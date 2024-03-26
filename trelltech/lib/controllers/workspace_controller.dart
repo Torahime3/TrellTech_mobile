@@ -33,7 +33,6 @@ class WorkspaceController {
       List<Workspace> workspaces = List<Workspace>.from(
         jsonResponse.map((boardJson) => Workspace.fromJson(boardJson))
       );
-      print(workspaces);
       return workspaces;
     } else {
       throw Exception("No workspaces");
@@ -52,8 +51,7 @@ class WorkspaceController {
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       final name = jsonResponse['displayName'];
-      print(jsonResponse);
-      print(name);
+      // print(jsonResponse);
       // return jsonResponse;
       return name;
     } else {
