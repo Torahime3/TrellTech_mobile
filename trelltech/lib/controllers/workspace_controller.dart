@@ -87,4 +87,17 @@ class WorkspaceController {
       throw Exception("Workspace not deleted");
     }
   }
+
+  void create(displayName) async {
+    String apiToken = (await getApiToken())!;
+
+    final url = Uri.parse('https://api.trello.com/1/organizations?displayName=$displayName&key=$apiKey&token=$apiToken');
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+      print("Created");
+    } else {
+      throw Exception("Problem creating workspace");
+    }
+  }
 }
