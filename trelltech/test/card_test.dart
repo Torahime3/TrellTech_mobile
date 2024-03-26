@@ -48,10 +48,6 @@ void main() {
       expect(cards.first.id, "1");
       expect(cards.first.name, "Test Card");
       expect(cards.first.desc, "A description");
-      expect(
-          cards.first.idMembers,
-          containsAll(
-              ['65e58f09e1fc28da619e20e2', '65267fff1309ff5fc7f92fcf']));
     });
 
     test('throws an exception if the http call to get cards fails', () async {

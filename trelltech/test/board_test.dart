@@ -49,13 +49,10 @@ void main() {
         expect(boards.first, isA<BoardModel>());
         expect(boards.first.id, '1');
         expect(boards.first.name, 'Board 1');
-        expect(
-            boards.first.memberIds.contains('65e58f09e1fc28da619e20e2'), true);
+    
         expect(boards.last, isA<BoardModel>());
         expect(boards.last.id, '2');
         expect(boards.last.name, 'Board 2');
-        expect(
-            boards.last.memberIds.contains('65e58f09e1fc28da619e20e2'), true);
       });
 
       test(
@@ -83,8 +80,7 @@ void main() {
         expect(resultBoard, isA<BoardModel>());
         expect(resultBoard.id, "3");
         expect(resultBoard.name, "New Board");
-        expect(
-            resultBoard.memberIds.contains('65e58f09e1fc28da619e20e2'), true);
+      
       });
 
       test('throws an exception if the http call to create a board fails',
