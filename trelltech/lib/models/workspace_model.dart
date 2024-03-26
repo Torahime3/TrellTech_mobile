@@ -1,10 +1,12 @@
 
 class Workspace {
   String id;
+  String displayName;
   bool isExpanded;
 
   Workspace({
     required this.id,
+    required this.displayName,
     this.isExpanded = false,
   });
 
@@ -19,7 +21,7 @@ class Workspace {
   factory Workspace.fromJson(Map<String, dynamic> json) {
     return Workspace(
       id: json['id'],
-      // name: json['name'],
+      displayName: json['displayName'],
       // Initialize other properties from JSON
     );
   }
