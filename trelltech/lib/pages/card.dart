@@ -33,6 +33,8 @@ class _CardPageState extends State<CardPage> {
   void initState() {
     super.initState();
     _loadMembers();
+    // ignore: avoid_print
+    print(widget.card.id);
     _descriptionController.text = widget.card.desc; // Set initial value
   }
 

@@ -32,4 +32,42 @@ class MemberController {
       throw Exception("No member found");
     }
   }
+
+  Future<List<MemberModel>> getBoardMembers(String id) async {
+    String apiToken = (await getApiToken())!;
+    final url = Uri.parse(
+        "https://api.trello.com/1/boards/$id/members?key=$apiKey&token=$apiToken");
+
+    final response = await http.get(url);
+
+    // Parse the response and create MemberModel objects
+    if (response.statusCode == 200) {
+      final List<dynamic> responseData = json.decode(response.body);
+      return responseData.map((data) {
+        data['assigned'] = false;
+        return MemberModel.fromJson(data);
+      }).toList();
+    } else {
+      throw Exception('Failed to load board members');
+    }
+  }
+
+  Future<List<MemberModel>> getCardMembers(String id) async {
+    String apiToken = (await getApiToken())!;
+    final url = Uri.parse(
+        "https://api.trello.com/1/cards/$id/members?key=$apiKey&token=$apiToken");
+
+    final response = await http.get(url);
+
+    // Parse the response and create MemberModel objects
+    if (response.statusCode == 200) {
+      final List<dynamic> responseData = json.decode(response.body);
+      return responseData.map((data) {
+        data['assigned'] = true;
+        return MemberModel.fromJson(data);
+      }).toList();
+    } else {
+      throw Exception('Failed to load board members');
+    }
+  }
 }
