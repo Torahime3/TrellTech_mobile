@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
 import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
@@ -29,24 +28,33 @@ class _BoardPageState extends State<BoardPage> {
   final BoardController _boardController = BoardController();
   final ScrollController _scrollController = ScrollController();
   Timer? autoScrollTimer;
+  final Map<String, GlobalKey> listKeys = {};
   final TextEditingController _textEditingController =
       TextEditingController(text: "Initial Text");
   List<ListModel> lists = [];
-  List<CardModel> cards = [];
+  List<List<CardModel>> allCards = []; // Store cards for each list
 
   @override
   void initState() {
     super.initState();
     _loadInfo();
-    // ignore: avoid_print
-    print(widget.board.memberIds);
   }
 
   void _loadInfo() async {
     final fetchedLists = await _listsController.getLists(board: widget.board);
+    final fetchedCards = await Future.wait(
+        fetchedLists.map((list) => _cardsController.getCards(list: list)));
     setState(() {
       lists = fetchedLists;
+      allCards = fetchedCards;
     });
+  }
+
+  void moveListBetween(
+      ListModel listMoved, ListModel firstList, ListModel secondList) {
+    listMoved.moveListBetween(firstList, secondList);
+    lists.sort((a, b) => a.pos.compareTo(b.pos));
+    _loadInfo();
   }
 
   void startAutoScroll(double direction) {
@@ -93,7 +101,293 @@ class _BoardPageState extends State<BoardPage> {
     super.dispose();
   }
 
-  // Method to handle button tap and show popup dialog
+  @override
+  Widget build(BuildContext context) {
+    final board = widget.board;
+    final boardColor = widget.boardColor;
+    print(board.id);
+    return Scaffold(
+      appBar: appbar(
+        text: board.name,
+        color: boardColor,
+        showEditButton: true,
+        onDelete: () {
+          _boardController.delete(
+            id: board.id,
+            onDeleted: () {
+              _loadInfo();
+            },
+          );
+          Navigator.of(context).pop();
+        },
+        onEdit: () {
+          _textEditingController.text = board.name;
+          showModalBottomSheet(
+            backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+            context: context,
+            builder: (BuildContext context) {
+              return SizedBox(
+                height: 600,
+                child: Center(
+                  child: Form(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            autofocus: true,
+                            controller: _textEditingController,
+                            decoration: const InputDecoration(
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 49, 49, 49),
+                                ),
+                              ),
+                            ),
+                            cursorColor: const Color.fromARGB(255, 49, 49, 49),
+                            onFieldSubmitted: (String value) {
+                              _boardController.update(
+                                id: board.id,
+                                name: value,
+                                onUpdated: () {
+                                  _loadInfo();
+                                },
+                              );
+                              Navigator.of(context).pop();
+                              setState(() {
+                                board.name = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Container(
+            color: Colors.white,
+            child: ListView.builder(
+              controller: _scrollController,
+              scrollDirection: Axis.horizontal,
+              itemCount: lists.length + 1, // Add one for the button
+              itemBuilder: (BuildContext context, int index) {
+                if (index < lists.length) {
+                  return _buildList(lists[index], allCards[index], index);
+                } else {
+                  // Render the button at the end of the list
+                  return Center(
+                    child: SizedBox(
+                      height: 50,
+                      width: 300,
+                      child: GestureDetector(
+                        onTap: () {
+                          _createListDialog();
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: const Text(
+                            'Add List',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildList(ListModel list, List<CardModel> cards, int index) {
+    final boardColor = widget.boardColor;
+    listKeys[list.id] ??= GlobalKey();
+    final GlobalKey currentListKey = listKeys[list.id]!;
+
+    return DragTarget<ListModel>(onWillAcceptWithDetails:
+        (DragTargetDetails<ListModel> incomingListData) {
+      return incomingListData.data.id != list.id;
+    }, onAcceptWithDetails: (DragTargetDetails<ListModel> details) {
+      final RenderBox renderBox =
+          currentListKey.currentContext?.findRenderObject() as RenderBox;
+      final Offset targetCenter =
+          renderBox.localToGlobal(renderBox.size.center(Offset.zero));
+      final bool isLeft = (details.offset.dx + 100) < targetCenter.dx;
+      final ListModel listDetails = details.data;
+      if (isLeft) {
+        if (index == 0) {
+          return;
+        }
+        moveListBetween(listDetails, lists[index], lists[index - 1]);
+      } else {
+        if (index == lists.length - 1) {
+          return;
+        }
+        moveListBetween(listDetails, lists[index], lists[index + 1]);
+      }
+    }, builder: (BuildContext context, List<ListModel?> candidateData,
+        List<dynamic> rejectedData) {
+      return Container(
+        key: currentListKey,
+        width: 300,
+        margin: index == 0
+            ? const EdgeInsets.only(
+                left: 36.0, right: 12.0, top: 12.0, bottom: 12.0)
+            : const EdgeInsets.all(12.0),
+        decoration: BoxDecoration(
+          color: getMaterialColor(boardColor).shade300,
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //
+            // List header
+            //
+
+            Listener(
+              onPointerMove: (PointerMoveEvent pme) {
+                final screenSize = MediaQuery.of(context).size;
+                final position = pme.position;
+
+                if (position.dx > screenSize.width - 20) {
+                  startAutoScroll(13.0);
+                } else if (position.dx < 20) {
+                  startAutoScroll(-13.0);
+                } else {
+                  stopAutoScroll();
+                }
+              },
+              onPointerUp: (PointerUpEvent pue) {
+                stopAutoScroll();
+              },
+              child: LongPressDraggable<ListModel>(
+                data: list,
+                feedback: Container(
+                  height: 50,
+                  width: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20.0),
+                      topRight: Radius.circular(20.0),
+                      bottomLeft: Radius.circular(20.0),
+                      bottomRight: Radius.circular(20.0),
+                    ),
+                    color: getMaterialColor(boardColor).shade600,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Padding(padding: EdgeInsets.only(left: 16.0)),
+                      Expanded(
+                        child: Text(
+                          '${list.name} | ${list.pos}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.more_vert),
+                        color: Colors.white,
+                        onPressed: () {
+                          _showPopupMenu(context, list);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20.0),
+                      topRight: Radius.circular(20.0),
+                    ),
+                    color: getMaterialColor(boardColor).shade400,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Padding(padding: EdgeInsets.only(left: 16.0)),
+                      Expanded(
+                        child: Text(
+                          '${list.name} | ${list.pos}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.more_vert),
+                        color: Colors.white,
+                        onPressed: () {
+                          _showPopupMenu(context, list);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            //
+            // List body
+            //
+
+            Expanded(
+              child: ListView.builder(
+                itemCount: cards.length,
+                itemBuilder: (context, index) {
+                  final card = cards[index];
+                  return GestureDetector(
+                    onTap: () async {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CardPage(
+                            card: card,
+                            board: widget.board,
+                            boardColor: widget.boardColor,
+                          ),
+                        ),
+                      );
+                    },
+                    child: _buildCard(card),
+                  );
+                },
+              ),
+            ),
+            // List footer
+            _buildAddCardRow(list.id),
+          ],
+        ),
+      );
+    });
+  }
+
   void _createListDialog() {
     TextEditingController textFieldController = TextEditingController();
     showDialog(
@@ -183,259 +477,6 @@ class _BoardPageState extends State<BoardPage> {
             ),
           ],
         );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final board = widget.board;
-    final boardColor = widget.boardColor;
-    // ignore: avoid_print
-    print(board.id);
-    return Scaffold(
-      appBar: appbar(
-          text: board.name,
-          color: boardColor,
-          showEditButton: true,
-          onDelete: () {
-            _boardController.delete(
-                id: board.id,
-                onDeleted: () {
-                  _loadInfo();
-                });
-            Navigator.of(context).pop();
-          },
-          onEdit: () {
-            _textEditingController.text = board.name;
-            showModalBottomSheet(
-                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                context: context,
-                builder: (BuildContext context) {
-                  return SizedBox(
-                      height: 600,
-                      child: Center(
-                          child: Form(
-                              child: Column(
-                        children: [
-                          Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: TextFormField(
-                                autofocus: true,
-                                controller: _textEditingController,
-                                decoration: const InputDecoration(
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Color.fromARGB(255, 49, 49, 49)),
-                                  ),
-                                ),
-                                cursorColor:
-                                    const Color.fromARGB(255, 49, 49, 49),
-                                onFieldSubmitted: (String value) {
-                                  _boardController.update(
-                                      id: board.id,
-                                      name: value,
-                                      onUpdated: () {
-                                        _loadInfo();
-                                      });
-                                  Navigator.of(context).pop();
-                                  setState(() {
-                                    board.name = value;
-                                  });
-                                },
-                              ))
-                        ],
-                      ))));
-                });
-          }),
-      body: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return Container(
-            color: Colors.white,
-            child: ListView.builder(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              itemCount: lists.length + 1, // Add one for the button
-              itemBuilder: (BuildContext context, int index) {
-                if (index < lists.length) {
-                  return _buildList(lists[index], index);
-                } else {
-                  // Render the button at the end of the list
-                  return Center(
-                    child: SizedBox(
-                      height: 50,
-                      width: 300,
-                      child: GestureDetector(
-                        onTap: () {
-                          // Show the create list dialog
-                          _createListDialog();
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                          padding: const EdgeInsets.all(16.0),
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: const Text(
-                            'Add List',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildList(ListModel list, int index) {
-    final boardColor = widget.boardColor;
-    return FutureBuilder<List<CardModel>>(
-      future: _cardsController.getCards(list: list),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final cards = snapshot.data!;
-          return Listener(
-            onPointerMove: (PointerMoveEvent pme) {
-              final screenSize = MediaQuery.of(context).size;
-              final position = pme.position;
-
-              if (position.dx > screenSize.width - 100) {
-                startAutoScroll(10.0);
-              } else if (position.dx < 100) {
-                startAutoScroll(-10.0);
-              } else {
-                stopAutoScroll();
-              }
-            },
-            onPointerUp: (PointerUpEvent pue) {
-              stopAutoScroll();
-            },
-            child: LongPressDraggable<ListModel>(
-              data: list,
-              feedback: Material(
-                elevation: 6.0,
-                child: Container(
-                  width: 300,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20.0),
-                    color: getMaterialColor(boardColor).shade600,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Padding(padding: EdgeInsets.only(left: 16.0)),
-                      Expanded(
-                        child: Text(
-                          "${list.name} ${list.pos}",
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // List item
-
-              child: Container(
-                width: 300,
-                margin: index == 0
-                    ? const EdgeInsets.only(
-                        left: 40.0, top: 12.0, bottom: 12.0, right: 12.0)
-                    : const EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: getMaterialColor(boardColor).shade300,
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                child: Stack(
-                  children: [
-                    // List header
-                    Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(20.0),
-                          topRight: Radius.circular(20.0),
-                        ),
-                        color: getMaterialColor(boardColor).shade400,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Padding(padding: EdgeInsets.only(left: 16.0)),
-                          Expanded(
-                            child: Text(
-                              "${list.name} ${list.pos}",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.more_vert),
-                            color: Colors.white,
-                            onPressed: () => _showPopupMenu(context, list),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // List body
-                    Positioned.fill(
-                      top: 50.0,
-                      child: ListView.builder(
-                        itemCount: cards.length,
-                        itemBuilder: (context, index) {
-                          final card = cards[index];
-                          return GestureDetector(
-                            onTap: () async {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => CardPage(
-                                    card: cards[index],
-                                    board: widget.board,
-                                    boardColor: widget.boardColor,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: _buildCard(card),
-                          );
-                        },
-                      ),
-                    ),
-                    // List footer
-                    Positioned(
-                      bottom: 0.0,
-                      left: 0.0,
-                      child: _buildAddCardRow(list.id),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-        return const Center(child: CircularProgressIndicator());
       },
     );
   }

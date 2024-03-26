@@ -45,7 +45,7 @@ void main() {
                 200));
 
         final lists = await listController.getLists(
-            board: BoardModel(id: '1', name: 'Test Board', memberIds: []));
+            board: BoardModel(id: '1', name: 'Test Board'));
 
         expect(lists.isNotEmpty, true);
         expect(lists.first, isA<ListModel>());
@@ -62,8 +62,7 @@ void main() {
 
         expect(
             () async => await listController.getLists(
-                board:
-                    BoardModel(id: '1', name: 'Failed Board', memberIds: [])),
+                board: BoardModel(id: '1', name: 'Failed Board')),
             throwsException);
       });
     });
@@ -74,7 +73,7 @@ void main() {
             (_) async => http.Response('{"id":"1", "name":"Test List"}', 200));
 
         final result = await listController.create("Test List",
-            board: BoardModel(id: '1', name: 'Test Board', memberIds: []));
+            board: BoardModel(id: '1', name: 'Test Board'));
 
         expect(result, isA<ListModel>());
         expect(result.id, "1");
@@ -88,7 +87,7 @@ void main() {
 
         expect(
             () async => await listController.create('Failed List',
-                board: BoardModel(id: '1', name: 'Dummy Board', memberIds: [])),
+                board: BoardModel(id: '1', name: 'Dummy Board')),
             throwsException);
       });
     });
