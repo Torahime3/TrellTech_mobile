@@ -329,6 +329,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                             color: Color.fromARGB(255, 49, 49, 49),
                                                           ),
                                                         ),
+                                                        hintText: "Add a title to your new board",
                                                       ),
                                                       cursorColor: const Color.fromARGB(255, 49, 49, 49),
                                                       onFieldSubmitted: (String value) {
@@ -385,22 +386,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 decoration: const InputDecoration(
                                   focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Color.fromARGB(255, 49, 49,
-                                            49)), // Change underline color
+                                        color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
                                   ),
-                                  hintText: "Add a title to your new board",
+                                  hintText: "Add a title to your new workspace",
                                 ),
                                 cursorColor:
                                     const Color.fromARGB(255, 49, 49, 49),
                                 onFieldSubmitted: (String value) {
-                                  _boardController.create(
-                                      name: value,
-                                      onCreated: () {
-                                        _loadInfo();
-                                      });
+                                  _workspaceController.create(value);  
+                                  _loadInfo();
                                   Navigator.of(context).pop();
                                 },
-                              ))
+                              )
+                            )
                         ],
                       ))));
                 });
