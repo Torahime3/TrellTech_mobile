@@ -59,4 +59,45 @@ class WorkspaceController {
     }
 
   }
+
+
+  Future<Workspace> update(id, displayName) async {
+    String apiToken = (await getApiToken())!;
+
+    final url = Uri.parse('https://api.trello.com/1/organizations/$id?key=$apiKey&token=$apiToken&displayName=$displayName');
+    final response = await http.put(url);
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      return Workspace.fromJson(jsonResponse);
+    } else {
+      throw Exception("Workspace not updated");
+    }
+  }
+
+  Future<bool> delete(id) async {
+    String apiToken = (await getApiToken())!;
+    
+    final url = Uri.parse('https://api.trello.com/1/organizations/$id?key=$apiKey&token=$apiToken');
+    final response = await http.delete(url);
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception("Workspace not deleted");
+    }
+  }
+
+  Future<bool> create(displayName) async {
+    String apiToken = (await getApiToken())!;
+
+    final url = Uri.parse('https://api.trello.com/1/organizations?displayName=$displayName&key=$apiKey&token=$apiToken');
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception("Problem creating workspace");
+    }
+  }
 }

@@ -6,6 +6,9 @@ import 'package:trelltech/models/workspace_model.dart';
 import 'package:trelltech/pages/board.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
+
+enum SampleItem { update, delete, add }
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -21,6 +24,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   List<BoardModel> boards = [];
   List<Workspace> workspaces = [];
   bool boardsVisible = false;
+  final TextEditingController _textEditingController = TextEditingController();
 
   @override
   void initState() {
@@ -223,6 +227,135 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             
                             }
                           ),
+                          IconButton(
+                            onPressed: () {
+                              showMenu(
+                                context: context,
+                                position: const RelativeRect.fromLTRB(0, 0, 0, 0),
+                                items: [
+                                  const PopupMenuItem(
+                                    value: 'update',
+                                    child: ListTile(
+                                      leading: Icon(Icons.edit),
+                                      title: Text('Edit name'),
+                                    ),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'delete',
+                                    child: ListTile(
+                                      leading: Icon(Icons.delete),
+                                      title: Text('Delete workspace'),
+                                    ),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: "createBoard",
+                                    child: ListTile(
+                                      leading: Icon(Icons.add),
+                                      title: Text('Create board'),
+                                    ),
+                                  )
+                                ],
+                              ).then((value) {
+                                switch (value) {
+                                  case "update":
+                                    _textEditingController.text = workspaces[index].displayName;
+                                    showModalBottomSheet(
+                                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return SizedBox(
+                                          height: 600,
+                                          child: Center(
+                                            child: Form(
+                                              child: Column(
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.all(16.0),
+                                                    child: TextFormField(
+                                                      autofocus: true,
+                                                      controller: _textEditingController,
+                                                      decoration: const InputDecoration(
+                                                        focusedBorder: UnderlineInputBorder(
+                                                          borderSide: BorderSide(
+                                                            color: Color.fromARGB(255, 49, 49, 49),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      cursorColor: const Color.fromARGB(255, 49, 49, 49),
+                                                      onFieldSubmitted: (String value) {
+                                                        _workspaceController.update(workspaces[index].id, value);
+                                                        Navigator.of(context).pop();
+                                                        setState(() {
+                                                          workspaces[index].displayName = _textEditingController.text;
+                                                        });
+                                                        _loadInfo();
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                    break;
+                                  case "delete":
+                                    _workspaceController.delete(workspaces[index].id);
+                                    _loadInfo();
+                                    setState(() {
+                                      
+                                    });
+                                    break;
+                                  case "createBoard":
+                                    showModalBottomSheet(
+                                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return SizedBox(
+                                          height: 600,
+                                          child: Center(
+                                            child: Form(
+                                              child: Column(
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.all(16.0),
+                                                    child: TextFormField(
+                                                      autofocus: true,
+                                                      // controller: _textEditingController,
+                                                      decoration: const InputDecoration(
+                                                        focusedBorder: UnderlineInputBorder(
+                                                          borderSide: BorderSide(
+                                                            color: Color.fromARGB(255, 49, 49, 49),
+                                                          ),
+                                                        ),
+                                                        hintText: "Add a title to your new board",
+                                                      ),
+                                                      cursorColor: const Color.fromARGB(255, 49, 49, 49),
+                                                      onFieldSubmitted: (String value) {
+                                                        _boardController.create(
+                                                          name: value, 
+                                                          id: workspaces[index].id,
+                                                          onCreated: () {
+                                                            _loadInfo();
+                                                          }
+                                                        );
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                }
+                              });
+                            },
+                            icon: const Icon(Icons.more_vert),
+                          )
                         ]
                       )
                     ),
@@ -253,22 +386,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 decoration: const InputDecoration(
                                   focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Color.fromARGB(255, 49, 49,
-                                            49)), // Change underline color
+                                        color: Color.fromARGB(255, 49, 49, 49)), // Change underline color
                                   ),
-                                  hintText: "Add a title to your new board",
+                                  hintText: "Add a title to your new workspace",
                                 ),
                                 cursorColor:
                                     const Color.fromARGB(255, 49, 49, 49),
                                 onFieldSubmitted: (String value) {
-                                  _boardController.create(
-                                      name: value,
-                                      onCreated: () {
-                                        _loadInfo();
-                                      });
+                                  _workspaceController.create(value);  
+                                  _loadInfo();
                                   Navigator.of(context).pop();
                                 },
-                              ))
+                              )
+                            )
                         ],
                       ))));
                 });
