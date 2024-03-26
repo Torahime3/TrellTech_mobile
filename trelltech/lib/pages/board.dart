@@ -179,7 +179,7 @@ class _BoardPageState extends State<BoardPage> {
           Container(
             height: 50,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20.0),
                 topRight: Radius.circular(20.0),
               ),
