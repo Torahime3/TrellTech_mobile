@@ -33,8 +33,8 @@ class _BoardPageState extends State<BoardPage> {
       TextEditingController(text: "Initial Text");
   List<ListModel> lists = [];
   List<List<CardModel>> allCards = []; // Store cards for each list
-  List<MemberModel> boardMemberDetails = [];
-  List<MemberModel> cardMemberDetails = [];
+  List<MemberModel> members = [];
+  Map<String, List<MemberModel>> cardAssignedMembers = {};
 
   @override
   void initState() {
@@ -49,49 +49,41 @@ class _BoardPageState extends State<BoardPage> {
     setState(() {
       lists = fetchedLists;
       allCards = fetchedCards;
+      _loadMembers();
     });
   }
 
   void _loadMembers() async {
     try {
-      List<MemberModel> boardMembers = [];
-      List<MemberModel> cardMembers = [];
-
-      // Fetch board members
-      List<MemberModel> allBoardMembers =
+      List<MemberModel> boardMembers =
           await _memberController.getBoardMembers(widget.board.id);
-      for (MemberModel member in allBoardMembers) {
-        if (!member.assigned) {
-          boardMembers.add(member);
-        }
-      }
+      List<MemberModel> allMembers = List.from(boardMembers);
 
-      // Fetch card members
       for (List<CardModel> cardList in allCards) {
         for (CardModel card in cardList) {
-          List<MemberModel> allCardMembers =
+          List<MemberModel> cardMemberList =
               await _memberController.getCardMembers(card.id);
-          for (MemberModel member in allCardMembers) {
-            if (member.assigned) {
-              cardMembers.add(member);
-            }
+
+          for (MemberModel member in cardMemberList) {
+            member.cardIds.add(card.id);
           }
+          allMembers.addAll(cardMemberList);
         }
       }
+
       setState(() {
-        boardMemberDetails = boardMembers;
-        cardMemberDetails = cardMembers;
+        members = allMembers;
       });
     } catch (e) {
-      throw ('Error loading members: $e');
+      print('Error loading members: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print('members: $members');
     final board = widget.board;
     final boardColor = widget.boardColor;
-    print(board.id);
     return Scaffold(
       appBar: appbar(
         text: board.name,
@@ -263,8 +255,7 @@ class _BoardPageState extends State<BoardPage> {
                           card: card,
                           board: widget.board,
                           boardColor: widget.boardColor,
-                          members:
-                              boardMemberDetails, // Pass the list of members here
+                          members: members,
                         ),
                       ),
                     );

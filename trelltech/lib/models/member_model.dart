@@ -1,21 +1,22 @@
 class MemberModel {
   String name;
   String id;
-  String initials;
-  bool assigned;
+  String? initials;
+  List<String> cardIds; // Updated field to store list of card IDs
 
   MemberModel({
     required this.name,
     required this.id,
-    required this.initials,
-    required this.assigned,
+    this.initials,
+    required this.cardIds, // Update the constructor
   });
 
   factory MemberModel.fromJson(Map<String, dynamic> json) {
     return MemberModel(
-        name: json['fullName'],
-        id: json['id'],
-        initials: json['initials'],
-        assigned: json['assigned']);
+      name: json['fullName'],
+      id: json['id'],
+      initials: json['initials'],
+      cardIds: [], // Initialize cardIds list
+    );
   }
 }
