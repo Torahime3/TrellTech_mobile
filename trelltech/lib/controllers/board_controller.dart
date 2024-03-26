@@ -38,6 +38,23 @@ class BoardController {
     }
   }
 
+  Future<List<BoardModel>> getBoardsInWorkspace(id) async {
+    String apiToken = (await getApiToken())!;
+
+    final url = Uri.parse('https://api.trello.com/1/organizations/$id/boards?key=$apiKey&token=$apiToken');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      List<BoardModel> boards = List<BoardModel>.from(
+        jsonResponse.map((boardJson) => BoardModel.fromJson(boardJson))
+      );
+      return boards;
+    } else {
+      throw Exception("No boards");
+    }
+  }
+
   Future<BoardModel> create({required name, void Function()? onCreated}) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
