@@ -55,10 +55,10 @@ class BoardController {
     }
   }
 
-  Future<BoardModel> create({required name, void Function()? onCreated}) async {
+  Future<BoardModel> create({required name, id, void Function()? onCreated}) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
-        'https://api.trello.com/1/boards/?name=$name&key=$apiKey&token=$apiToken');
+        'https://api.trello.com/1/boards/?name=$name&key=$apiKey&token=$apiToken&idOrganization=$id');
     final response = await client.post(url);
 
     if (response.statusCode == 200) {
