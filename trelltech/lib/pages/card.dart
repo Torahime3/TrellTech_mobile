@@ -32,8 +32,6 @@ class _CardPageState extends State<CardPage> {
   @override
   void initState() {
     super.initState();
-    _loadMembers();
-    // ignore: avoid_print
     print(widget.card.id);
     _descriptionController.text = widget.card.desc; // Set initial value
   }
@@ -42,22 +40,6 @@ class _CardPageState extends State<CardPage> {
   void dispose() {
     _descriptionController.dispose();
     super.dispose();
-  }
-
-  void _loadMembers() async {
-    try {
-      List<MemberModel> memberDetails = [];
-      for (String memberId in widget.card.idMembers) {
-        final MemberModel member =
-            await _memberController.getMemberDetails(id: memberId);
-        memberDetails.add(member);
-      }
-      setState(() {
-        members = memberDetails;
-      });
-    } catch (e) {
-      throw ('Error loading members: $e');
-    }
   }
 
   @override
