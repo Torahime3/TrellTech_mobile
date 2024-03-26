@@ -43,19 +43,21 @@ class WorkspaceController {
   }
 
 
-  Future<String?> getName(id) async {
+  Future<String> getName(id) async {
     String apiToken = (await getApiToken())!;
 
-    final url = Uri.parse('https://api.trello.com/1/organizations/$id/name?key=$apiKey&token=$apiToken');
+    final url = Uri.parse('https://api.trello.com/1/organizations/$id/?key=$apiKey&token=$apiToken&field=name');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
-      print("LOOK");
+      final name = jsonResponse['displayName'];
       print(jsonResponse);
-      return jsonResponse;
+      print(name);
+      // return jsonResponse;
+      return name;
     } else {
-      return null;
+      throw Exception("No name");
     }
 
   }
