@@ -77,14 +77,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 children: [
                   GestureDetector(
                     onTap: () async {
-                      final workspaceBoards = await _boardController.getBoardsInWorkspace(workspaces[index].id);
-                      print(boardsVisible);
-                      setState(() {
-                        boardsVisible = true;
-                        boards = workspaceBoards;
+                      workspaces[index].toggleExpansion();
+                      print(workspaces[index].isExpanded);
+                      if (workspaces[index].isExpanded) {
+                        // final workspaceBoards = await _boardController.getBoardsInWorkspace(workspaces[index].id);
                         print(boardsVisible);
-                      });
-                      print("WORKING");
+                        setState(() {
+                          boardsVisible = true;
+                          // boards = workspaceBoards;
+                          print(boardsVisible);
+                        });
+                        print("WORKING");
+                      } else {
+                        setState(() {
+                          boardsVisible = false;
+                          print(boardsVisible);
+                        });
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.all(16.0),
@@ -94,7 +103,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       child: Row(
                         children: [
                           Icon(
-                            (boardsVisible ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+                            (workspaces[index].isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down),
                             color: Colors.black
                           ),
                           const SizedBox(
@@ -112,88 +121,104 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       )
                     ),
                   ),
-                  if (boardsVisible) // Check if the current workspace is selected
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(), // Disable scrolling to allow the parent ListView to handle scrolling
-                      itemCount: boards.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return SlideTransition(
-                          position: _slideAnimations[index],
-                          child: Container(
-                            margin: const EdgeInsets.all(10),
-                            child: GestureDetector(
-                              onLongPress: () {
-                                showMenu(
-                                  context: context,
-                                  position: const RelativeRect.fromLTRB(0, 200, 0, 0),
-                                  items: <PopupMenuEntry>[
-                                    PopupMenuItem(
-                                      child: ListTile(
-                                        title: const Text('Delete board'),
-                                        onTap: () {
-                                          _boardController.delete(
-                                            id: boards[index].id,
-                                            onDeleted: () {
-                                              _loadInfo();
-                                            },
+                  if (workspaces[index].isExpanded)
+                    Column(
+                      children: [
+                        FutureBuilder<List<BoardModel>>(
+                          future: _boardController.getBoardsInWorkspace(workspaces[index].id),
+                          builder: (context, snapshot) {
+                            boards = snapshot.data ?? []; 
+                            if (snapshot.hasError) {
+                        
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                    
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(), // Disable scrolling to allow the parent ListView to handle scrolling
+                                itemCount: boards.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return SlideTransition(
+                                    position: _slideAnimations[index],
+                                    child: Container(
+                                      margin: const EdgeInsets.all(10),
+                                      child: GestureDetector(
+                                        onLongPress: () {
+                                          showMenu(
+                                            context: context,
+                                            position: const RelativeRect.fromLTRB(0, 200, 0, 0),
+                                            items: <PopupMenuEntry>[
+                                              PopupMenuItem(
+                                                child: ListTile(
+                                                  title: const Text('Delete board'),
+                                                  onTap: () {
+                                                    _boardController.delete(
+                                                      id: boards[index].id,
+                                                      onDeleted: () {
+                                                        _loadInfo();
+                                                      },
+                                                    );
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                ),
+                                              ),
+                                            ],
                                           );
-                                          Navigator.of(context).pop();
                                         },
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => BoardPage(
-                                        board: boards[index],
-                                        boardColor: Colors.primaries.elementAt(index % 18),
+                                        child: InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => BoardPage(
+                                                  board: boards[index],
+                                                  boardColor: Colors.primaries.elementAt(index % 18),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            borderRadius: BorderRadius.circular(20),
+                                            elevation: 15,
+                                            child: Ink(
+                                              height: 80,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(20),
+                                                color: Colors.primaries.elementAt(index % 18),
+                                              ),
+                                              child: Container(
+                                                margin: const EdgeInsets.all(10),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.dashboard,
+                                                      color: Colors.primaries.elementAt(index % 18).shade900,
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    Text(
+                                                      boards[index].getName(),
+                                                      style: const TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   );
                                 },
-                                child: Material(
-                                  color: Colors.transparent,
-                                  borderRadius: BorderRadius.circular(20),
-                                  elevation: 15,
-                                  child: Ink(
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: Colors.primaries.elementAt(index % 18),
-                                    ),
-                                    child: Container(
-                                      margin: const EdgeInsets.all(10),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.dashboard,
-                                            color: Colors.primaries.elementAt(index % 18).shade900,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            boards[index].getName(),
-                                            style: const TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
+                              );
+                            }
+                          }
+                        )
+                      ]
                     ),
                   const Divider(),
                 ],
