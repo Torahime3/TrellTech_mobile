@@ -274,7 +274,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                           child: Material(
                                             color: Colors.transparent,
                                             borderRadius: BorderRadius.circular(20),
-                                            elevation: 15,
+                                            elevation: 4,
                                             child: Ink(
                                               height: 80,
                                               decoration: BoxDecoration(
@@ -314,7 +314,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         )
                       ]
                     ),
-                  const Divider(),
+                  // const Divider(),
                 ],
               );
           },
