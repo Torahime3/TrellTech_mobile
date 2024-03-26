@@ -211,14 +211,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           const SizedBox(
                             width: 10,
                           ),
-                          Text(
-                            workspaces[index].id, // Display the fetched name
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            )
-                          )
+                          FutureBuilder<String>(
+                            future: _workspaceController.getName(workspaces[index].id),
+                            builder: (context, snapshot) {
+                              return Text(
+                                snapshot.data ?? '',
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                )
+                              );
+                            
+                            }
+                          ),
                         ]
                       )
                     ),
