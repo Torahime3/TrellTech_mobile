@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/member_controller.dart';
@@ -11,12 +13,15 @@ class CardPage extends StatefulWidget {
   final CardModel card;
   final BoardModel board;
   final Color boardColor;
+  final List<MemberModel> members;
 
-  const CardPage(
-      {super.key,
-      required this.card,
-      required this.board,
-      required this.boardColor});
+  const CardPage({
+    super.key,
+    required this.card,
+    required this.board,
+    required this.boardColor,
+    required this.members,
+  });
 
   @override
   State<CardPage> createState() => _CardPageState();
@@ -24,16 +29,29 @@ class CardPage extends StatefulWidget {
 
 class _CardPageState extends State<CardPage> {
   final MemberController _memberController = MemberController();
-  List<MemberModel> members = [];
-  final CardController _cardsController = CardController();
   late final TextEditingController _descriptionController =
       TextEditingController();
+  List<MemberModel> members = [];
+  final CardController _cardsController = CardController();
 
   @override
   void initState() {
     super.initState();
     print(widget.card.id);
     _descriptionController.text = widget.card.desc; // Set initial value
+    _loadMembers();
+  }
+
+  void _loadMembers() async {
+    try {
+      List<MemberModel> cardMembers =
+          await _memberController.getCardMembers(widget.card.id);
+      setState(() {
+        members = cardMembers.where((member) => member.assigned).toList();
+      });
+    } catch (e) {
+      print('Error loading card members: $e');
+    }
   }
 
   @override
@@ -192,48 +210,58 @@ class _CardPageState extends State<CardPage> {
   }
 
   Widget _buildAvatarsContainer(List<Widget> avatars) {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: avatars,
+          children: avatars,
+        ),
+        const SizedBox(
+          width: 8,
+        ),
+        GestureDetector(
+          onTap: () {
+            _showCardOptionsMenu(
+                context, widget.card, members); // Call the method here
+          },
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: Colors.green,
+              shape: BoxShape.circle,
             ),
-            const SizedBox(
-              width: 8,
-            ), // Add spacing between avatars and the "+" button
-            GestureDetector(
-              onTap: () {
-                _showCardOptionsMenu(
-                    context, widget.card); // Call the method here
-              },
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.add,
-                    color: Colors.white,
-                  ),
-                ),
+            child: const Center(
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
               ),
             ),
-          ],
+          ),
         ),
       ],
     );
   }
 
-  void _showCardOptionsMenu(BuildContext context, CardModel card) {
+  void _showCardOptionsMenu(
+      BuildContext context, CardModel card, List<MemberModel> assignedMembers) {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final Offset buttonPosition = button.localToGlobal(Offset.zero);
+
+    // Generate PopupMenuItems for assigned members
+    List<PopupMenuItem> assignedMemberItems = assignedMembers.map((member) {
+      return PopupMenuItem(
+        value: 'member_${member.id}', // Use a unique value for each member
+        child: ListTile(
+          leading: MemberAvatar(initials: member.initials), // Avatar
+          title: Text(member.name), // Member name
+          onTap: () {
+            // Handle member tile tap here
+            print('Tapped on member: ${member.name}');
+          },
+        ),
+      );
+    }).toList();
 
     showMenu(
       context: context,
@@ -246,7 +274,7 @@ class _CardPageState extends State<CardPage> {
       items: [
         const PopupMenuItem(
           enabled: false,
-          child: Text('Board Mem', style: TextStyle(color: Colors.grey)),
+          child: Text('Board Members', style: TextStyle(color: Colors.grey)),
         ),
         const PopupMenuItem(
           value: 'update',
@@ -258,12 +286,7 @@ class _CardPageState extends State<CardPage> {
           enabled: false,
           child: Text('Card Members', style: TextStyle(color: Colors.grey)),
         ),
-        const PopupMenuItem(
-          value: 'delete',
-          child: ListTile(
-            title: Text('Delete'),
-          ),
-        ),
+        ...assignedMemberItems, // Add assigned member items
       ],
     );
   }

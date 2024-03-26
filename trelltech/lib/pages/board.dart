@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
+import 'package:trelltech/controllers/member_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/list_model.dart';
+import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/utils/materialcolor_utils.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
@@ -26,16 +28,18 @@ class _BoardPageState extends State<BoardPage> {
   final ListController _listsController = ListController();
   final CardController _cardsController = CardController();
   final BoardController _boardController = BoardController();
+  final MemberController _memberController = MemberController();
   final TextEditingController _textEditingController =
       TextEditingController(text: "Initial Text");
   List<ListModel> lists = [];
   List<List<CardModel>> allCards = []; // Store cards for each list
+  List<MemberModel> boardMemberDetails = [];
+  List<MemberModel> cardMemberDetails = [];
 
   @override
   void initState() {
     super.initState();
     _loadInfo();
-    //print(widget.board.memberId);
   }
 
   void _loadInfo() async {
@@ -46,6 +50,41 @@ class _BoardPageState extends State<BoardPage> {
       lists = fetchedLists;
       allCards = fetchedCards;
     });
+  }
+
+  void _loadMembers() async {
+    try {
+      List<MemberModel> boardMembers = [];
+      List<MemberModel> cardMembers = [];
+
+      // Fetch board members
+      List<MemberModel> allBoardMembers =
+          await _memberController.getBoardMembers(widget.board.id);
+      for (MemberModel member in allBoardMembers) {
+        if (!member.assigned) {
+          boardMembers.add(member);
+        }
+      }
+
+      // Fetch card members
+      for (List<CardModel> cardList in allCards) {
+        for (CardModel card in cardList) {
+          List<MemberModel> allCardMembers =
+              await _memberController.getCardMembers(card.id);
+          for (MemberModel member in allCardMembers) {
+            if (member.assigned) {
+              cardMembers.add(member);
+            }
+          }
+        }
+      }
+      setState(() {
+        boardMemberDetails = boardMembers;
+        cardMemberDetails = cardMembers;
+      });
+    } catch (e) {
+      throw ('Error loading members: $e');
+    }
   }
 
   @override
@@ -224,6 +263,8 @@ class _BoardPageState extends State<BoardPage> {
                           card: card,
                           board: widget.board,
                           boardColor: widget.boardColor,
+                          members:
+                              boardMemberDetails, // Pass the list of members here
                         ),
                       ),
                     );
