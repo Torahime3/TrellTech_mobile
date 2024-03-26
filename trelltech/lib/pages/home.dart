@@ -169,36 +169,152 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           itemBuilder: (BuildContext context, int index) {
               return Column(
                 children: [
-                    ExpansionPanelList(
-                      elevation: 0,
-                      children: [
-                        ExpansionPanel(
-                          canTapOnHeader: true,
-                          headerBuilder: 
-                            (context, isOpen) {
-                              return ListTile(
-                                title: Text(workspaces[index].id.toString())
-                              );
-                            },
-                          body: _buildExpansionPanelBody(),
-                          isExpanded: workspaces[index].getIsExpanded()
-                        )
-                      ],
-                      expansionCallback: (i, isOpen) {
-                        print("IMMA DIE");
-                        print(workspaces[index].getIsExpanded());
-                        _loadWorkspaceBoards(workspaces[index].id);
-
+                  GestureDetector(
+                    onTap: () async {
+                      workspaces[index].toggleExpansion();
+                      print(workspaces[index].isExpanded);
+                      if (workspaces[index].isExpanded) {
+                        // final workspaceBoards = await _boardController.getBoardsInWorkspace(workspaces[index].id);
+                        print(boardsVisible);
                         setState(() {
-                          workspaces[index].toggleExpansion(); // Toggle expansion state
-                          if (workspaces[index].getIsExpanded()) {
-                            _loadWorkspaceBoards(workspaces[index].id);
-                          } else {
-                            boards.clear();
-                          }
+                          boardsVisible = true;
+                          // boards = workspaceBoards;
+                          print(boardsVisible);
+                        });
+                        print("WORKING");
+                      } else {
+                        setState(() {
+                          boardsVisible = false;
+                          print(boardsVisible);
                         });
                       }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: const BoxDecoration(
+                        border: Border(bottom: BorderSide(color: Colors.black, width: 0.5)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            (workspaces[index].isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+                            color: Colors.black
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            workspaces[index].id, // Display the fetched name
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            )
+                          )
+                        ]
+                      )
                     ),
+                  ),
+                  if (workspaces[index].isExpanded)
+                    Column(
+                      children: [
+                        FutureBuilder<List<BoardModel>>(
+                          future: _boardController.getBoardsInWorkspace(workspaces[index].id),
+                          builder: (context, snapshot) {
+                            boards = snapshot.data ?? []; 
+                            if (snapshot.hasError) {
+                        
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                    
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(), // Disable scrolling to allow the parent ListView to handle scrolling
+                                itemCount: boards.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return SlideTransition(
+                                    position: _slideAnimations[index],
+                                    child: Container(
+                                      margin: const EdgeInsets.all(10),
+                                      child: GestureDetector(
+                                        onLongPress: () {
+                                          showMenu(
+                                            context: context,
+                                            position: const RelativeRect.fromLTRB(0, 200, 0, 0),
+                                            items: <PopupMenuEntry>[
+                                              PopupMenuItem(
+                                                child: ListTile(
+                                                  title: const Text('Delete board'),
+                                                  onTap: () {
+                                                    _boardController.delete(
+                                                      id: boards[index].id,
+                                                      onDeleted: () {
+                                                        _loadInfo();
+                                                      },
+                                                    );
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                        child: InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => BoardPage(
+                                                  board: boards[index],
+                                                  boardColor: Colors.primaries.elementAt(index % 18),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            borderRadius: BorderRadius.circular(20),
+                                            elevation: 15,
+                                            child: Ink(
+                                              height: 80,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(20),
+                                                color: Colors.primaries.elementAt(index % 18),
+                                              ),
+                                              child: Container(
+                                                margin: const EdgeInsets.all(10),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.dashboard,
+                                                      color: Colors.primaries.elementAt(index % 18).shade900,
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    Text(
+                                                      boards[index].getName(),
+                                                      style: const TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            }
+                          }
+                        )
+                      ]
+                    ),
+                  const Divider(),
                 ],
               );
           },
