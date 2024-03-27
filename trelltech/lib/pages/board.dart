@@ -298,7 +298,7 @@ class _BoardPageState extends State<BoardPage> {
                       const Padding(padding: EdgeInsets.only(left: 16.0)),
                       Expanded(
                         child: Text(
-                          '${list.name} | ${list.pos}',
+                          list.name,
                           style: const TextStyle(
                             fontSize: 20,
                             color: Colors.white,
@@ -331,7 +331,7 @@ class _BoardPageState extends State<BoardPage> {
                       const Padding(padding: EdgeInsets.only(left: 16.0)),
                       Expanded(
                         child: Text(
-                          '${list.name} | ${list.pos}',
+                          list.name,
                           style: const TextStyle(
                             fontSize: 20,
                             color: Colors.white,

@@ -31,11 +31,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _loadInfo();
   }
 
-  void _loadInfo() async {
-    final fetchedBoards = await _boardController.getBoards();
-    final fetchedWorkspaces = await _workspaceController.get();
-
-    _animationControllers = List.generate(fetchedBoards.length, (index) {
+  void _initAnimationsForWorkspace(List<BoardModel> boards) {
+    _animationControllers = List.generate(boards.length, (index) {
       return AnimationController(
         duration: Duration(milliseconds: 200 + (index * 100)),
         vsync: this,
@@ -53,6 +50,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ),
       );
     }).toList();
+  }
+
+  void _loadInfo() async {
+    final fetchedBoards = await _boardController.getBoards();
+    final fetchedWorkspaces = await _workspaceController.get();
 
     setState(() {
       boards = fetchedBoards;
@@ -76,7 +78,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             boards = snapshot.data ?? [];
             if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
-            } else {
+            } else if (snapshot.hasData) {
+              List<BoardModel> boards = snapshot.data!;
+              _initAnimationsForWorkspace(boards);
               return ListView.builder(
                 shrinkWrap: true,
                 physics:
@@ -162,6 +166,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   );
                 },
+              );
+            } else {
+              return const Padding(
+                padding: EdgeInsets.all(.0),
+                child: Center(child: CircularProgressIndicator()),
               );
             }
           })
