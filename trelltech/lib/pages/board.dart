@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
+import 'package:trelltech/controllers/member_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/list_model.dart';
+import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/utils/materialcolor_utils.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
@@ -26,6 +28,7 @@ class _BoardPageState extends State<BoardPage> {
   final ListController _listsController = ListController();
   final CardController _cardsController = CardController();
   final BoardController _boardController = BoardController();
+  final MemberController _memberController = MemberController();
   final ScrollController _scrollController = ScrollController();
   Timer? autoScrollTimer;
   final Map<String, GlobalKey> listKeys = {};
@@ -33,6 +36,8 @@ class _BoardPageState extends State<BoardPage> {
       TextEditingController(text: "Initial Text");
   List<ListModel> lists = [];
   List<List<CardModel>> allCards = []; // Store cards for each list
+  List<MemberModel> members = [];
+  Map<String, List<MemberModel>> cardAssignedMembers = {};
 
   @override
   void initState() {
@@ -47,8 +52,37 @@ class _BoardPageState extends State<BoardPage> {
     setState(() {
       lists = fetchedLists;
       allCards = fetchedCards;
+      _loadMembers();
     });
   }
+
+
+  void _loadMembers() async {
+    try {
+      List<MemberModel> boardMembers =
+          await _memberController.getBoardMembers(widget.board.id);
+      List<MemberModel> allMembers = List.from(boardMembers);
+
+      for (List<CardModel> cardList in allCards) {
+        for (CardModel card in cardList) {
+          List<MemberModel> cardMemberList =
+              await _memberController.getCardMembers(card.id);
+
+          for (MemberModel member in cardMemberList) {
+            member.cardIds.add(card.id);
+          }
+          allMembers.addAll(cardMemberList);
+        }
+      }
+
+      setState(() {
+        members = allMembers;
+      });
+    } catch (e) {
+      print('Error loading members: $e');
+    }
+  }
+
 
   void moveListBetween(
       ListModel listMoved, ListModel firstList, ListModel secondList) {
@@ -103,6 +137,7 @@ class _BoardPageState extends State<BoardPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('members: $members');
     final board = widget.board;
     final boardColor = widget.boardColor;
     return Scaffold(
@@ -352,10 +387,6 @@ class _BoardPageState extends State<BoardPage> {
               ),
             ),
 
-            //
-            // List body
-            //
-
             Expanded(
               child: ListView.builder(
                 itemCount: cards.length,
@@ -370,6 +401,7 @@ class _BoardPageState extends State<BoardPage> {
                             card: card,
                             board: widget.board,
                             boardColor: widget.boardColor,
+                            members: members,
                           ),
                         ),
                       );

@@ -44,7 +44,6 @@ class MemberController {
     if (response.statusCode == 200) {
       final List<dynamic> responseData = json.decode(response.body);
       return responseData.map((data) {
-        data['assigned'] = false;
         return MemberModel.fromJson(data);
       }).toList();
     } else {
@@ -63,11 +62,10 @@ class MemberController {
     if (response.statusCode == 200) {
       final List<dynamic> responseData = json.decode(response.body);
       return responseData.map((data) {
-        data['assigned'] = true;
-        return MemberModel.fromJson(data);
+        return MemberModel.fromJson(data)..cardIds.add(id);
       }).toList();
     } else {
-      throw Exception('Failed to load board members');
+      throw Exception('Failed to load card members');
     }
   }
 }
