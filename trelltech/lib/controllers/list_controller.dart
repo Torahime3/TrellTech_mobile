@@ -66,17 +66,32 @@ class ListController {
   }
 
   Future<ListModel> update(
-      {required id, required name, void Function()? onUpdated}) async {
+      {required id,
+      required name,
+      int? pos,
+      void Function()? onUpdated}) async {
     String apiToken = (await getApiToken())!;
+
     final url = Uri.parse(
         'https://api.trello.com/1/lists/$id?key=$apiKey&token=$apiToken');
 
-    final response = await client.put(
-      url,
-      body: {
-        'name': name,
-      },
-    );
+    final http.Response response;
+    if (pos != null) {
+      response = await client.put(
+        url,
+        body: {
+          'name': name,
+          'pos': pos.toString(),
+        },
+      );
+    } else {
+      response = await client.put(
+        url,
+        body: {
+          'name': name,
+        },
+      );
+    }
 
     if (response.statusCode == 200) {
       if (onUpdated != null) {

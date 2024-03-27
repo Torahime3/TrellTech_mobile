@@ -20,8 +20,8 @@ jobs:
           channel: stable
       - name: Créer le fichier .env
         run: |
-            cd trelltech
-            echo "API_KEY=dummykey" >> .env
+          cd trelltech
+          echo "API_KEY=dummykey" >> .env
       - name: Build apk
         run: |
           cd trelltech

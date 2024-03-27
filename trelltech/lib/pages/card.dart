@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:trelltech/controllers/card_controller.dart';
+import 'package:trelltech/controllers/member_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/member_model.dart';

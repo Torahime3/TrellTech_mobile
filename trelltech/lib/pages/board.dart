@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:trelltech/controllers/board_controller.dart';
@@ -29,6 +29,9 @@ class _BoardPageState extends State<BoardPage> {
   final CardController _cardsController = CardController();
   final BoardController _boardController = BoardController();
   final MemberController _memberController = MemberController();
+  final ScrollController _scrollController = ScrollController();
+  Timer? autoScrollTimer;
+  final Map<String, GlobalKey> listKeys = {};
   final TextEditingController _textEditingController =
       TextEditingController(text: "Initial Text");
   List<ListModel> lists = [];
@@ -52,6 +55,7 @@ class _BoardPageState extends State<BoardPage> {
       _loadMembers();
     });
   }
+
 
   void _loadMembers() async {
     try {
@@ -77,6 +81,58 @@ class _BoardPageState extends State<BoardPage> {
     } catch (e) {
       print('Error loading members: $e');
     }
+  }
+
+
+  void moveListBetween(
+      ListModel listMoved, ListModel firstList, ListModel secondList) {
+    listMoved.moveListBetween(firstList, secondList);
+    lists.sort((a, b) => a.pos.compareTo(b.pos));
+    _loadInfo();
+  }
+
+  void startAutoScroll(double direction) {
+    autoScrollTimer?.cancel();
+
+    autoScrollTimer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
+      if (_scrollController.hasClients) {
+        double newPosition = _scrollController.position.pixels + direction;
+        if (newPosition < _scrollController.position.minScrollExtent) {
+          newPosition = _scrollController.position.minScrollExtent;
+          stopAutoScroll();
+        } else if (newPosition > _scrollController.position.maxScrollExtent) {
+          newPosition = _scrollController.position.maxScrollExtent;
+          stopAutoScroll();
+        }
+        _scrollController.jumpTo(newPosition);
+      }
+    });
+  }
+
+  void stopAutoScroll() {
+    autoScrollTimer?.cancel();
+    autoScrollTimer = null;
+  }
+
+  void onDragUpdate(DragUpdateDetails details) {
+    final screenSize = MediaQuery.of(context).size;
+    final position = details.globalPosition;
+
+    if (position.dx > screenSize.width - 100) {
+      startAutoScroll(5.0);
+    } else if (position.dx < 100) {
+      startAutoScroll(-5.0);
+    } else {
+      stopAutoScroll();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    autoScrollTimer?.cancel();
+    stopAutoScroll();
+    super.dispose();
   }
 
   @override
@@ -152,11 +208,12 @@ class _BoardPageState extends State<BoardPage> {
           return Container(
             color: Colors.white,
             child: ListView.builder(
+              controller: _scrollController,
               scrollDirection: Axis.horizontal,
               itemCount: lists.length + 1, // Add one for the button
               itemBuilder: (BuildContext context, int index) {
                 if (index < lists.length) {
-                  return _buildList(lists[index], allCards[index]);
+                  return _buildList(lists[index], allCards[index], index);
                 } else {
                   // Render the button at the end of the list
                   return Center(
@@ -194,82 +251,172 @@ class _BoardPageState extends State<BoardPage> {
     );
   }
 
-  Widget _buildList(ListModel list, List<CardModel> cards) {
+  Widget _buildList(ListModel list, List<CardModel> cards, int index) {
     final boardColor = widget.boardColor;
-    return Container(
-      width: 300,
-      margin: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: getMaterialColor(boardColor).shade300,
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // List header
-          Container(
-            height: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20.0),
-                topRight: Radius.circular(20.0),
-              ),
-              color: getMaterialColor(boardColor).shade400,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Padding(padding: EdgeInsets.only(left: 16.0)),
-                Expanded(
-                  child: Text(
-                    list.name,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+    listKeys[list.id] ??= GlobalKey();
+    final GlobalKey currentListKey = listKeys[list.id]!;
+
+    return DragTarget<ListModel>(onWillAcceptWithDetails:
+        (DragTargetDetails<ListModel> incomingListData) {
+      return incomingListData.data.id != list.id;
+    }, onAcceptWithDetails: (DragTargetDetails<ListModel> details) {
+      final RenderBox renderBox =
+          currentListKey.currentContext?.findRenderObject() as RenderBox;
+      final Offset targetCenter =
+          renderBox.localToGlobal(renderBox.size.center(Offset.zero));
+      final bool isLeft = (details.offset.dx + 100) < targetCenter.dx;
+      final ListModel listDetails = details.data;
+      if (isLeft) {
+        if (index == 0) {
+          return;
+        }
+        moveListBetween(listDetails, lists[index], lists[index - 1]);
+      } else {
+        if (index == lists.length - 1) {
+          return;
+        }
+        moveListBetween(listDetails, lists[index], lists[index + 1]);
+      }
+    }, builder: (BuildContext context, List<ListModel?> candidateData,
+        List<dynamic> rejectedData) {
+      return Container(
+        key: currentListKey,
+        width: 300,
+        margin: index == 0
+            ? const EdgeInsets.only(
+                left: 36.0, right: 12.0, top: 12.0, bottom: 12.0)
+            : const EdgeInsets.all(12.0),
+        decoration: BoxDecoration(
+          color: getMaterialColor(boardColor).shade300,
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //
+            // List header
+            //
+
+            Listener(
+              onPointerMove: (PointerMoveEvent pme) {
+                final screenSize = MediaQuery.of(context).size;
+                final position = pme.position;
+
+                if (position.dx > screenSize.width - 20) {
+                  startAutoScroll(13.0);
+                } else if (position.dx < 20) {
+                  startAutoScroll(-13.0);
+                } else {
+                  stopAutoScroll();
+                }
+              },
+              onPointerUp: (PointerUpEvent pue) {
+                stopAutoScroll();
+              },
+              child: LongPressDraggable<ListModel>(
+                data: list,
+                feedback: Container(
+                  height: 50,
+                  width: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20.0),
+                      topRight: Radius.circular(20.0),
+                      bottomLeft: Radius.circular(20.0),
+                      bottomRight: Radius.circular(20.0),
                     ),
+                    color: getMaterialColor(boardColor).shade600,
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  color: Colors.white,
-                  onPressed: () {
-                    _showPopupMenu(context, list);
-                  },
-                ),
-              ],
-            ),
-          ),
-          // List body
-          Expanded(
-            child: ListView.builder(
-              itemCount: cards.length,
-              itemBuilder: (context, index) {
-                final card = cards[index];
-                return GestureDetector(
-                  onTap: () async {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CardPage(
-                          card: card,
-                          board: widget.board,
-                          boardColor: widget.boardColor,
-                          members: members,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Padding(padding: EdgeInsets.only(left: 16.0)),
+                      Expanded(
+                        child: Text(
+                          list.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    );
-                  },
-                  child: _buildCard(card),
-                );
-              },
+                      IconButton(
+                        icon: const Icon(Icons.more_vert),
+                        color: Colors.white,
+                        onPressed: () {
+                          _showPopupMenu(context, list);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20.0),
+                      topRight: Radius.circular(20.0),
+                    ),
+                    color: getMaterialColor(boardColor).shade400,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Padding(padding: EdgeInsets.only(left: 16.0)),
+                      Expanded(
+                        child: Text(
+                          list.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.more_vert),
+                        color: Colors.white,
+                        onPressed: () {
+                          _showPopupMenu(context, list);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-          // List footer
-          _buildAddCardRow(list.id),
-        ],
-      ),
-    );
+
+            Expanded(
+              child: ListView.builder(
+                itemCount: cards.length,
+                itemBuilder: (context, index) {
+                  final card = cards[index];
+                  return GestureDetector(
+                    onTap: () async {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CardPage(
+                            card: card,
+                            board: widget.board,
+                            boardColor: widget.boardColor,
+                            members: members,
+                          ),
+                        ),
+                      );
+                    },
+                    child: _buildCard(card),
+                  );
+                },
+              ),
+            ),
+            // List footer
+            _buildAddCardRow(list.id),
+          ],
+        ),
+      );
+    });
   }
 
   void _createListDialog() {
