@@ -15,7 +15,7 @@ class MemberModel {
     return MemberModel(
       name: json['fullName'],
       id: json['id'],
-      initials: json['initials'],
+      initials: '',
       cardIds: [], // Initialize cardIds list
     );
   }

@@ -11,6 +11,7 @@ import 'package:trelltech/models/list_model.dart';
 import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/utils/materialcolor_utils.dart';
 import 'package:trelltech/widgets/appbar.dart';
+import 'package:trelltech/widgets/member_avatar.dart';
 
 import 'card.dart';
 
@@ -62,24 +63,56 @@ class _BoardPageState extends State<BoardPage> {
           await _memberController.getBoardMembers(widget.board.id);
       List<MemberModel> allMembers = List.from(boardMembers);
 
+      // Generate initials for board members
+      for (MemberModel member in allMembers) {
+        member.initials = generateInitials(member.name);
+      }
+
       for (List<CardModel> cardList in allCards) {
         for (CardModel card in cardList) {
           List<MemberModel> cardMemberList =
               await _memberController.getCardMembers(card.id);
 
           for (MemberModel member in cardMemberList) {
-            member.cardIds.add(card.id);
+            // Check if the member already exists in allMembers list
+            MemberModel existingMember = allMembers.firstWhere(
+              (m) => m.id == member.id,
+              orElse: () => member,
+            );
+
+            // Add cardId to member's cardIds list if it's not already present
+            if (!existingMember.cardIds.contains(card.id)) {
+              existingMember.cardIds.add(card.id);
+            }
+
+            // If the member was not already in the list, add it
+            if (!allMembers.contains(existingMember)) {
+              allMembers.add(existingMember);
+            }
           }
-          allMembers.addAll(cardMemberList);
         }
       }
 
       setState(() {
         members = allMembers;
+        // ignore: avoid_print
+        print("_loadMembers executed sucessfully");
       });
     } catch (e) {
       ('Error loading members: $e');
     }
+  }
+
+  String generateInitials(String name) {
+    List<String> nameParts = name.split(' ');
+    String initials = '';
+
+    // Take the first letter of each word in the name
+    for (String part in nameParts) {
+      initials += part[0];
+    }
+
+    return initials.toUpperCase();
   }
 
   void moveListBetween(
@@ -399,6 +432,7 @@ class _BoardPageState extends State<BoardPage> {
                             board: widget.board,
                             boardColor: widget.boardColor,
                             members: members,
+                            loadMembers: _loadMembers,
                           ),
                         ),
                       );
@@ -633,103 +667,49 @@ class _BoardPageState extends State<BoardPage> {
           ),
         ],
       ),
-      child: GestureDetector(
-        onLongPress: () {
-          showMenu(
-              context: context,
-              position: const RelativeRect.fromLTRB(0, 200, 0, 0),
-              items: <PopupMenuEntry>[
-                PopupMenuItem(
-                    child: ListTile(
-                        title: const Text('Delete card'),
-                        onTap: () {
-                          _cardsController.delete(card.id);
-                          Navigator.of(context).pop();
-                          _loadInfo();
-                        })),
-                PopupMenuItem(
-                    child: ListTile(
-                        title: const Text("Edit card"),
-                        onTap: () {
-                          _textEditingController.text = card.name;
-                          showModalBottomSheet(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 255, 255, 255),
-                              context: context,
-                              builder: (BuildContext context) {
-                                return SizedBox(
-                                    height: 600,
-                                    child: Center(
-                                        child: Form(
-                                            child: Column(
-                                      children: [
-                                        Expanded(
-                                            child: ListView(children: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              _cardsController.update(card.id,
-                                                  _textEditingController.text);
-                                              Navigator.of(context).pop();
-                                              _loadInfo();
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text("Edit"),
-                                          ),
-                                          Padding(
-                                              padding:
-                                                  const EdgeInsets.all(16.0),
-                                              child: TextFormField(
-                                                autofocus: true,
-                                                controller:
-                                                    _textEditingController,
-                                                decoration:
-                                                    const InputDecoration(
-                                                  focusedBorder:
-                                                      UnderlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                        color: Color.fromARGB(
-                                                            255,
-                                                            49,
-                                                            49,
-                                                            49)), // Change underline color
-                                                  ),
-                                                ),
-                                                cursorColor:
-                                                    const Color.fromARGB(
-                                                        255, 49, 49, 49),
-                                                maxLines: null,
-                                                // onFieldSubmitted: (String value) {
-                                                //   _cardsController.update(card.id, value);
-                                                //   Navigator.of(context).pop();
-                                                //   _loadInfo();
-                                                //   Navigator.of(context).pop();
-                                                // },
-                                              ))
-                                        ]))
-                                      ],
-                                    ))));
-                              });
-                          // Navigator.of(context).pop();
-                        }))
-              ]);
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              // Wrap text widget with Expanded
-              child: Text(
-                card.name,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color:
-                      Color.fromARGB(255, 46, 46, 46), // Text color for header
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          GestureDetector(
+            onLongPress: () {
+              // Your long press logic
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    card.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color.fromARGB(255, 46, 46, 46),
+                    ),
+                  ),
                 ),
-              ),
+                // Your edit and delete buttons
+              ],
             ),
-          ],
-        ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              avatarRow(
+                avatars: members
+                    .where((member) => member.cardIds.contains(card.id))
+                    .map((member) =>
+                        MemberAvatar(initials: member.initials ?? ''))
+                    .toList(),
+              ),
+            ],
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget avatarRow({required List<Widget> avatars}) {
+    return Row(
+      children: avatars,
     );
   }
 }

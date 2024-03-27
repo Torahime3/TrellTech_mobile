@@ -1,5 +1,8 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:trelltech/models/card_model.dart';
@@ -135,6 +138,65 @@ class CardController {
       }
     } else {
       throw Exception("Description Update failed");
+    }
+  }
+
+  Future<void> addMemberToCard({
+    required String memberId,
+    required String cardId,
+    required VoidCallback loadMembers,
+  }) async {
+    String apiToken = (await getApiToken())!;
+    try {
+      final url = Uri.parse(
+          'https://api.trello.com/1/cards/$cardId/idMembers?key=$apiKey&token=$apiToken');
+
+      final response = await http.post(
+        url,
+        body: {
+          'value': memberId,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Successful update, trigger the onUpdated callback if provided
+        loadMembers();
+      } else {
+        // Handle other status codes, such as 400 for bad request
+        throw Exception(
+            'Failed to add member to card: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      // Handle any exceptions, such as network errors
+      throw Exception('Failed to add member to card: $e');
+    }
+  }
+
+  Future<void> removeMemberFromCard({
+    required String memberId,
+    required String cardId,
+    required VoidCallback loadMembers,
+  }) async {
+    String apiToken = (await getApiToken())!;
+    try {
+      final url = Uri.parse(
+          'https://api.trello.com/1/cards/$cardId/idMembers/$memberId?key=$apiKey&token=$apiToken');
+
+      final response = await http.delete(
+        url,
+      );
+
+      if (response.statusCode == 200) {
+        // Successful update, trigger the onUpdated callback if provided
+        loadMembers();
+      } else {
+        // Handle other status codes, such as 400 for bad request
+        throw Exception(
+            'Failed to remove member from card: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      // Handle any exceptions, such as network errors
+      throw Exception('Failed to remove member from card: $e');
     }
   }
 }

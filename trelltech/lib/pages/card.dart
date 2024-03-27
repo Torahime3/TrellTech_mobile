@@ -5,6 +5,7 @@ import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/member_model.dart';
+import 'package:trelltech/utils/materialcolor_utils.dart';
 import 'package:trelltech/widgets/appbar.dart';
 import 'package:trelltech/widgets/member_avatar.dart';
 
@@ -13,6 +14,7 @@ class CardPage extends StatefulWidget {
   final BoardModel board;
   final Color boardColor;
   final List<MemberModel> members;
+  final void Function() loadMembers;
 
   const CardPage({
     super.key,
@@ -20,6 +22,7 @@ class CardPage extends StatefulWidget {
     required this.board,
     required this.boardColor,
     required this.members,
+    required this.loadMembers,
   });
 
   @override
@@ -55,6 +58,7 @@ class _CardPageState extends State<CardPage> {
         color: boardColor,
         showEditButton: false,
       ),
+      backgroundColor: getMaterialColor(boardColor).shade700,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -90,7 +94,7 @@ class _CardPageState extends State<CardPage> {
         margin: const EdgeInsets.all(12.0),
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 0, 0, 0),
+          color: const Color.fromARGB(255, 255, 255, 255),
           borderRadius: BorderRadius.circular(10.0),
         ),
         constraints:
@@ -121,7 +125,7 @@ class _CardPageState extends State<CardPage> {
         margin: const EdgeInsets.all(12.0),
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 0, 0, 0),
+          color: const Color.fromARGB(255, 255, 255, 255),
           borderRadius: BorderRadius.circular(10.0),
         ),
         constraints:
@@ -151,7 +155,7 @@ class _CardPageState extends State<CardPage> {
       left: 0,
       child: Icon(
         icon,
-        color: Colors.white,
+        color: Colors.black,
         size: 24,
       ),
     );
@@ -169,7 +173,7 @@ class _CardPageState extends State<CardPage> {
               Flexible(
                 child: Text(
                   data ?? '',
-                  style: const TextStyle(fontSize: 18, color: Colors.white),
+                  style: const TextStyle(fontSize: 18, color: Colors.black),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 10,
                 ),
@@ -287,6 +291,15 @@ class _CardPageState extends State<CardPage> {
         for (final member in boardMembers)
           PopupMenuItem(
             value: 'board_member_${member.id}',
+            onTap: () {
+              // Remove the card member from the card
+              _cardsController.addMemberToCard(
+                  memberId: member.id,
+                  cardId: card.id,
+                  loadMembers: () {
+                    widget.loadMembers();
+                  });
+            },
             child: ListTile(
               title: Text(member.name),
               leading: CircleAvatar(
@@ -303,6 +316,15 @@ class _CardPageState extends State<CardPage> {
         for (final member in cardMembers)
           PopupMenuItem(
             value: 'card_member_${member.id}',
+            onTap: () {
+              // Remove the card member from the card
+              _cardsController.removeMemberFromCard(
+                  memberId: member.id,
+                  cardId: card.id,
+                  loadMembers: () {
+                    widget.loadMembers();
+                  });
+            },
             child: ListTile(
               title: Text(member.name),
               leading: CircleAvatar(
@@ -313,5 +335,20 @@ class _CardPageState extends State<CardPage> {
           ),
       ],
     );
+
+    // Print statements to show member name, ID, and cardIds
+    print('Board Members:');
+    for (final member in boardMembers) {
+      print(
+          'Name: ${member.name}, ID: ${member.id}, cardIds: ${member.cardIds}');
+      print('Current card ID: ${card.id}');
+    }
+
+    print('Card Members:');
+    for (final member in cardMembers) {
+      print(
+          'Name: ${member.name}, ID: ${member.id}, cardIds: ${member.cardIds}');
+      print('Current card ID: ${card.id}');
+    }
   }
 }
