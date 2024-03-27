@@ -56,7 +56,6 @@ class _BoardPageState extends State<BoardPage> {
     });
   }
 
-
   void _loadMembers() async {
     try {
       List<MemberModel> boardMembers =
@@ -79,10 +78,9 @@ class _BoardPageState extends State<BoardPage> {
         members = allMembers;
       });
     } catch (e) {
-      print('Error loading members: $e');
+      ('Error loading members: $e');
     }
   }
-
 
   void moveListBetween(
       ListModel listMoved, ListModel firstList, ListModel secondList) {
@@ -137,7 +135,6 @@ class _BoardPageState extends State<BoardPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('members: $members');
     final board = widget.board;
     final boardColor = widget.boardColor;
     return Scaffold(
