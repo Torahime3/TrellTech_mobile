@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
 // import 'package:trelltech/widgets/form.dart';
-enum SampleItem { update, delete }
-
-SampleItem? selectedItem;
 
 AppBar appbar(
     {dynamic text = "TrellTech",
@@ -14,24 +11,24 @@ AppBar appbar(
     onDelete}) {
   List<Widget> actions = [];
   if (showEditButton) {
-    actions.add(PopupMenuButton<SampleItem>(
-        onSelected: (SampleItem item) {
+    actions.add(PopupMenuButton<String>(
+        onSelected: (String item) {
           switch (item) {
-            case SampleItem.update:
+            case "update":
               onEdit();
               break;
-            case SampleItem.delete:
+            case "delete":
               onDelete();
               break;
           }
         },
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
-              const PopupMenuItem<SampleItem>(
-                value: SampleItem.update,
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: "update",
                 child: Text('Edit'),
               ),
-              const PopupMenuItem<SampleItem>(
-                value: SampleItem.delete,
+              const PopupMenuItem<String>(
+                value: "delete",
                 child: Text('Delete'),
               ),
             ]));

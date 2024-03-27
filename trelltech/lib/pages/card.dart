@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trelltech/controllers/card_controller.dart';
-import 'package:trelltech/controllers/member_controller.dart';
+// import 'package:trelltech/controllers/member_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/member_model.dart';
@@ -23,7 +23,7 @@ class CardPage extends StatefulWidget {
 }
 
 class _CardPageState extends State<CardPage> {
-  final MemberController _memberController = MemberController();
+  // final MemberController _memberController = MemberController();
   List<MemberModel> members = [];
   final CardController _cardsController = CardController();
   late final TextEditingController _descriptionController =
@@ -32,7 +32,7 @@ class _CardPageState extends State<CardPage> {
   @override
   void initState() {
     super.initState();
-    print(widget.card.id);
+    // print(widget.card.id);
     _descriptionController.text = widget.card.desc; // Set initial value
   }
 

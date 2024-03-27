@@ -41,7 +41,7 @@ void main() {
                     'https://api.trello.com/1/boards/1/lists?key=$apiKey&token=token'),
                 headers: anyNamed('headers')))
             .thenAnswer((_) async => http.Response(
-                '[{"id":"1","name":"Test List 1"}, {"id":"2","name":"Test List 2"}]',
+                '[{"id":"1","name":"Test List 1", "pos":16384}, {"id":"2","name":"Test List 2", "pos": 32768}]',
                 200));
 
         final lists = await listController.getLists(
@@ -51,9 +51,11 @@ void main() {
         expect(lists.first, isA<ListModel>());
         expect(lists.first.id, '1');
         expect(lists.first.name, 'Test List 1');
+        expect(lists.first.pos, 16384);
         expect(lists.last, isA<ListModel>());
         expect(lists.last.id, '2');
         expect(lists.last.name, 'Test List 2');
+        expect(lists.last.pos, 32768);
       });
 
       test('throws an exception if the http call to get lists fails', () async {
@@ -70,7 +72,8 @@ void main() {
     group('create -', () {
       test('successfully creates a list and returns ListModel', () async {
         when(mockClient.post(any, body: anyNamed('body'))).thenAnswer(
-            (_) async => http.Response('{"id":"1", "name":"Test List"}', 200));
+            (_) async => http.Response(
+                '{"id":"1", "name":"Test List", "pos": 16384}', 200));
 
         final result = await listController.create("Test List",
             board: BoardModel(id: '1', name: 'Test Board'));
@@ -78,6 +81,7 @@ void main() {
         expect(result, isA<ListModel>());
         expect(result.id, "1");
         expect(result.name, "Test List");
+        expect(result.pos, 16384);
       });
 
       test('throws an exception if the http call to create a list fails',
@@ -95,20 +99,24 @@ void main() {
     group('update -', () {
       const updatedListId = "1";
       const updatedListName = "Updated List";
+      const updatedListPos = 16384;
       test('successfully updates a list and returns updated ListModel',
           () async {
         when(mockClient.put(any, body: anyNamed('body'))).thenAnswer(
             (_) async => http.Response(
-                '{"id":"$updatedListId", "name":"$updatedListName"}', 200));
+                '{"id":"$updatedListId", "name":"$updatedListName", "pos": $updatedListPos}',
+                200));
 
         final result = await listController.update(
           id: updatedListId,
           name: updatedListName,
+          pos: updatedListPos,
         );
 
         expect(result, isA<ListModel>());
         expect(result.id, updatedListId);
         expect(result.name, updatedListName);
+        expect(result.pos, updatedListPos);
       });
 
       test('throws an exception if the http call to update a list fails',

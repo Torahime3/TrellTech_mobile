@@ -1,4 +1,3 @@
-import 'package:trelltech/controllers/board_controller.dart';
 import 'package:trelltech/controllers/list_controller.dart';
 
 class ListModel {

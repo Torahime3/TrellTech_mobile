@@ -49,6 +49,7 @@ void main() {
         expect(boards.first, isA<BoardModel>());
         expect(boards.first.id, '1');
         expect(boards.first.name, 'Board 1');
+
         expect(boards.last, isA<BoardModel>());
         expect(boards.last.id, '2');
         expect(boards.last.name, 'Board 2');

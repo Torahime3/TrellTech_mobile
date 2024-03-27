@@ -105,7 +105,6 @@ class _BoardPageState extends State<BoardPage> {
   Widget build(BuildContext context) {
     final board = widget.board;
     final boardColor = widget.boardColor;
-    print(board.id);
     return Scaffold(
       appBar: appbar(
         text: board.name,
