@@ -125,23 +125,23 @@ class _CardPageState extends State<CardPage> {
                   children: [
                     const Text(
                       'Start Date',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Colors.black, fontSize: 16),
                     ),
                     const SizedBox(width: 5),
                     Text(
                       selectedStartDate == null
                           ? ': none'
                           : ': ${selectedStartDate!.displayedDate()}',
-                      style: const TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 10),
               Container(
-                height: 1,
+                height: 2,
                 width: 280,
-                color: Colors.grey,
+                color: Colors.black,
               ),
               const SizedBox(height: 10),
               GestureDetector(
@@ -152,14 +152,14 @@ class _CardPageState extends State<CardPage> {
                   children: [
                     const Text(
                       'End Date',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Colors.black, fontSize: 16),
                     ),
                     const SizedBox(width: 5),
                     Text(
                       selectedDueDate == null
                           ? ': none'
                           : ': ${selectedDueDate!.displayedDate()}',
-                      style: const TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
                     ),
                   ],
                 ),
@@ -246,37 +246,6 @@ class _CardPageState extends State<CardPage> {
     }, false); // Pass false to indicate it's for the due date
   }
 
-  Widget descriptionContainer({
-    required IconData icon,
-    String? data,
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.all(12.0),
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 255, 255, 255),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        constraints:
-            const BoxConstraints(minHeight: 75), // Set the minimum height
-        child: IntrinsicHeight(
-          child: Padding(
-            padding: const EdgeInsets.all(0.0),
-            child: Stack(
-              children: [
-                _buildIcon(icon),
-                _buildDescription(data),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget avatarContainer({
     required IconData icon,
     required List<Widget> avatars,
@@ -324,21 +293,65 @@ class _CardPageState extends State<CardPage> {
     );
   }
 
+  Widget descriptionContainer({
+    required IconData icon,
+    String? data,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 255, 255, 255),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        constraints:
+            const BoxConstraints(minHeight: 75), // Set the minimum height
+        child: IntrinsicHeight(
+          child: Padding(
+            padding: const EdgeInsets.all(0.0),
+            child: Stack(
+              children: [
+                _buildIcon(icon),
+                _buildDescription(data),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDescription(String? data) {
+    final bool hasData = data?.isNotEmpty == true;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const SizedBox(width: 40), // Width for the icon
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: data?.contains('\n') == true
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
             children: [
               Flexible(
                 child: Text(
-                  data ?? '',
-                  style: const TextStyle(fontSize: 18, color: Colors.black),
+                  hasData ? data! : 'Tap to add description',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: hasData
+                        ? Colors.black
+                        : Colors.grey, // Set color based on data presence
+                  ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 10,
+                  textAlign: data?.contains('\n') == true
+                      ? TextAlign.start
+                      : TextAlign.center, // Check if multiline or not
                 ),
               ),
             ],
