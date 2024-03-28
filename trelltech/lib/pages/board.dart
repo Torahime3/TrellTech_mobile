@@ -126,27 +126,21 @@ class _BoardPageState extends State<BoardPage> {
     }
   }
 
-  void updateMemberById(String cardId,
-      {String? name, String? startDate, String? dueDate}) {
-    for (int i = 0; i < allCards.length; i++) {
-      int index = allCards[i].indexWhere((card) => card.id == cardId);
-      if (index != -1) {
-        CardModel updatedCard = allCards[i][index];
-        if (name != null) {
-          updatedCard.name = name;
-        }
-        if (startDate != null) {
-          updatedCard.startDate = startDate;
-        }
-        if (dueDate != null) {
-          updatedCard.dueDate = dueDate;
-        }
+  void updateMemberCardIds(String memberId, String newCardId, bool isAdding) {
+    int index = members.indexWhere((member) => member.id == memberId);
+    if (index != -1) {
+      MemberModel updatedMember = members[index];
 
-        setState(() {
-          allCards[i][index] = updatedCard;
-        });
-        break;
+      // Add or remove the card ID based on the 'add' flag
+      if (isAdding) {
+        updatedMember.cardIds.add(newCardId);
+      } else {
+        updatedMember.cardIds.remove(newCardId);
       }
+
+      setState(() {
+        members[index] = updatedMember;
+      });
     }
   }
 
@@ -481,6 +475,7 @@ class _BoardPageState extends State<BoardPage> {
                             members: members,
                             loadMembers: _loadMembers,
                             updateCardById: updateCardById,
+                            updateMemberCardIds: updateMemberCardIds,
                           ),
                         ),
                       );

@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:trelltech/controllers/card_controller.dart';
@@ -19,6 +17,8 @@ class CardPage extends StatefulWidget {
   final void Function() loadMembers;
   final void Function(String cardId,
       {String? name, String? startDate, String? dueDate}) updateCardById;
+  final void Function(String memberId, String newCardIds, bool isAdding)
+      updateMemberCardIds;
 
   const CardPage({
     super.key,
@@ -28,6 +28,7 @@ class CardPage extends StatefulWidget {
     required this.members,
     required this.loadMembers,
     required this.updateCardById,
+    required this.updateMemberCardIds,
   });
 
   @override
@@ -41,11 +42,13 @@ class _CardPageState extends State<CardPage> {
   final CardController _cardsController = CardController();
   DateTime? selectedStartDate;
   DateTime? selectedDueDate;
+  List<String> selectedMemberIds = [];
+  final GlobalKey _buttonKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    _descriptionController.text = widget.card.desc; // Set initial value
+    _descriptionController.text = widget.card.desc;
     members = widget.members;
     if (widget.card.startDate.isNotEmpty) {
       selectedStartDate = DateTime.parse(widget.card.startDate);
@@ -63,10 +66,11 @@ class _CardPageState extends State<CardPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('Start date : ${widget.card.startDate}');
-    print('Due date : ${widget.card.dueDate}');
     final boardColor = widget.boardColor;
-    print('members: $members');
+    List<MemberModel> cardMembers = members
+        .where((member) => member.cardIds.contains(widget.card.id))
+        .toList();
+
     return Scaffold(
       appBar: appbar(
         text: widget.card.name,
@@ -86,8 +90,7 @@ class _CardPageState extends State<CardPage> {
             ),
             avatarContainer(
               icon: Icons.person,
-              avatars: members
-                  .where((member) => member.cardIds.contains(widget.card.id))
+              avatars: cardMembers
                   .map(
                       (member) => MemberAvatar(initials: member.initials ?? ''))
                   .toList(),
@@ -394,12 +397,17 @@ class _CardPageState extends State<CardPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          children: avatars,
-        ),
-        const SizedBox(
-          width: 8,
+          children: [
+            for (Widget avatar in avatars)
+              Padding(
+                padding: const EdgeInsets.only(
+                    right: 4.0), // Adjust spacing as needed
+                child: avatar,
+              ),
+          ],
         ),
         GestureDetector(
+          key: _buttonKey, // Assign the GlobalKey to the green button
           onTap: () {
             _showCardOptionsMenu(context, widget.card);
           },
@@ -423,7 +431,9 @@ class _CardPageState extends State<CardPage> {
   }
 
   void _showCardOptionsMenu(BuildContext context, CardModel card) {
-    final RenderBox button = context.findRenderObject() as RenderBox;
+    // Use the GlobalKey to get the position of the green button
+    final RenderBox button =
+        _buttonKey.currentContext!.findRenderObject() as RenderBox;
     final Offset buttonPosition = button.localToGlobal(Offset.zero);
 
     final List<MemberModel> cardMembers = widget.members
@@ -438,7 +448,7 @@ class _CardPageState extends State<CardPage> {
       context: context,
       position: RelativeRect.fromLTRB(
         buttonPosition.dx,
-        buttonPosition.dy,
+        buttonPosition.dy + 40,
         buttonPosition.dx,
         buttonPosition.dy,
       ),
@@ -454,11 +464,13 @@ class _CardPageState extends State<CardPage> {
             onTap: () {
               // Remove the card member from the card
               _cardsController.addMemberToCard(
-                  memberId: member.id,
-                  cardId: card.id,
-                  loadMembers: () {
-                    widget.loadMembers();
-                  });
+                memberId: member.id,
+                cardId: card.id,
+                onAdded: () {
+                  widget.updateMemberCardIds(member.id, card.id, true);
+                  setState(() {});
+                },
+              );
             },
             child: ListTile(
               title: Text(member.name),
@@ -479,11 +491,13 @@ class _CardPageState extends State<CardPage> {
             onTap: () {
               // Remove the card member from the card
               _cardsController.removeMemberFromCard(
-                  memberId: member.id,
-                  cardId: card.id,
-                  loadMembers: () {
-                    widget.loadMembers();
-                  });
+                memberId: member.id,
+                cardId: card.id,
+                onDeleted: () {
+                  widget.updateMemberCardIds(member.id, card.id, false);
+                  setState(() {});
+                },
+              );
             },
             child: ListTile(
               title: Text(member.name),
@@ -495,20 +509,5 @@ class _CardPageState extends State<CardPage> {
           ),
       ],
     );
-
-    // Print statements to show member name, ID, and cardIds
-    print('Board Members:');
-    for (final member in boardMembers) {
-      print(
-          'Name: ${member.name}, ID: ${member.id}, cardIds: ${member.cardIds}');
-      print('Current card ID: ${card.id}');
-    }
-
-    print('Card Members:');
-    for (final member in cardMembers) {
-      print(
-          'Name: ${member.name}, ID: ${member.id}, cardIds: ${member.cardIds}');
-      print('Current card ID: ${card.id}');
-    }
   }
 }

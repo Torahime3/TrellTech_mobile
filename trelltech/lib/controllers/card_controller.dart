@@ -166,7 +166,7 @@ class CardController {
   Future<void> addMemberToCard({
     required String memberId,
     required String cardId,
-    required VoidCallback loadMembers,
+    void Function()? onAdded,
   }) async {
     String apiToken = (await getApiToken())!;
     try {
@@ -182,7 +182,9 @@ class CardController {
 
       if (response.statusCode == 200) {
         // Successful update, trigger the onUpdated callback if provided
-        loadMembers();
+        if (onAdded != null) {
+          onAdded();
+        }
       } else {
         // Handle other status codes, such as 400 for bad request
         throw Exception(
@@ -197,7 +199,7 @@ class CardController {
   Future<void> removeMemberFromCard({
     required String memberId,
     required String cardId,
-    required VoidCallback loadMembers,
+    void Function()? onDeleted,
   }) async {
     String apiToken = (await getApiToken())!;
     try {
@@ -210,7 +212,9 @@ class CardController {
 
       if (response.statusCode == 200) {
         // Successful update, trigger the onUpdated callback if provided
-        loadMembers();
+        if (onDeleted != null) {
+          onDeleted();
+        }
       } else {
         // Handle other status codes, such as 400 for bad request
         throw Exception(
