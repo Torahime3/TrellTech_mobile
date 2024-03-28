@@ -1,11 +1,13 @@
 // ignore_for_file: avoid_print
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/utils/materialcolor_utils.dart';
+import 'package:trelltech/utils/date_format.dart';
 import 'package:trelltech/widgets/appbar.dart';
 import 'package:trelltech/widgets/member_avatar.dart';
 
@@ -34,12 +36,20 @@ class _CardPageState extends State<CardPage> {
       TextEditingController();
   List<MemberModel> members = [];
   final CardController _cardsController = CardController();
+  DateTime? selectedStartDate;
+  DateTime? selectedDueDate;
 
   @override
   void initState() {
     super.initState();
     _descriptionController.text = widget.card.desc; // Set initial value
     members = widget.members;
+    if (widget.card.startDate.isNotEmpty) {
+      selectedStartDate = DateTime.parse(widget.card.startDate!);
+    }
+    if (widget.card.dueDate.isNotEmpty) {
+      selectedDueDate = DateTime.parse(widget.card.dueDate!);
+    }
   }
 
   @override
@@ -50,6 +60,8 @@ class _CardPageState extends State<CardPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('Start date : ${widget.card.startDate}');
+    print('Due date : ${widget.card.dueDate}');
     final boardColor = widget.boardColor;
     print('members: $members');
     return Scaffold(
@@ -77,10 +89,141 @@ class _CardPageState extends State<CardPage> {
                       (member) => MemberAvatar(initials: member.initials ?? ''))
                   .toList(),
             ),
+            dateContainer(), // Adding the date container
           ],
         ),
       ),
     );
+  }
+
+  Widget dateContainer() {
+    return Container(
+      margin: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 255, 255, 255),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.schedule),
+          const SizedBox(width: 20),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  showStartDatePicker();
+                },
+                child: Row(
+                  children: [
+                    const Text(
+                      'Start Date',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      selectedStartDate == null
+                          ? ': none'
+                          : ': ${selectedStartDate!.formattedDate()}',
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                height: 1,
+                width: 280,
+                color: Colors.grey,
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  showDueDatePicker();
+                },
+                child: Row(
+                  children: [
+                    const Text(
+                      'End Date',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      selectedDueDate == null
+                          ? ': none'
+                          : ': ${selectedDueDate!.formattedDate()}',
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDatePicker(
+      DateTime? selectedDate, void Function(DateTime) onUpdateDate) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: 300.0,
+          child: Column(
+            children: [
+              Expanded(
+                child: CupertinoDatePicker(
+                  initialDateTime: selectedDate ?? DateTime.now(),
+                  onDateTimeChanged: (DateTime newDate) {
+                    setState(() {
+                      selectedDate = newDate;
+                    });
+                  },
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Close the bottom sheet
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Update the selected date
+                      onUpdateDate(selectedDate!);
+                      Navigator.pop(context); // Close the bottom sheet
+                    },
+                    child: const Text('Update'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void showStartDatePicker() {
+    _showDatePicker(selectedStartDate, (DateTime newDate) {
+      setState(() {
+        selectedStartDate = newDate;
+      });
+    });
+  }
+
+  void showDueDatePicker() {
+    _showDatePicker(selectedDueDate, (DateTime newDate) {
+      setState(() {
+        selectedDueDate = newDate;
+      });
+    });
   }
 
   Widget descriptionContainer({

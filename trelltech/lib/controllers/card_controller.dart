@@ -75,16 +75,38 @@ class CardController {
     }
   }
 
-  Future<CardModel> update(cardId, value) async {
+  Future<CardModel> update(String cardId,
+      {String? name, String? startDate, String? dueDate}) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
-        'https://api.trello.com/1/cards/$cardId?key=$apiKey&token=$apiToken&name=$value');
-    final response = await client.put(url);
+        'https://api.trello.com/1/cards/$cardId?key=$apiKey&token=$apiToken');
+
+    Map<String, dynamic> body = {};
+
+    if (name != null) {
+      body['name'] = name;
+    }
+
+    if (startDate != null && startDate.isNotEmpty) {
+      body['start'] = startDate;
+    }
+
+    if (dueDate != null) {
+      body['due'] = dueDate;
+      body['dueComplete'] = true;
+    }
+
+    final response = await client.put(
+      url,
+      body: jsonEncode(body),
+      headers: {'Content-Type': 'application/json'},
+    );
+
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       return CardModel.fromJson(jsonResponse);
     } else {
-      throw Exception("Board not updated");
+      throw Exception("Card not updated");
     }
   }
 
