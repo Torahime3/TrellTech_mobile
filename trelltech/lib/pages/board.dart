@@ -57,6 +57,30 @@ class _BoardPageState extends State<BoardPage> {
     });
   }
 
+  void updateCardById(String cardId,
+      {String? name, String? startDate, String? dueDate}) {
+    for (int i = 0; i < allCards.length; i++) {
+      int index = allCards[i].indexWhere((card) => card.id == cardId);
+      if (index != -1) {
+        CardModel updatedCard = allCards[i][index];
+        if (name != null) {
+          updatedCard.name = name;
+        }
+        if (startDate != null) {
+          updatedCard.startDate = startDate;
+        }
+        if (dueDate != null) {
+          updatedCard.dueDate = dueDate;
+        }
+
+        setState(() {
+          allCards[i][index] = updatedCard;
+        });
+        break;
+      }
+    }
+  }
+
   void _loadMembers() async {
     try {
       List<MemberModel> boardMembers =
@@ -433,6 +457,7 @@ class _BoardPageState extends State<BoardPage> {
                             boardColor: widget.boardColor,
                             members: members,
                             loadMembers: _loadMembers,
+                            updateCardById: updateCardById,
                           ),
                         ),
                       );

@@ -17,6 +17,8 @@ class CardPage extends StatefulWidget {
   final Color boardColor;
   final List<MemberModel> members;
   final void Function() loadMembers;
+  final void Function(String cardId,
+      {String? name, String? startDate, String? dueDate}) updateCardById;
 
   const CardPage({
     super.key,
@@ -25,6 +27,7 @@ class CardPage extends StatefulWidget {
     required this.boardColor,
     required this.members,
     required this.loadMembers,
+    required this.updateCardById,
   });
 
   @override
@@ -45,10 +48,10 @@ class _CardPageState extends State<CardPage> {
     _descriptionController.text = widget.card.desc; // Set initial value
     members = widget.members;
     if (widget.card.startDate.isNotEmpty) {
-      selectedStartDate = DateTime.parse(widget.card.startDate!);
+      selectedStartDate = DateTime.parse(widget.card.startDate);
     }
     if (widget.card.dueDate.isNotEmpty) {
-      selectedDueDate = DateTime.parse(widget.card.dueDate!);
+      selectedDueDate = DateTime.parse(widget.card.dueDate);
     }
   }
 
@@ -125,7 +128,7 @@ class _CardPageState extends State<CardPage> {
                     Text(
                       selectedStartDate == null
                           ? ': none'
-                          : ': ${selectedStartDate!.formattedDate()}',
+                          : ': ${selectedStartDate!.displayedDate()}',
                       style: const TextStyle(color: Colors.black),
                     ),
                   ],
@@ -152,7 +155,7 @@ class _CardPageState extends State<CardPage> {
                     Text(
                       selectedDueDate == null
                           ? ': none'
-                          : ': ${selectedDueDate!.formattedDate()}',
+                          : ': ${selectedDueDate!.displayedDate()}',
                       style: const TextStyle(color: Colors.black),
                     ),
                   ],
@@ -166,7 +169,10 @@ class _CardPageState extends State<CardPage> {
   }
 
   void _showDatePicker(
-      DateTime? selectedDate, void Function(DateTime) onUpdateDate) {
+      DateTime? selectedDate,
+      void Function(DateTime) onUpdateDate,
+      bool isStartDate // Indicates whether it's for start date or due date
+      ) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -189,15 +195,26 @@ class _CardPageState extends State<CardPage> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context); // Close the bottom sheet
+                      Navigator.pop(context);
                     },
                     child: const Text('Cancel'),
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      // Update the selected date
                       onUpdateDate(selectedDate!);
-                      Navigator.pop(context); // Close the bottom sheet
+                      String formattedDate = trelloDate(selectedDate!);
+                      if (isStartDate) {
+                        _cardsController.update(widget.card.id,
+                            startDate: formattedDate);
+                        widget.updateCardById(widget.card.id,
+                            startDate: formattedDate);
+                      } else {
+                        _cardsController.update(widget.card.id,
+                            dueDate: formattedDate);
+                        widget.updateCardById(widget.card.id,
+                            dueDate: formattedDate);
+                      }
+                      Navigator.pop(context);
                     },
                     child: const Text('Update'),
                   ),
@@ -215,7 +232,7 @@ class _CardPageState extends State<CardPage> {
       setState(() {
         selectedStartDate = newDate;
       });
-    });
+    }, true); // Pass true to indicate it's for the start date
   }
 
   void showDueDatePicker() {
@@ -223,7 +240,7 @@ class _CardPageState extends State<CardPage> {
       setState(() {
         selectedDueDate = newDate;
       });
-    });
+    }, false); // Pass false to indicate it's for the due date
   }
 
   Widget descriptionContainer({
