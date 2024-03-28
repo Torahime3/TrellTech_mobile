@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -46,13 +48,14 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   void _loadInfo() async {
+    loadBoardMembers();
     final fetchedLists = await _listsController.getLists(board: widget.board);
     final fetchedCards = await Future.wait(
         fetchedLists.map((list) => _cardsController.getCards(list: list)));
     setState(() {
       lists = fetchedLists;
       allCards = fetchedCards;
-      _loadMembers();
+      _loadCardMembers();
     });
   }
 
@@ -80,25 +83,35 @@ class _BoardPageState extends State<BoardPage> {
     }
   }
 
-  void _loadMembers() async {
+  void loadBoardMembers() async {
     try {
       List<MemberModel> boardMembers =
           await _memberController.getBoardMembers(widget.board.id);
-      List<MemberModel> allMembers = List.from(boardMembers);
 
       // Generate initials for board members
-      for (MemberModel member in allMembers) {
+      for (MemberModel member in boardMembers) {
         member.initials = generateInitials(member.name);
+        print("Member Name: ${member.name}, Initials: ${member.initials}");
       }
 
+      setState(() {
+        members = List.from(boardMembers);
+      });
+    } catch (e) {
+      print('Error loading members: $e');
+    }
+  }
+
+  void _loadCardMembers() async {
+    try {
       for (List<CardModel> cardList in allCards) {
         for (CardModel card in cardList) {
           List<MemberModel> cardMemberList =
               await _memberController.getCardMembers(card.id);
 
           for (MemberModel member in cardMemberList) {
-            // Check if the member already exists in allMembers list
-            MemberModel existingMember = allMembers.firstWhere(
+            // Check if the member already exists in members list
+            MemberModel existingMember = members.firstWhere(
               (m) => m.id == member.id,
               orElse: () => member,
             );
@@ -109,20 +122,18 @@ class _BoardPageState extends State<BoardPage> {
             }
 
             // If the member was not already in the list, add it
-            if (!allMembers.contains(existingMember)) {
-              allMembers.add(existingMember);
+            if (!members.contains(existingMember)) {
+              members.add(existingMember);
             }
           }
         }
       }
 
       setState(() {
-        members = allMembers;
-        // ignore: avoid_print
         print("_loadMembers executed sucessfully");
       });
     } catch (e) {
-      ('Error loading members: $e');
+      print('Error loading members: $e');
     }
   }
 
@@ -473,7 +484,6 @@ class _BoardPageState extends State<BoardPage> {
                             board: widget.board,
                             boardColor: widget.boardColor,
                             members: members,
-                            loadMembers: _loadMembers,
                             updateCardById: updateCardById,
                             updateMemberCardIds: updateMemberCardIds,
                           ),

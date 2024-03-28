@@ -14,7 +14,6 @@ class CardPage extends StatefulWidget {
   final BoardModel board;
   final Color boardColor;
   final List<MemberModel> members;
-  final void Function() loadMembers;
   final void Function(String cardId,
       {String? name, String? startDate, String? dueDate}) updateCardById;
   final void Function(String memberId, String newCardIds, bool isAdding)
@@ -26,7 +25,6 @@ class CardPage extends StatefulWidget {
     required this.board,
     required this.boardColor,
     required this.members,
-    required this.loadMembers,
     required this.updateCardById,
     required this.updateMemberCardIds,
   });
