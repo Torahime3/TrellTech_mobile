@@ -38,7 +38,7 @@ void main() {
                   'https://api.trello.com/1/lists/${mockList.id}/cards?key=$apiKey&token=token'),
               headers: anyNamed('headers')))
           .thenAnswer((_) async => http.Response(
-              '[{"id":"1","name":"Test Card", "desc": "A description", "idMembers": ["65e58f09e1fc28da619e20e2", "65267fff1309ff5fc7f92fcf"]}]',
+              '[{"id":"1","name":"Test Card", "desc": "A description", "labels": []}]',
               200));
 
       final cards = await cardController.getCards(list: mockList);
@@ -66,7 +66,7 @@ void main() {
             'https://api.trello.com/1/cards?idList=${mockList.id}&key=$apiKey&token=token&name=New_card'),
         body: anyNamed('body'),
       )).thenAnswer((_) async => http.Response(
-          '{"id": "1", "name": "New_card", "desc": "This is a new card"}',
+          '{"id": "1", "name": "New_card", "desc": "This is a new card", "labels": []}',
           200));
 
       final result = await cardController.create(mockList.id, "New_card");
@@ -101,7 +101,7 @@ void main() {
         headers: anyNamed('headers'),
         body: anyNamed('body'),
       )).thenAnswer((_) async => http.Response(
-          '{"id": "$cardId", "name": "$updatedCardName", "desc": "$updatedCardDesc"}',
+          '{"id": "$cardId", "name": "$updatedCardName", "desc": "$updatedCardDesc", "labels": []}',
           200));
 
       final result = await cardController.update(cardId, updatedCardName);

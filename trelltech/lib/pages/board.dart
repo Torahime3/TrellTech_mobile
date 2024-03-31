@@ -9,6 +9,7 @@ import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/list_model.dart';
 import 'package:trelltech/models/member_model.dart';
+import 'package:trelltech/utils/colormap_utils.dart';
 import 'package:trelltech/utils/materialcolor_utils.dart';
 import 'package:trelltech/widgets/appbar.dart';
 
@@ -35,7 +36,7 @@ class _BoardPageState extends State<BoardPage> {
   final TextEditingController _textEditingController =
       TextEditingController(text: "Initial Text");
   List<ListModel> lists = [];
-  List<List<CardModel>> allCards = []; // Store cards for each list
+  List<List<CardModel>> allCards = [];
   List<MemberModel> members = [];
   Map<String, List<MemberModel>> cardAssignedMembers = {};
 
@@ -618,118 +619,177 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   Widget _buildCard(CardModel card) {
-    return Container(
-      margin: const EdgeInsets.all(12.0),
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 255, 255, 255),
-        borderRadius: BorderRadius.circular(10.0),
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 58, 58, 58).withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 2,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: GestureDetector(
-        onLongPress: () {
-          showMenu(
-              context: context,
-              position: const RelativeRect.fromLTRB(0, 200, 0, 0),
-              items: <PopupMenuEntry>[
-                PopupMenuItem(
-                    child: ListTile(
-                        title: const Text('Delete card'),
-                        onTap: () {
-                          _cardsController.delete(card.id);
-                          Navigator.of(context).pop();
-                          _loadInfo();
-                        })),
-                PopupMenuItem(
-                    child: ListTile(
-                        title: const Text("Edit card"),
-                        onTap: () {
-                          _textEditingController.text = card.name;
-                          showModalBottomSheet(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 255, 255, 255),
-                              context: context,
-                              builder: (BuildContext context) {
-                                return SizedBox(
-                                    height: 600,
-                                    child: Center(
-                                        child: Form(
-                                            child: Column(
-                                      children: [
-                                        Expanded(
-                                            child: ListView(children: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              _cardsController.update(card.id,
-                                                  _textEditingController.text);
-                                              Navigator.of(context).pop();
-                                              _loadInfo();
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text("Edit"),
-                                          ),
-                                          Padding(
-                                              padding:
-                                                  const EdgeInsets.all(16.0),
-                                              child: TextFormField(
-                                                autofocus: true,
-                                                controller:
-                                                    _textEditingController,
-                                                decoration:
-                                                    const InputDecoration(
-                                                  focusedBorder:
-                                                      UnderlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                        color: Color.fromARGB(
-                                                            255,
-                                                            49,
-                                                            49,
-                                                            49)), // Change underline color
-                                                  ),
-                                                ),
-                                                cursorColor:
-                                                    const Color.fromARGB(
-                                                        255, 49, 49, 49),
-                                                maxLines: null,
-                                                // onFieldSubmitted: (String value) {
-                                                //   _cardsController.update(card.id, value);
-                                                //   Navigator.of(context).pop();
-                                                //   _loadInfo();
-                                                //   Navigator.of(context).pop();
-                                                // },
-                                              ))
-                                        ]))
-                                      ],
-                                    ))));
-                              });
-                          // Navigator.of(context).pop();
-                        }))
-              ]);
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              // Wrap text widget with Expanded
-              child: Text(
-                card.name,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color:
-                      Color.fromARGB(255, 46, 46, 46), // Text color for header
-                ),
+    return Column(
+      children: [
+        if (getColorFromString(card.coverColor) != Colors.transparent)
+          Container(
+            height: 30,
+            margin:
+                const EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 0),
+            decoration: BoxDecoration(
+              color: getColorFromString(card.coverColor),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20.0),
+                topRight: Radius.circular(20.0),
               ),
             ),
-          ],
+          ),
+        Container(
+          margin: getColorFromString(card.coverColor) != Colors.transparent
+              ? const EdgeInsets.only(
+                  left: 12.0,
+                  right: 12.0,
+                  top: 0.0,
+                  bottom: 8.0,
+                )
+              : const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 255, 255, 255),
+            borderRadius:
+                getColorFromString(card.coverColor) != Colors.transparent
+                    ? const BorderRadius.only(
+                        bottomLeft: Radius.circular(20.0),
+                        bottomRight: Radius.circular(20.0),
+                      )
+                    : const BorderRadius.all(Radius.circular(20.0)),
+            boxShadow: [
+              BoxShadow(
+                color: const Color.fromARGB(255, 58, 58, 58).withOpacity(0.2),
+                spreadRadius: 1,
+                blurRadius: 2,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: GestureDetector(
+            onLongPress: () {
+              showMenu(
+                  context: context,
+                  position: const RelativeRect.fromLTRB(0, 200, 0, 0),
+                  items: <PopupMenuEntry>[
+                    PopupMenuItem(
+                        child: ListTile(
+                            title: const Text('Delete card'),
+                            onTap: () {
+                              _cardsController.delete(card.id);
+                              Navigator.of(context).pop();
+                              _loadInfo();
+                            })),
+                    PopupMenuItem(
+                        child: ListTile(
+                            title: const Text("Edit card"),
+                            onTap: () {
+                              _textEditingController.text = card.name;
+                              showModalBottomSheet(
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 255, 255, 255),
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return SizedBox(
+                                        height: 600,
+                                        child: Center(
+                                            child: Form(
+                                                child: Column(
+                                          children: [
+                                            Expanded(
+                                                child: ListView(children: [
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  _cardsController.update(
+                                                      card.id,
+                                                      _textEditingController
+                                                          .text);
+                                                  Navigator.of(context).pop();
+                                                  _loadInfo();
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text("Edit"),
+                                              ),
+                                              Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      16.0),
+                                                  child: TextFormField(
+                                                    autofocus: true,
+                                                    controller:
+                                                        _textEditingController,
+                                                    decoration:
+                                                        const InputDecoration(
+                                                      focusedBorder:
+                                                          UnderlineInputBorder(
+                                                        borderSide: BorderSide(
+                                                            color: Color.fromARGB(
+                                                                255,
+                                                                49,
+                                                                49,
+                                                                49)), // Change underline color
+                                                      ),
+                                                    ),
+                                                    cursorColor:
+                                                        const Color.fromARGB(
+                                                            255, 49, 49, 49),
+                                                    maxLines: null,
+                                                    // onFieldSubmitted: (String value) {
+                                                    //   _cardsController.update(card.id, value);
+                                                    //   Navigator.of(context).pop();
+                                                    //   _loadInfo();
+                                                    //   Navigator.of(context).pop();
+                                                    // },
+                                                  ))
+                                            ]))
+                                          ],
+                                        ))));
+                                  });
+                              // Navigator.of(context).pop();
+                            }))
+                  ]);
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      // Wrap text widget with Expanded
+                      child: Text(
+                        card.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Color.fromARGB(
+                              255, 46, 46, 46), // Text color for header
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                // Liste des labels de la carte
+                Wrap(
+                  spacing: 5,
+                  runSpacing: 5,
+                  children: List<Widget>.generate(
+                    card.label.length,
+                    (int index) {
+                      return Material(
+                        color: getColorFromString(card.label[index].color),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30.0, vertical: 0.0),
+                          child: Text(
+                            card.label[index].name,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                )
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }

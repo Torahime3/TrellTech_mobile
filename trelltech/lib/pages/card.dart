@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
+import 'package:trelltech/models/label_model.dart';
 import 'package:trelltech/models/member_model.dart';
+import 'package:trelltech/utils/colormap_utils.dart';
 import 'package:trelltech/widgets/appbar.dart';
 import 'package:trelltech/widgets/member_avatar.dart';
 
@@ -58,6 +60,9 @@ class _CardPageState extends State<CardPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            getColorFromString(widget.card.coverColor) != Colors.transparent
+                ? coverContainer(widget.card.coverColor)
+                : Container(),
             descriptionContainer(
               icon: Icons.description,
               data: widget.card.desc,
@@ -73,8 +78,28 @@ class _CardPageState extends State<CardPage> {
                       (member) => MemberAvatar(initials: member.initials ?? ''))
                   .toList(),
             ),
+            widget.card.label.isNotEmpty
+                ? labelContainer(
+                    icon: Icons.label,
+                    labels: widget.card.label,
+                  )
+                : Container(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget coverContainer(
+    String color,
+  ) {
+    return Container(
+      margin: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(16.0),
+      height: 75,
+      decoration: BoxDecoration(
+        color: getColorFromString(color),
+        borderRadius: BorderRadius.circular(10.0),
       ),
     );
   }
@@ -139,6 +164,59 @@ class _CardPageState extends State<CardPage> {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget labelContainer({
+    required IconData icon,
+    required List<LabelModel> labels,
+  }) {
+    return Container(
+      margin: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 0, 0, 0),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      constraints: const BoxConstraints(minHeight: 75),
+      child: IntrinsicHeight(
+        child: Padding(
+          padding: const EdgeInsets.all(0.0),
+          child: Stack(
+            children: [
+              _buildIcon(icon),
+              Positioned(
+                top: 8,
+                left: 40, // Adjust this value as needed
+                child: Row(
+                  children: labels
+                      .map(
+                        (label) => Container(
+                          constraints: const BoxConstraints(
+                            minWidth: 60,
+                          ),
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: getColorFromString(label.color),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            label.name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ],
           ),
         ),
       ),
