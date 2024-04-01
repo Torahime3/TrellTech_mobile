@@ -72,6 +72,19 @@ class BoardController {
     }
   }
 
+  Future<bool> createTemplate(name, id, idBoardSource) async {
+    String apiToken = (await getApiToken())!;
+
+    final url = Uri.parse('https://api.trello.com/1/boards/?name=$name&key=$apiKey&token=$apiToken&idOrganization=$id&idBoardSource=$idBoardSource');
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception("Board not created");
+    }
+  }
+
   Future<BoardModel> update(
       {required id, required name, void Function()? onUpdated}) async {
     String apiToken = (await getApiToken())!;
