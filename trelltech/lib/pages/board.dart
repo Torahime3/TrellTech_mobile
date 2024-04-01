@@ -14,7 +14,7 @@ import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/utils/colormap_utils.dart';
 import 'package:trelltech/utils/materialcolor_utils.dart';
 import 'package:trelltech/widgets/appbar.dart';
-import 'package:trelltech/widgets/member_avatar.dart';
+//import 'package:trelltech/widgets/member_avatar.dart';
 
 import 'card.dart';
 
@@ -784,9 +784,10 @@ class _BoardPageState extends State<BoardPage> {
                                               ElevatedButton(
                                                 onPressed: () {
                                                   _cardsController.update(
-                                                      card.id,
-                                                      _textEditingController
-                                                          .text);
+                                                      cardId: card.id,
+                                                      name:
+                                                          _textEditingController
+                                                              .text);
                                                   Navigator.of(context).pop();
                                                   _loadInfo();
                                                   Navigator.of(context).pop();
@@ -835,7 +836,7 @@ class _BoardPageState extends State<BoardPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  AxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Expanded(
                       // Wrap text widget with Expanded

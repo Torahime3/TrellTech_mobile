@@ -74,8 +74,11 @@ class CardController {
     }
   }
 
-  Future<CardModel> update(String cardId,
-      {String? name, String? startDate, String? dueDate}) async {
+  Future<CardModel> update(
+      {String? cardId,
+      String? name,
+      String? startDate,
+      String? dueDate}) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
         'https://api.trello.com/1/cards/$cardId?key=$apiKey&token=$apiToken');

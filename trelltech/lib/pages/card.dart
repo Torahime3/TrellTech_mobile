@@ -99,7 +99,7 @@ class _CardPageState extends State<CardPage> {
                       (member) => MemberAvatar(initials: member.initials ?? ''))
                   .toList(),
             ),
-             widget.card.label.isNotEmpty
+            widget.card.label.isNotEmpty
                 ? labelContainer(
                     icon: Icons.label,
                     labels: widget.card.label,
@@ -217,13 +217,13 @@ class _CardPageState extends State<CardPage> {
                       onUpdateDate(selectedDate!);
                       String formattedDate = trelloDate(selectedDate!);
                       if (isStartDate) {
-                        _cardsController.update(widget.card.id,
-                            startDate: formattedDate);
+                        _cardsController.update(
+                            cardId: widget.card.id, startDate: formattedDate);
                         widget.updateCardById(widget.card.id,
                             startDate: formattedDate);
                       } else {
-                        _cardsController.update(widget.card.id,
-                            dueDate: formattedDate);
+                        _cardsController.update(
+                            cardId: widget.card.id, dueDate: formattedDate);
                         widget.updateCardById(widget.card.id,
                             dueDate: formattedDate);
                       }
@@ -257,33 +257,6 @@ class _CardPageState extends State<CardPage> {
   }
 
   Widget avatarContainer({
-            widget.card.label.isNotEmpty
-                ? labelContainer(
-                    icon: Icons.label,
-                    labels: widget.card.label,
-                  )
-                : Container(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget coverContainer(
-    String color,
-  ) {
-    return Container(
-      margin: const EdgeInsets.all(12.0),
-      padding: const EdgeInsets.all(16.0),
-      height: 75,
-      decoration: BoxDecoration(
-        color: getColorFromString(color),
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-    );
-  }
-
-  Widget descriptionContainer({
     required IconData icon,
     required List<Widget> avatars,
     VoidCallback? onTap,
@@ -318,14 +291,16 @@ class _CardPageState extends State<CardPage> {
     );
   }
 
-  Widget _buildIcon(IconData icon) {
-    return Positioned(
-      top: 10,
-      left: 0,
-      child: Icon(
-        icon,
-        color: Colors.black,
-        size: 24,
+  Widget coverContainer(
+    String color,
+  ) {
+    return Container(
+      margin: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(16.0),
+      height: 75,
+      decoration: BoxDecoration(
+        color: getColorFromString(color),
+        borderRadius: BorderRadius.circular(10.0),
       ),
     );
   }
@@ -361,6 +336,18 @@ class _CardPageState extends State<CardPage> {
     );
   }
 
+  Widget _buildIcon(IconData icon) {
+    return Positioned(
+      top: 10,
+      left: 0,
+      child: Icon(
+        icon,
+        color: Colors.black,
+        size: 24,
+      ),
+    );
+  }
+
   Widget labelContainer({
     required IconData icon,
     required List<LabelModel> labels,
@@ -369,7 +356,7 @@ class _CardPageState extends State<CardPage> {
       margin: const EdgeInsets.all(12.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 0, 0, 0),
+        color: const Color.fromARGB(255, 255, 255, 255),
         borderRadius: BorderRadius.circular(10.0),
       ),
       constraints: const BoxConstraints(minHeight: 75),
@@ -414,18 +401,6 @@ class _CardPageState extends State<CardPage> {
     );
   }
 
-  Widget _buildIcon(IconData icon) {
-    return Positioned(
-      top: 10,
-      left: 0,
-      child: Icon(
-        icon,
-        color: Colors.white,
-        size: 24,
-      ),
-    );
-  }
-                         
   Widget _buildDescription(String? data) {
     final bool hasData = data?.isNotEmpty == true;
     return Row(
