@@ -24,6 +24,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   List<Workspace> workspaces = [];
   bool boardsVisible = false;
   final TextEditingController _textEditingController = TextEditingController();
+  String selectedButton = '';
+
+  List<String> buttonNames = [
+    '1-on-1 Meeting Agenda',
+    'Company Overview',
+    // 'Button C',
+    // 'Button D',
+    // 'Button E',
+    // 'Button F',
+    // 'Button G',
+    // 'Button H',
+    // 'Button I',
+    // 'Button J',
+  ];
 
   @override
   void initState() {
@@ -177,6 +191,30 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     ]);
   }
 
+
+  _handle(input, workspaceId) {
+
+    String idBoardSource = '';
+
+    if (input.isNotEmpty && selectedButton.isNotEmpty) {
+      // Both text and selectedButton are available
+      switch(selectedButton) {
+        case "Company Overview":
+          idBoardSource = '5b2281bb004ac866019e51fa';
+          break;
+
+      }
+      _boardController.createTemplate(input, workspaceId, idBoardSource);
+      print("HERE!!!!!!!!!");
+    } 
+    // else if (text.isNotEmpty) {
+    //   // Only text is available
+    //   print('Text: $text');
+    // }
+    // Clear selections
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -302,10 +340,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       Navigator.of(context)
                                                           .pop();
                                                       setState(() {
-                                                        workspaces[index]
-                                                                .displayName =
-                                                            _textEditingController
-                                                                .text;
+                                                        workspaces[index].displayName = _textEditingController.text;
                                                       });
                                                       _loadInfo();
                                                     },
@@ -360,18 +395,48 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                             255, 49, 49, 49),
                                                     onFieldSubmitted:
                                                         (String value) {
-                                                      _boardController.create(
-                                                          name: value,
-                                                          id: workspaces[index]
-                                                              .id,
-                                                          onCreated: () {
-                                                            _loadInfo();
-                                                          });
-                                                      Navigator.of(context)
-                                                          .pop();
+                                                          _handle(value, workspaces[index].id);
+                                                          // _boardController.create(
+                                                          //   name: value,
+                                                          //   id: workspaces[index].id,
+                                                          //   onCreated: () {
+                                                          //     _loadInfo();
+                                                          //   }
+                                                          // );
+                                                        Navigator.of(context).pop();
                                                     },
                                                   ),
                                                 ),
+                                                const SizedBox(height: 10),
+                                                Wrap(
+                                                  spacing: 10,
+                                                  children: List.generate(
+                                                    buttonNames.length,
+                                                    (index) => GestureDetector(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          selectedButton = buttonNames[index];
+                                                        });
+                                                        _loadInfo();
+                                                      },
+                                                      child: Container(
+                                                        padding: const EdgeInsets.all(10),
+                                                        decoration: BoxDecoration(
+                                                          color: selectedButton == buttonNames[index]
+                                                              ? Colors.black
+                                                              : Colors.grey,
+                                                          borderRadius: BorderRadius.circular(5),
+                                                        ),
+                                                        child: Text(buttonNames[index], style: const TextStyle(color: Colors.white),),
+                                                      ),
+                                                    )
+                                                  )
+                                                )
+                                                // const Text("Kanban"),
+                                                // ElevatedButton(onPressed: () {
+                                                //   _boardController.create(name: "Hey");
+                                                // },
+                                                // child: const Text("Hey")),
                                               ],
                                             ),
                                           ),
