@@ -17,7 +17,6 @@ class _CreateFormState extends State<CreateForm> {
     return SizedBox(
         height: 600,
         child: Center(
-            // child: Text('Your modal content goes here'),
             child: Form(
                 child: Column(
           children: [
