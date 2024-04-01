@@ -1,9 +1,13 @@
+import 'package:trelltech/models/label_model.dart';
+
 class CardModel {
   String name;
   String id;
   String desc;
   String startDate;
   String dueDate;
+  String coverColor;
+  List<LabelModel> label;
 
   CardModel({
     required this.name,
@@ -11,6 +15,8 @@ class CardModel {
     required this.desc,
     this.startDate = '',
     this.dueDate = '',
+    this.coverColor = 'white',
+    this.label = const [],
   });
 
   String getName() {
@@ -24,6 +30,10 @@ class CardModel {
       desc: json['desc'],
       startDate: json['start'] ?? '',
       dueDate: json['due'] ?? '',
+      coverColor: json['cover']?['color'] ?? '',
+      label: (json['labels'] as List)
+          .map((label) => LabelModel.fromJson(label))
+          .toList(),
     );
   }
 }
