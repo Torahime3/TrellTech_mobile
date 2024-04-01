@@ -95,8 +95,9 @@ class _CardPageState extends State<CardPage> {
             avatarContainer(
               icon: Icons.person,
               avatars: cardMembers
-                  .map(
-                      (member) => MemberAvatar(initials: member.initials ?? ''))
+                  .map((member) => MemberAvatar(
+                      initials: member.initials ?? '',
+                      color: member.color ?? Colors.blue))
                   .toList(),
             ),
             widget.card.label.isNotEmpty
@@ -566,7 +567,9 @@ class _CardPageState extends State<CardPage> {
               title: Text(member.name),
               leading: CircleAvatar(
                 backgroundColor: Colors.transparent,
-                child: MemberAvatar(initials: member.initials ?? ''),
+                child: MemberAvatar(
+                    initials: member.initials ?? '',
+                    color: member.color ?? Colors.blue),
               ),
             ),
           ),
@@ -593,7 +596,9 @@ class _CardPageState extends State<CardPage> {
               title: Text(member.name),
               leading: CircleAvatar(
                 backgroundColor: Colors.transparent,
-                child: MemberAvatar(initials: member.initials ?? ''),
+                child: MemberAvatar(
+                    initials: member.initials ?? '',
+                    color: member.color ?? Colors.blue),
               ),
             ),
           ),

@@ -14,7 +14,7 @@ import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/utils/colormap_utils.dart';
 import 'package:trelltech/utils/materialcolor_utils.dart';
 import 'package:trelltech/widgets/appbar.dart';
-//import 'package:trelltech/widgets/member_avatar.dart';
+import 'package:trelltech/widgets/member_avatar.dart';
 
 import 'card.dart';
 
@@ -85,6 +85,7 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   void loadBoardMembers() async {
+    int index = 0;
     try {
       List<MemberModel> boardMembers =
           await _memberController.getBoardMembers(widget.board.id);
@@ -92,7 +93,8 @@ class _BoardPageState extends State<BoardPage> {
       // Generate initials for board members
       for (MemberModel member in boardMembers) {
         member.initials = generateInitials(member.name);
-        print("Member Name: ${member.name}, Initials: ${member.initials}");
+        member.color = Colors.primaries.elementAt(index % 18);
+        index += 1;
       }
 
       setState(() {
@@ -817,12 +819,6 @@ class _BoardPageState extends State<BoardPage> {
                                                         const Color.fromARGB(
                                                             255, 49, 49, 49),
                                                     maxLines: null,
-                                                    // onFieldSubmitted: (String value) {
-                                                    //   _cardsController.update(card.id, value);
-                                                    //   Navigator.of(context).pop();
-                                                    //   _loadInfo();
-                                                    //   Navigator.of(context).pop();
-                                                    // },
                                                   ))
                                             ]))
                                           ],
@@ -872,7 +868,21 @@ class _BoardPageState extends State<BoardPage> {
                       );
                     },
                   ),
-                )
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    avatarRow(
+                      avatars: members
+                          .where((member) => member.cardIds.contains(card.id))
+                          .map((member) => MemberAvatar(
+                                initials: member.initials ?? '',
+                                color: member.color ?? Colors.blue,
+                              ))
+                          .toList(),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -883,7 +893,12 @@ class _BoardPageState extends State<BoardPage> {
 
   Widget avatarRow({required List<Widget> avatars}) {
     return Row(
-      children: avatars,
+      children: avatars
+          .map((avatar) => Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: avatar,
+              ))
+          .toList(),
     );
   }
 }

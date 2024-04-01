@@ -1,14 +1,18 @@
+import 'package:flutter/material.dart';
+
 class MemberModel {
   String name;
   String id;
   String? initials;
-  List<String> cardIds; // Updated field to store list of card IDs
+  Color? color;
+  List<String> cardIds;
 
   MemberModel({
     required this.name,
     required this.id,
     this.initials,
-    required this.cardIds, // Update the constructor
+    this.color,
+    required this.cardIds,
   });
 
   factory MemberModel.fromJson(Map<String, dynamic> json) {
@@ -16,7 +20,8 @@ class MemberModel {
       name: json['fullName'],
       id: json['id'],
       initials: '',
-      cardIds: [], // Initialize cardIds list
+      color: null,
+      cardIds: [],
     );
   }
 }
