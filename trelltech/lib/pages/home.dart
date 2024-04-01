@@ -205,6 +205,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
       }
       _boardController.createTemplate(input, workspaceId, idBoardSource);
+      _loadInfo();
     } else if (input.isNotEmpty && selectedButton.isEmpty) {
       _boardController.create(
         name: input, 
@@ -215,6 +216,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       );
     }
     selectedButton = '';
+    _textEditingController.clear();
   }
 
   @override
@@ -379,7 +381,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       16.0),
                                                   child: TextFormField(
                                                     autofocus: true,
-                                                    // controller: _textEditingController,
+                                                    controller: _textEditingController,
                                                     decoration:
                                                         const InputDecoration(
                                                       focusedBorder:
@@ -420,6 +422,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       onTap: () {
                                                         setState(() {
                                                           selectedButton = buttonNames[buttonIndex];
+                                                          _textEditingController.text = buttonNames[buttonIndex];
                                                         });
                                                         // _loadInfo();
                                                       },
