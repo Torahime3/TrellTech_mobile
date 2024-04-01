@@ -26,17 +26,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final TextEditingController _textEditingController = TextEditingController();
   String selectedButton = '';
 
+
   List<String> buttonNames = [
     '1-on-1 Meeting Agenda',
     'Company Overview',
-    // 'Button C',
-    // 'Button D',
-    // 'Button E',
-    // 'Button F',
-    // 'Button G',
-    // 'Button H',
-    // 'Button I',
-    // 'Button J',
+    'Project Management',
+    'Weekly Planning',
+    'Kanban',
+    'Go To Market Strategy',
+    'Agile',
   ];
 
   @override
@@ -199,10 +197,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (input.isNotEmpty && selectedButton.isNotEmpty) {
       // Both name and template are available (Either custom name or template name)
       switch(selectedButton) {
-        case "1-on-1 Meeting Agenda":
+        case '1-on-1 Meeting Agenda':
           idBoardSource = '5b2281bb004ac866019e51fa';
           break;
-
+        case 'Company Overview':
+          idBoardSource = '5994be8ce20c9b37589141c2';
+          break;
+        case 'Project Management':
+          idBoardSource = '5c4efa1d25a9692173830e7f';
+          break;
+        case 'Weekly Planning':
+          idBoardSource = '5ec98d97f98409568dd89dff';
+          break;
+        case 'Kanban':
+          idBoardSource = '5e6005043fbdb55d9781821e';
+          break;
+        case 'Go To Market Strategy':
+          idBoardSource = '5aaafd432693e874ec11495c';
+          break;
+        case 'Agile':
+          idBoardSource = '591ca6422428d5f5b2794aee';
+          break;
       }
       _boardController.createTemplate(input, workspaceId, idBoardSource);
       _loadInfo();
@@ -381,7 +396,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                   padding: const EdgeInsets.all(
                                                       16.0),
                                                   child: TextFormField(
-                                                    autofocus: true,
+                                                    // autofocus: true,
                                                     controller: _textEditingController,
                                                     decoration:
                                                         const InputDecoration(
@@ -415,43 +430,46 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                   ),
                                                 ),
                                                 const SizedBox(height: 10),
-                                                Wrap(
-                                                  spacing: 10,
-                                                  children: List.generate(
-                                                    buttonNames.length,
-                                                    (buttonIndex) => GestureDetector(
-                                                      onTap: () {
-                                                        setState(() {
-                                                          selectedButton = buttonNames[buttonIndex];
-                                                          _textEditingController.text = buttonNames[buttonIndex];
-                                                        });
-                                                        // _loadInfo();
-                                                      },
-                                                      child: Container(
-                                                        padding: const EdgeInsets.all(10),
-                                                        decoration: BoxDecoration(
-                                                          color: selectedButton == buttonNames[buttonIndex]
-                                                              ? Colors.black
-                                                              : Colors.grey,
-                                                          borderRadius: BorderRadius.circular(5),
+                                                Padding(
+                                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                                  child: Wrap(
+                                                    spacing: 10,
+                                                    children: List.generate(
+                                                      buttonNames.length,
+                                                      (buttonIndex) => GestureDetector(
+                                                        onTap: () {
+                                                          setState(() {
+                                                            selectedButton = buttonNames[buttonIndex];
+                                                            _textEditingController.text = buttonNames[buttonIndex];
+                                                          });
+                                                          // _loadInfo();
+                                                        },
+                                                        child: Container(
+                                                          padding: const EdgeInsets.all(10),
+                                                          decoration: BoxDecoration(
+                                                            color: selectedButton == buttonNames[buttonIndex]
+                                                                ? Colors.black
+                                                                : Colors.grey,
+                                                            borderRadius: BorderRadius.circular(5),
+                                                          ),
+                                                          child: Text(buttonNames[buttonIndex], style: const TextStyle(color: Colors.white),),
                                                         ),
-                                                        child: Text(buttonNames[buttonIndex], style: const TextStyle(color: Colors.white),),
-                                                      ),
+                                                      )
                                                     )
                                                   )
                                                 )
-                                                // const Text("Kanban"),
-                                                // ElevatedButton(onPressed: () {
-                                                //   _boardController.create(name: "Hey");
-                                                // },
-                                                // child: const Text("Hey")),
                                               ],
                                             ),
                                           ),
                                         ),
                                       );
                                     },
-                                  );
+                                  ).then((value) {
+                                    if (value == null) {
+                                      _textEditingController.clear();
+                                      selectedButton = '';
+                                    }
+                                  });
                               }
                             });
                           },
