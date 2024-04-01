@@ -97,7 +97,7 @@ void main() {
     test('successfully updates a card and returns updated CardModel', () async {
       when(mockClient.put(
         Uri.parse(
-            'https://api.trello.com/1/cards/$cardId?key=$apiKey&token=token&name=$updatedCardName'),
+            'https://api.trello.com/1/cards/$cardId?key=$apiKey&token=token'),
         headers: anyNamed('headers'),
         body: anyNamed('body'),
       )).thenAnswer((_) async => http.Response(
@@ -117,7 +117,7 @@ void main() {
         () async {
       when(mockClient.put(
         Uri.parse(
-            'https://api.trello.com/1/cards/$cardId?key=$apiKey&token=token&name=$updatedCardName'),
+            'https://api.trello.com/1/cards/$cardId?key=$apiKey&token=token'),
         headers: anyNamed('headers'),
         body: anyNamed('body'),
       )).thenAnswer((_) async => http.Response('Error', 400));
