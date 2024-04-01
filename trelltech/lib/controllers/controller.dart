@@ -10,7 +10,7 @@ import 'package:trelltech/models/list_model.dart';
 import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/pages/board.dart';
 
-class Controller {
+class Controller extends State {
   final ListController _listsController = ListController();
   final CardController _cardsController = CardController();
   final BoardController _boardController = BoardController();
@@ -24,6 +24,7 @@ class Controller {
   List<List<CardModel>> allCards = [];
   List<MemberModel> members = [];
 
+  @override
   final BoardPage widget;
   final State state;
 
@@ -97,7 +98,7 @@ class Controller {
         members = List.from(boardMembers);
       });
     } catch (e) {
-      print('Error loading members: $e');
+      rethrow;
     }
   }
 
@@ -128,11 +129,9 @@ class Controller {
         }
       }
 
-      state.setState(() {
-        print("_loadMembers executed sucessfully");
-      });
+      state.setState(() {});
     } catch (e) {
-      print('Error loading members: $e');
+      rethrow;
     }
   }
 
@@ -200,5 +199,10 @@ class Controller {
     } else {
       stopAutoScroll();
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    throw UnimplementedError();
   }
 }
