@@ -104,7 +104,7 @@ void main() {
           '{"id": "$cardId", "name": "$updatedCardName", "desc": "$updatedCardDesc", "labels": []}',
           200));
 
-      final result = await cardController.update(cardId, updatedCardName);
+      final result = await cardController.update(cardId, name: updatedCardName);
 
       expect(result, isA<CardModel>());
       expect(result.id, cardId);
@@ -121,7 +121,7 @@ void main() {
         body: anyNamed('body'),
       )).thenAnswer((_) async => http.Response('Error', 400));
 
-      expect(() => cardController.update(cardId, updatedCardName),
+      expect(() => cardController.update(cardId, name: updatedCardName),
           throwsException);
     });
   });

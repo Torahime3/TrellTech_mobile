@@ -4,6 +4,8 @@ class CardModel {
   String name;
   String id;
   String desc;
+  String startDate;
+  String dueDate;
   String coverColor;
   List<LabelModel> label;
 
@@ -11,6 +13,8 @@ class CardModel {
     required this.name,
     required this.id,
     required this.desc,
+    this.startDate = '',
+    this.dueDate = '',
     this.coverColor = 'white',
     this.label = const [],
   });
@@ -24,6 +28,8 @@ class CardModel {
       name: json['name'],
       id: json['id'],
       desc: json['desc'],
+      startDate: json['start'] ?? '',
+      dueDate: json['due'] ?? '',
       coverColor: json['cover']?['color'] ?? '',
       label: (json['labels'] as List)
           .map((label) => LabelModel.fromJson(label))

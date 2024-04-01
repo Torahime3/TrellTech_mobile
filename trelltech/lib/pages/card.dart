@@ -1,12 +1,14 @@
-// ignore_for_file: avoid_print
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:trelltech/controllers/card_controller.dart';
 import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/label_model.dart';
 import 'package:trelltech/models/member_model.dart';
+import 'package:trelltech/utils/materialcolor_utils.dart';
+import 'package:trelltech/utils/date_format.dart';
 import 'package:trelltech/utils/colormap_utils.dart';
+
 import 'package:trelltech/widgets/appbar.dart';
 import 'package:trelltech/widgets/member_avatar.dart';
 
@@ -15,6 +17,10 @@ class CardPage extends StatefulWidget {
   final BoardModel board;
   final Color boardColor;
   final List<MemberModel> members;
+  final void Function(String cardId,
+      {String? name, String? startDate, String? dueDate}) updateCardById;
+  final void Function(String memberId, String newCardIds, bool isAdding)
+      updateMemberCardIds;
 
   const CardPage({
     super.key,
@@ -22,6 +28,8 @@ class CardPage extends StatefulWidget {
     required this.board,
     required this.boardColor,
     required this.members,
+    required this.updateCardById,
+    required this.updateMemberCardIds,
   });
 
   @override
@@ -33,12 +41,22 @@ class _CardPageState extends State<CardPage> {
       TextEditingController();
   List<MemberModel> members = [];
   final CardController _cardsController = CardController();
+  DateTime? selectedStartDate;
+  DateTime? selectedDueDate;
+  List<String> selectedMemberIds = [];
+  final GlobalKey _buttonKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    _descriptionController.text = widget.card.desc; // Set initial value
+    _descriptionController.text = widget.card.desc;
     members = widget.members;
+    if (widget.card.startDate.isNotEmpty) {
+      selectedStartDate = DateTime.parse(widget.card.startDate);
+    }
+    if (widget.card.dueDate.isNotEmpty) {
+      selectedDueDate = DateTime.parse(widget.card.dueDate);
+    }
   }
 
   @override
@@ -50,13 +68,17 @@ class _CardPageState extends State<CardPage> {
   @override
   Widget build(BuildContext context) {
     final boardColor = widget.boardColor;
-    print('members: $members');
+    List<MemberModel> cardMembers = members
+        .where((member) => member.cardIds.contains(widget.card.id))
+        .toList();
+
     return Scaffold(
       appBar: appbar(
         text: widget.card.name,
         color: boardColor,
         showEditButton: false,
       ),
+      backgroundColor: getMaterialColor(boardColor).shade700,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -72,12 +94,169 @@ class _CardPageState extends State<CardPage> {
             ),
             avatarContainer(
               icon: Icons.person,
-              avatars: members
-                  .where((member) => member.cardIds.contains(widget.card.id))
+              avatars: cardMembers
                   .map(
                       (member) => MemberAvatar(initials: member.initials ?? ''))
                   .toList(),
             ),
+             widget.card.label.isNotEmpty
+                ? labelContainer(
+                    icon: Icons.label,
+                    labels: widget.card.label,
+                  )
+                : Container(),
+            dateContainer(), // Adding the date container
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget dateContainer() {
+    return Container(
+      margin: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 255, 255, 255),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.schedule),
+          const SizedBox(width: 20),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  showStartDatePicker();
+                },
+                child: Row(
+                  children: [
+                    const Text(
+                      'Start Date',
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      selectedStartDate == null
+                          ? ': none'
+                          : ': ${selectedStartDate!.displayedDate()}',
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                height: 2,
+                width: 280,
+                color: Colors.black,
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  showDueDatePicker();
+                },
+                child: Row(
+                  children: [
+                    const Text(
+                      'End Date',
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      selectedDueDate == null
+                          ? ': none'
+                          : ': ${selectedDueDate!.displayedDate()}',
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDatePicker(
+      DateTime? selectedDate,
+      void Function(DateTime) onUpdateDate,
+      bool isStartDate // Indicates whether it's for start date or due date
+      ) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: 300.0,
+          child: Column(
+            children: [
+              Expanded(
+                child: CupertinoDatePicker(
+                  initialDateTime: selectedDate ?? DateTime.now(),
+                  onDateTimeChanged: (DateTime newDate) {
+                    setState(() {
+                      selectedDate = newDate;
+                    });
+                  },
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      onUpdateDate(selectedDate!);
+                      String formattedDate = trelloDate(selectedDate!);
+                      if (isStartDate) {
+                        _cardsController.update(widget.card.id,
+                            startDate: formattedDate);
+                        widget.updateCardById(widget.card.id,
+                            startDate: formattedDate);
+                      } else {
+                        _cardsController.update(widget.card.id,
+                            dueDate: formattedDate);
+                        widget.updateCardById(widget.card.id,
+                            dueDate: formattedDate);
+                      }
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Update'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void showStartDatePicker() {
+    _showDatePicker(selectedStartDate, (DateTime newDate) {
+      setState(() {
+        selectedStartDate = newDate;
+      });
+    }, true); // Pass true to indicate it's for the start date
+  }
+
+  void showDueDatePicker() {
+    _showDatePicker(selectedDueDate, (DateTime newDate) {
+      setState(() {
+        selectedDueDate = newDate;
+      });
+    }, false); // Pass false to indicate it's for the due date
+  }
+
+  Widget avatarContainer({
             widget.card.label.isNotEmpty
                 ? labelContainer(
                     icon: Icons.label,
@@ -106,37 +285,6 @@ class _CardPageState extends State<CardPage> {
 
   Widget descriptionContainer({
     required IconData icon,
-    String? data,
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.all(12.0),
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 0, 0, 0),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        constraints:
-            const BoxConstraints(minHeight: 75), // Set the minimum height
-        child: IntrinsicHeight(
-          child: Padding(
-            padding: const EdgeInsets.all(0.0),
-            child: Stack(
-              children: [
-                _buildIcon(icon),
-                _buildDescription(data),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget avatarContainer({
-    required IconData icon,
     required List<Widget> avatars,
     VoidCallback? onTap,
   }) {
@@ -146,7 +294,7 @@ class _CardPageState extends State<CardPage> {
         margin: const EdgeInsets.all(12.0),
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 0, 0, 0),
+          color: const Color.fromARGB(255, 255, 255, 255),
           borderRadius: BorderRadius.circular(10.0),
         ),
         constraints:
@@ -162,6 +310,49 @@ class _CardPageState extends State<CardPage> {
                   left: 40, // Adjust this value as needed
                   child: _buildAvatarsContainer(avatars),
                 ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIcon(IconData icon) {
+    return Positioned(
+      top: 10,
+      left: 0,
+      child: Icon(
+        icon,
+        color: Colors.black,
+        size: 24,
+      ),
+    );
+  }
+
+  Widget descriptionContainer({
+    required IconData icon,
+    String? data,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 255, 255, 255),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        constraints:
+            const BoxConstraints(minHeight: 75), // Set the minimum height
+        child: IntrinsicHeight(
+          child: Padding(
+            padding: const EdgeInsets.all(0.0),
+            child: Stack(
+              children: [
+                _buildIcon(icon),
+                _buildDescription(data),
               ],
             ),
           ),
@@ -234,22 +425,35 @@ class _CardPageState extends State<CardPage> {
       ),
     );
   }
-
+                         
   Widget _buildDescription(String? data) {
+    final bool hasData = data?.isNotEmpty == true;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const SizedBox(width: 40), // Width for the icon
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: data?.contains('\n') == true
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
             children: [
               Flexible(
                 child: Text(
-                  data ?? '',
-                  style: const TextStyle(fontSize: 18, color: Colors.white),
+                  hasData ? data! : 'Tap to add description',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: hasData
+                        ? Colors.black
+                        : Colors.grey, // Set color based on data presence
+                  ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 10,
+                  textAlign: data?.contains('\n') == true
+                      ? TextAlign.start
+                      : TextAlign.center, // Check if multiline or not
                 ),
               ),
             ],
@@ -308,12 +512,17 @@ class _CardPageState extends State<CardPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          children: avatars,
-        ),
-        const SizedBox(
-          width: 8,
+          children: [
+            for (Widget avatar in avatars)
+              Padding(
+                padding: const EdgeInsets.only(
+                    right: 4.0), // Adjust spacing as needed
+                child: avatar,
+              ),
+          ],
         ),
         GestureDetector(
+          key: _buttonKey, // Assign the GlobalKey to the green button
           onTap: () {
             _showCardOptionsMenu(context, widget.card);
           },
@@ -337,7 +546,9 @@ class _CardPageState extends State<CardPage> {
   }
 
   void _showCardOptionsMenu(BuildContext context, CardModel card) {
-    final RenderBox button = context.findRenderObject() as RenderBox;
+    // Use the GlobalKey to get the position of the green button
+    final RenderBox button =
+        _buttonKey.currentContext!.findRenderObject() as RenderBox;
     final Offset buttonPosition = button.localToGlobal(Offset.zero);
 
     final List<MemberModel> cardMembers = widget.members
@@ -352,7 +563,7 @@ class _CardPageState extends State<CardPage> {
       context: context,
       position: RelativeRect.fromLTRB(
         buttonPosition.dx,
-        buttonPosition.dy,
+        buttonPosition.dy + 40,
         buttonPosition.dx,
         buttonPosition.dy,
       ),
@@ -365,6 +576,17 @@ class _CardPageState extends State<CardPage> {
         for (final member in boardMembers)
           PopupMenuItem(
             value: 'board_member_${member.id}',
+            onTap: () {
+              // Remove the card member from the card
+              _cardsController.addMemberToCard(
+                memberId: member.id,
+                cardId: card.id,
+                onAdded: () {
+                  widget.updateMemberCardIds(member.id, card.id, true);
+                  setState(() {});
+                },
+              );
+            },
             child: ListTile(
               title: Text(member.name),
               leading: CircleAvatar(
@@ -381,6 +603,17 @@ class _CardPageState extends State<CardPage> {
         for (final member in cardMembers)
           PopupMenuItem(
             value: 'card_member_${member.id}',
+            onTap: () {
+              // Remove the card member from the card
+              _cardsController.removeMemberFromCard(
+                memberId: member.id,
+                cardId: card.id,
+                onDeleted: () {
+                  widget.updateMemberCardIds(member.id, card.id, false);
+                  setState(() {});
+                },
+              );
+            },
             child: ListTile(
               title: Text(member.name),
               leading: CircleAvatar(

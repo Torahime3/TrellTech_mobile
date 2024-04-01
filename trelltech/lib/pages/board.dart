@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -12,6 +14,7 @@ import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/utils/colormap_utils.dart';
 import 'package:trelltech/utils/materialcolor_utils.dart';
 import 'package:trelltech/widgets/appbar.dart';
+import 'package:trelltech/widgets/member_avatar.dart';
 
 import 'card.dart';
 
@@ -38,7 +41,6 @@ class _BoardPageState extends State<BoardPage> {
   List<ListModel> lists = [];
   List<List<CardModel>> allCards = [];
   List<MemberModel> members = [];
-  Map<String, List<MemberModel>> cardAssignedMembers = {};
 
   @override
   void initState() {
@@ -47,40 +49,123 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   void _loadInfo() async {
+    loadBoardMembers();
     final fetchedLists = await _listsController.getLists(board: widget.board);
     final fetchedCards = await Future.wait(
         fetchedLists.map((list) => _cardsController.getCards(list: list)));
     setState(() {
       lists = fetchedLists;
       allCards = fetchedCards;
-      _loadMembers();
+      _loadCardMembers();
     });
   }
 
-  void _loadMembers() async {
+  void updateCardById(String cardId,
+      {String? name, String? startDate, String? dueDate}) {
+    for (int i = 0; i < allCards.length; i++) {
+      int index = allCards[i].indexWhere((card) => card.id == cardId);
+      if (index != -1) {
+        CardModel updatedCard = allCards[i][index];
+        if (name != null) {
+          updatedCard.name = name;
+        }
+        if (startDate != null) {
+          updatedCard.startDate = startDate;
+        }
+        if (dueDate != null) {
+          updatedCard.dueDate = dueDate;
+        }
+
+        setState(() {
+          allCards[i][index] = updatedCard;
+        });
+        break;
+      }
+    }
+  }
+
+  void loadBoardMembers() async {
     try {
       List<MemberModel> boardMembers =
           await _memberController.getBoardMembers(widget.board.id);
-      List<MemberModel> allMembers = List.from(boardMembers);
 
+      // Generate initials for board members
+      for (MemberModel member in boardMembers) {
+        member.initials = generateInitials(member.name);
+        print("Member Name: ${member.name}, Initials: ${member.initials}");
+      }
+
+      setState(() {
+        members = List.from(boardMembers);
+      });
+    } catch (e) {
+      print('Error loading members: $e');
+    }
+  }
+
+  void _loadCardMembers() async {
+    try {
       for (List<CardModel> cardList in allCards) {
         for (CardModel card in cardList) {
           List<MemberModel> cardMemberList =
               await _memberController.getCardMembers(card.id);
 
           for (MemberModel member in cardMemberList) {
-            member.cardIds.add(card.id);
+            // Check if the member already exists in members list
+            MemberModel existingMember = members.firstWhere(
+              (m) => m.id == member.id,
+              orElse: () => member,
+            );
+
+            // Add cardId to member's cardIds list if it's not already present
+            if (!existingMember.cardIds.contains(card.id)) {
+              existingMember.cardIds.add(card.id);
+            }
+
+            // If the member was not already in the list, add it
+            if (!members.contains(existingMember)) {
+              members.add(existingMember);
+            }
           }
-          allMembers.addAll(cardMemberList);
         }
       }
 
       setState(() {
-        members = allMembers;
+        print("_loadMembers executed sucessfully");
       });
     } catch (e) {
-      ('Error loading members: $e');
+      print('Error loading members: $e');
     }
+  }
+
+  void updateMemberCardIds(String memberId, String newCardId, bool isAdding) {
+    int index = members.indexWhere((member) => member.id == memberId);
+    if (index != -1) {
+      MemberModel updatedMember = members[index];
+
+      // Add or remove the card ID based on the 'add' flag
+      if (isAdding) {
+        updatedMember.cardIds.add(newCardId);
+      } else {
+        updatedMember.cardIds.remove(newCardId);
+      }
+
+      setState(() {
+        members[index] = updatedMember;
+      });
+    }
+  }
+
+  String generateInitials(String name) {
+    List<String> nameParts = name.split(' ');
+    String initials = '';
+
+    // Take the first letter of each word in the name
+    for (String part in nameParts) {
+      initials += part[0];
+    }
+
+    return initials.toUpperCase();
   }
 
   void moveListBetween(
@@ -400,6 +485,8 @@ class _BoardPageState extends State<BoardPage> {
                             board: widget.board,
                             boardColor: widget.boardColor,
                             members: members,
+                            updateCardById: updateCardById,
+                            updateMemberCardIds: updateMemberCardIds,
                           ),
                         ),
                       );
@@ -748,7 +835,7 @@ class _BoardPageState extends State<BoardPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  AxisAlignment: MainAxisAlignment.start,
                   children: [
                     Expanded(
                       // Wrap text widget with Expanded
@@ -790,6 +877,12 @@ class _BoardPageState extends State<BoardPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget avatarRow({required List<Widget> avatars}) {
+    return Row(
+      children: avatars,
     );
   }
 }

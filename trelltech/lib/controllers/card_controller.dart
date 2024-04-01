@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -72,16 +74,38 @@ class CardController {
     }
   }
 
-  Future<CardModel> update(cardId, value) async {
+  Future<CardModel> update(String cardId,
+      {String? name, String? startDate, String? dueDate}) async {
     String apiToken = (await getApiToken())!;
     final url = Uri.parse(
-        'https://api.trello.com/1/cards/$cardId?key=$apiKey&token=$apiToken&name=$value');
-    final response = await client.put(url);
+        'https://api.trello.com/1/cards/$cardId?key=$apiKey&token=$apiToken');
+
+    Map<String, dynamic> body = {};
+
+    if (name != null) {
+      body['name'] = name;
+    }
+
+    if (startDate != null && startDate.isNotEmpty) {
+      body['start'] = startDate;
+    }
+
+    if (dueDate != null) {
+      body['due'] = dueDate;
+      body['dueComplete'] = true;
+    }
+
+    final response = await client.put(
+      url,
+      body: jsonEncode(body),
+      headers: {'Content-Type': 'application/json'},
+    );
+
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       return CardModel.fromJson(jsonResponse);
     } else {
-      throw Exception("Board not updated");
+      throw Exception("Card not updated");
     }
   }
 
@@ -135,6 +159,69 @@ class CardController {
       }
     } else {
       throw Exception("Description Update failed");
+    }
+  }
+
+  Future<void> addMemberToCard({
+    required String memberId,
+    required String cardId,
+    void Function()? onAdded,
+  }) async {
+    String apiToken = (await getApiToken())!;
+    try {
+      final url = Uri.parse(
+          'https://api.trello.com/1/cards/$cardId/idMembers?key=$apiKey&token=$apiToken');
+
+      final response = await http.post(
+        url,
+        body: {
+          'value': memberId,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Successful update, trigger the onUpdated callback if provided
+        if (onAdded != null) {
+          onAdded();
+        }
+      } else {
+        // Handle other status codes, such as 400 for bad request
+        throw Exception(
+            'Failed to add member to card: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      // Handle any exceptions, such as network errors
+      throw Exception('Failed to add member to card: $e');
+    }
+  }
+
+  Future<void> removeMemberFromCard({
+    required String memberId,
+    required String cardId,
+    void Function()? onDeleted,
+  }) async {
+    String apiToken = (await getApiToken())!;
+    try {
+      final url = Uri.parse(
+          'https://api.trello.com/1/cards/$cardId/idMembers/$memberId?key=$apiKey&token=$apiToken');
+
+      final response = await http.delete(
+        url,
+      );
+
+      if (response.statusCode == 200) {
+        // Successful update, trigger the onUpdated callback if provided
+        if (onDeleted != null) {
+          onDeleted();
+        }
+      } else {
+        // Handle other status codes, such as 400 for bad request
+        throw Exception(
+            'Failed to remove member from card: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      // Handle any exceptions, such as network errors
+      throw Exception('Failed to remove member from card: $e');
     }
   }
 }
