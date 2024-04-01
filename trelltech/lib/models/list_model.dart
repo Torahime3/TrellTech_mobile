@@ -3,7 +3,7 @@ import 'package:trelltech/controllers/list_controller.dart';
 class ListModel {
   String name;
   String id;
-  int pos;
+  double pos;
 
   ListModel({required this.name, required this.id, this.pos = 0});
 
@@ -15,7 +15,7 @@ class ListModel {
     return id;
   }
 
-  int getPos() {
+  double getPos() {
     return pos;
   }
 
@@ -23,7 +23,7 @@ class ListModel {
     return ListModel(
       name: json['name'],
       id: json['id'],
-      pos: json['pos'],
+      pos: double.parse(json['pos'].toString()),
     );
   }
 
