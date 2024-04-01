@@ -199,20 +199,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (input.isNotEmpty && selectedButton.isNotEmpty) {
       // Both text and selectedButton are available
       switch(selectedButton) {
-        case "Company Overview":
+        case "1-on-1 Meeting Agenda":
           idBoardSource = '5b2281bb004ac866019e51fa';
           break;
 
       }
       _boardController.createTemplate(input, workspaceId, idBoardSource);
-      print("HERE!!!!!!!!!");
-    } 
-    // else if (text.isNotEmpty) {
-    //   // Only text is available
-    //   print('Text: $text');
-    // }
-    // Clear selections
-
+    } else if (input.isNotEmpty && selectedButton.isEmpty) {
+      _boardController.create(
+        name: input, 
+        id: workspaceId, 
+        onCreated: () {
+                _loadInfo();
+        }
+      );
+    }
+    selectedButton = '';
   }
 
   @override
@@ -395,7 +397,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                             255, 49, 49, 49),
                                                     onFieldSubmitted:
                                                         (String value) {
-                                                          _handle(value, workspaces[index].id);
+                                                          if (value.isNotEmpty) {
+                                                            _handle(value, workspaces[index].id);
+                                                          }
                                                           // _boardController.create(
                                                           //   name: value,
                                                           //   id: workspaces[index].id,
@@ -412,22 +416,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                   spacing: 10,
                                                   children: List.generate(
                                                     buttonNames.length,
-                                                    (index) => GestureDetector(
+                                                    (buttonIndex) => GestureDetector(
                                                       onTap: () {
                                                         setState(() {
-                                                          selectedButton = buttonNames[index];
+                                                          selectedButton = buttonNames[buttonIndex];
                                                         });
-                                                        _loadInfo();
+                                                        // _loadInfo();
                                                       },
                                                       child: Container(
                                                         padding: const EdgeInsets.all(10),
                                                         decoration: BoxDecoration(
-                                                          color: selectedButton == buttonNames[index]
+                                                          color: selectedButton == buttonNames[buttonIndex]
                                                               ? Colors.black
                                                               : Colors.grey,
                                                           borderRadius: BorderRadius.circular(5),
                                                         ),
-                                                        child: Text(buttonNames[index], style: const TextStyle(color: Colors.white),),
+                                                        child: Text(buttonNames[buttonIndex], style: const TextStyle(color: Colors.white),),
                                                       ),
                                                     )
                                                   )
