@@ -1,7 +1,5 @@
 # TrellTech (T-DEV-600)
 
-## Licence
-
 ## Introduction 📖
 The aim of this project is to create an client side application of the Trello board. The application will be able to create, edit and delete boards, lists and cards. The application will also be able to move cards between lists and boards.
 
