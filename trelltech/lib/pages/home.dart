@@ -192,12 +192,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
 
-  _handle(input, workspaceId) {
+  _handleSubmit(input, workspaceId) {
 
     String idBoardSource = '';
 
     if (input.isNotEmpty && selectedButton.isNotEmpty) {
-      // Both text and selectedButton are available
+      // Both name and template are available (Either custom name or template name)
       switch(selectedButton) {
         case "1-on-1 Meeting Agenda":
           idBoardSource = '5b2281bb004ac866019e51fa';
@@ -207,6 +207,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       _boardController.createTemplate(input, workspaceId, idBoardSource);
       _loadInfo();
     } else if (input.isNotEmpty && selectedButton.isEmpty) {
+      // Only name is given (No template)
       _boardController.create(
         name: input, 
         id: workspaceId, 
@@ -400,7 +401,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                     onFieldSubmitted:
                                                         (String value) {
                                                           if (value.isNotEmpty) {
-                                                            _handle(value, workspaces[index].id);
+                                                            _handleSubmit(value, workspaces[index].id);
                                                           }
                                                           // _boardController.create(
                                                           //   name: value,
