@@ -446,6 +446,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                         },
                                                         child: Container(
                                                           padding: const EdgeInsets.all(10),
+                                                          margin: const EdgeInsets.all(5),
                                                           decoration: BoxDecoration(
                                                             color: selectedButton == buttonNames[buttonIndex]
                                                                 ? Colors.black
