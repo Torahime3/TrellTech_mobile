@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:trelltech/controllers/member_controller.dart';
+import 'package:trelltech/models/member_model.dart';
 import 'package:trelltech/pages/home.dart';
 import 'package:trelltech/storage/authtoken_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,9 +20,11 @@ class TrelloAuthScreen extends StatefulWidget {
 }
 
 class _TrelloAuthScreenState extends State<TrelloAuthScreen> {
+  String? fullName;
   String? authToken;
   Function(String?) listener = (String? token) => {};
   final AuthTokenStorage _authTokenStorage = AuthTokenStorage();
+  final MemberController _memberController = MemberController();
 
   _TrelloAuthScreenState() {
     listener = (String? token) {
@@ -40,9 +44,15 @@ class _TrelloAuthScreenState extends State<TrelloAuthScreen> {
     setAuthToken(await _authTokenStorage.getAuthToken());
   }
 
-  void setAuthToken(String? token) {
+  void setAuthToken(String? token) async {
     setState(() {
       authToken = token;
+      if (token == null) return;
+      Future<MemberModel> user =
+          _memberController.getMemberDetailsByToken(token: token);
+      user.then((value) {
+        fullName = value.name;
+      });
     });
   }
 
@@ -65,14 +75,18 @@ class _TrelloAuthScreenState extends State<TrelloAuthScreen> {
             const SizedBox(height: 30),
             Text(
                 authToken != null
-                    ? 'Vous êtes authentifié'
+                    ? 'Vous êtes authentifié \n Bienvenue $fullName !'
                     : 'Vous n\'êtes pas authentifié',
-                style: const TextStyle(fontSize: 20)),
+                style: const TextStyle(
+                  fontSize: 20,
+                )),
             const SizedBox(height: 20),
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
-                backgroundColor: Colors.blue,
+                backgroundColor: authToken == null
+                    ? const Color.fromARGB(255, 56, 166, 255)
+                    : Colors.grey,
                 minimumSize: const Size(200, 40),
               ),
               onPressed: () async {
