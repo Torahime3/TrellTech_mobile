@@ -1,9 +1,10 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
-import 'package:trelltech/models/board_model.dart';
-import 'package:trelltech/widgets/appbar.dart';
 import 'package:trelltech/controllers/controller.dart';
+import 'package:trelltech/models/board_model.dart';
+import 'package:trelltech/utils/materialcolor_utils.dart';
+import 'package:trelltech/widgets/appbar.dart';
 import 'package:trelltech/widgets/list.dart';
 import 'package:trelltech/widgets/list_dialog.dart';
 
@@ -131,7 +132,7 @@ class _BoardPageState extends State<BoardPage> {
                           margin: const EdgeInsets.symmetric(horizontal: 8.0),
                           padding: const EdgeInsets.all(16.0),
                           decoration: BoxDecoration(
-                            color: Colors.black,
+                            color: getMaterialColor(boardColor).shade400,
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                           child: const Text(
@@ -139,6 +140,7 @@ class _BoardPageState extends State<BoardPage> {
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
