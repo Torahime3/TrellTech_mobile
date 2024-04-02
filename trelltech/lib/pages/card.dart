@@ -5,10 +5,9 @@ import 'package:trelltech/models/board_model.dart';
 import 'package:trelltech/models/card_model.dart';
 import 'package:trelltech/models/label_model.dart';
 import 'package:trelltech/models/member_model.dart';
-import 'package:trelltech/utils/materialcolor_utils.dart';
-import 'package:trelltech/utils/date_format.dart';
 import 'package:trelltech/utils/colormap_utils.dart';
-
+import 'package:trelltech/utils/date_format.dart';
+import 'package:trelltech/utils/materialcolor_utils.dart';
 import 'package:trelltech/widgets/appbar.dart';
 import 'package:trelltech/widgets/member_avatar.dart';
 

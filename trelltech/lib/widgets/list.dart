@@ -1,12 +1,11 @@
 import "package:flutter/material.dart";
+import "package:trelltech/controllers/controller.dart";
 import "package:trelltech/models/card_model.dart";
-
 import "package:trelltech/models/list_model.dart";
 import "package:trelltech/pages/card.dart";
 import "package:trelltech/utils/materialcolor_utils.dart";
 import "package:trelltech/widgets/add_card.dart";
 import "package:trelltech/widgets/card.dart";
-import "package:trelltech/controllers/controller.dart";
 import "package:trelltech/widgets/popup.dart";
 
 class ListWidget extends StatefulWidget {
