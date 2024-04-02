@@ -123,7 +123,7 @@ class _CardPageState extends State<CardPage> {
       child: Row(
         children: [
           const Icon(Icons.schedule),
-          const SizedBox(width: 20),
+          const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
