@@ -150,7 +150,7 @@ class _CardPageState extends State<CardPage> {
               const SizedBox(height: 10),
               Container(
                 height: 2,
-                width: 280,
+                width: 260,
                 color: Colors.black,
               ),
               const SizedBox(height: 10),
