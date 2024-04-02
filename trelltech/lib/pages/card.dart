@@ -425,7 +425,7 @@ class _CardPageState extends State<CardPage> {
                         : Colors.grey, // Set color based on data presence
                   ),
                   overflow: TextOverflow.ellipsis,
-                  maxLines: 10,
+                  maxLines: 100,
                   textAlign: data?.contains('\n') == true
                       ? TextAlign.start
                       : TextAlign.center, // Check if multiline or not
